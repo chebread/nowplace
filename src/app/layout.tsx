@@ -7,6 +7,7 @@ import { ThemeProvider } from 'next-themes';
 import GlobalStyle from '@/style/global.css';
 import { Metadata } from 'next';
 import { Analytics } from '@vercel/analytics/react';
+import { Toaster } from 'sonner';
 
 export const metadata: Metadata = {
   metadataBase: new URL('https://nowplace.kr/'),
@@ -30,13 +31,16 @@ export default function RootLayout({ children }: RootLayoutProps) {
     >
       <body suppressHydrationWarning>
         {/* Warning: Extra attributes from the server: cz-shortcut-listen */}
-        <ThemeProvider>
+        <>
+          {/* ThemeProvider */}
           <StyledComponentsRegistry>
             <GlobalStyle />
-            {children}
+            <Toaster position="bottom-center" />
+            <div vaul-drawer-wrapper="">{children}</div>
+            {/* vaul의 shouldScaleBackground를 사용하기 위해서는 vaul-drawer-wrapper가 필요함 */}
           </StyledComponentsRegistry>
           <Analytics />
-        </ThemeProvider>
+        </>
       </body>
     </html>
   );
