@@ -17,8 +17,10 @@
     "react": "^18",
     "react-dom": "^18",
     "react-kakao-maps-sdk": "^1.1.27",
+    "sonner": "^1.5.0",
     "styled-components": "^6.1.12",
-    "url-loader": "^4.1.1"
+    "url-loader": "^4.1.1",
+    "vaul": "^0.9.1"
   },
   "devDependencies": {
     "@types/navermaps": "^3.7.5",

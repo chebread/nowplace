@@ -6,6 +6,7 @@
 'use client';
 
 import KakaoMap from '@/components/kakao-map';
+import { Drawer } from 'vaul';
 import SvgLogo from '@/assets/icons/logo.svg';
 import {
   StyledCopyright,
@@ -19,6 +20,8 @@ import {
 } from './home.css';
 
 export default function Home() {
+  const copyright = `© ${new Date().getFullYear()} Cha Haneum`;
+
   return (
     <StyledMain>
       {/* <StyledHeader>
@@ -33,9 +36,7 @@ export default function Home() {
             <StyledLogo>
               <SvgLogo />
             </StyledLogo>
-            <StyledCopyright>
-              © {new Date().getFullYear()} Cha Haneum
-            </StyledCopyright>
+            <StyledCopyright>{copyright}</StyledCopyright>
           </StyledFooterItem>
           <StyledFooterItem>hello</StyledFooterItem>
         </StyledFooter>
