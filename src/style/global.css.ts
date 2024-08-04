@@ -338,10 +338,21 @@ const GlobalStyle = createGlobalStyle`
     flex-direction: column;
     position: relative;
   }
-  // reset code
+  // reset codes
   pre,
   code {
     font-family: var(--font-mono);
+  }
+
+  button {
+    background: none;
+    color: inherit;
+    border: none;
+    padding: 0;
+    font: inherit;
+    cursor: pointer;
+    outline: inherit;
+    -webkit-tap-highlight-color: transparent; // 비표준 
   }
 `;
 

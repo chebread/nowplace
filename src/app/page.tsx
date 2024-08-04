@@ -9,35 +9,119 @@ import KakaoMap from '@/components/kakao-map';
 import { Drawer } from 'vaul';
 import SvgLogo from '@/assets/icons/logo.svg';
 import {
+  DrawerContent,
+  DrawerContents,
+  DrawerHandleBar,
+  DrawerModal,
+  DrawerOverlay,
   StyledCopyright,
   StyledFooter,
   StyledFooterItem,
   StyledFooterLayout,
+  StyledFooterSettingsBtn,
   StyledHeader,
   StyledLogo,
   StyledMain,
   StyledMap,
 } from './home.css';
+import styled from 'styled-components';
+import { DrawerTitle } from '../utils/test/test.css';
+import { toast } from 'sonner';
+import { useEffect, useState } from 'react';
 
 export default function Home() {
   const copyright = `© ${new Date().getFullYear()} Cha Haneum`;
+  const defaultLevel = 5; // 상수 선언 => 추후 변경값이면 useRef로 Wrapping 하기
+  const defaultCenter = { lat: 36.3677, lng: 127.4365 };
+  const geolocationOptions = {
+    enableHighAccuracy: true,
+    timeout: Infinity,
+    maximumAge: 0,
+  };
+  const [location, setLocation] = useState<{
+    lat: number;
+    lng: number;
+  }>();
+  const [mounted, setMounted] = useState<boolean>();
+
+  useEffect(() => {
+    const showSuccess = (coords: any) => {
+      const { latitude, longitude } = coords;
+      setLocation({ lat: latitude, lng: longitude });
+    };
+    const showError = (error: any) => {
+      switch (error.code) {
+        case error.PERMISSION_DENIED:
+          toast.error('Geolocation API의 사용이 거부되었습니다.');
+          break;
+        case error.POSITION_UNAVAILABLE:
+          toast.error('가져온 위치 정보를 사용할 수 없습니다.');
+          break;
+        case error.TIMEOUT:
+          toast.error(
+            '위치 정보를 가져오기 위한 요청이 허용 시간을 초과했습니다.'
+          );
+          break;
+        default:
+          toast.error(
+            '위치를 가져오는 과정에서 알 수 없는 오류가 발생했습니다.'
+          );
+          break;
+      }
+    };
+
+    if ('geolocation' in navigator) {
+      navigator.geolocation.getCurrentPosition(
+        ({ coords }) => showSuccess(coords),
+        error => showError(error),
+        geolocationOptions
+      );
+    } else {
+      // geolocation 지원하지 않음
+      setLocation(defaultCenter);
+    }
+  }, []);
+
+  useEffect(() => {
+    // Fetch data from API if `location` object is set
+    if (location) {
+      console.log('onload', location);
+      setMounted(true);
+      // 이거하기 전까지는 로딩창 띄우기
+    }
+  }, [location]);
 
   return (
     <StyledMain>
-      {/* <StyledHeader>
-        <SvgLogo />
-      </StyledHeader> */}
       <StyledMap>
         <KakaoMap></KakaoMap>
       </StyledMap>
       <StyledFooterLayout>
         <StyledFooter>
-          <StyledFooterItem>
-            <StyledLogo>
-              <SvgLogo />
-            </StyledLogo>
-            <StyledCopyright>{copyright}</StyledCopyright>
-          </StyledFooterItem>
+          <Drawer.Root shouldScaleBackground>
+            {/* shouldScaleBackground */}
+            <Drawer.Trigger asChild>
+              <StyledFooterItem>
+                <StyledFooterSettingsBtn>
+                  <StyledLogo>
+                    <SvgLogo />
+                  </StyledLogo>
+                  <StyledCopyright>{copyright}</StyledCopyright>
+                </StyledFooterSettingsBtn>
+              </StyledFooterItem>
+            </Drawer.Trigger>
+            <Drawer.Portal>
+              <DrawerOverlay />
+              <DrawerContent>
+                <DrawerModal>
+                  <DrawerHandleBar />
+                  <DrawerContents>
+                    <DrawerTitle>설정</DrawerTitle>
+                  </DrawerContents>
+                </DrawerModal>
+              </DrawerContent>
+            </Drawer.Portal>
+          </Drawer.Root>
           <StyledFooterItem>hello</StyledFooterItem>
         </StyledFooter>
       </StyledFooterLayout>
