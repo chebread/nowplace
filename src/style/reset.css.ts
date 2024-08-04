@@ -1,8 +1,6 @@
-// global.css
-
 'use client';
 
-import { createGlobalStyle, css } from 'styled-components';
+import { css } from 'styled-components';
 
 const reset = css`
   html {
@@ -153,53 +151,4 @@ const reset = css`
   }
 `;
 
-const GlobalStyle = createGlobalStyle`
-  ${reset} // temporary code. later this code must be below 'reset code'
-
-  :root {
-    /* Typography */
-    --font-sans: var(--font-geist-sans), -apple-system, BlinkMacSystemFont, 'Roboto',
-      'Helvetica Neue', sans-serif;
-    --font-mono: var(--font-geist-mono), 'SFMono-Regular', 'Consolas', 'Liberation Mono', 'Menlo',
-      monospace;
-
-    /* Colors */
-    --bg: #ffffff;
-    --fg: #000000;
-  }
-
-  [data-theme='dark'] {
-    /* Colors */
-    --bg: #000000;
-    --fg: #ffffff;
-  }
-
-  html,
-  body {
-    padding: 0;
-    margin: 0;
-    background: var(--bg);
-    color: var(--fg);
-    text-rendering: optimizeLegibility;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-    -webkit-text-size-adjust: 110%;
-    font-size: 16px; // 1rem = 16px
-    line-height: 1.55em;
-  }
-
-  body {
-    min-height: 100vh;
-    font-family: var(--font-sans);
-    display: flex;
-    flex-direction: column;
-    position: relative;
-  }
-  // reset code
-  pre,
-  code {
-    font-family: var(--font-mono);
-  }
-`;
-
-export default GlobalStyle;
+export default reset;

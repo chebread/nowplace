@@ -1,8 +1,10 @@
+// 'use client' 없으면 Server component임
+
 import StyledComponentsRegistry from '@/lib/registry';
 import { GeistSans } from 'geist/font/sans';
 import { GeistMono } from 'geist/font/mono';
 import { ThemeProvider } from 'next-themes';
-import GlobalStyle from '@/components/global-style';
+import GlobalStyle from '@/style/global.css';
 import { Metadata } from 'next';
 import { Analytics } from '@vercel/analytics/react';
 
@@ -15,18 +17,19 @@ export const metadata: Metadata = {
   description: 'NowPlace는 장소를 저장하고 공유하는 위치 기반 서비스입니다.',
 };
 
-export default function RootLayout({
-  children,
-}: {
+type RootLayoutProps = {
   children: React.ReactNode;
-}) {
+};
+
+export default function RootLayout({ children }: RootLayoutProps) {
   return (
     <html
       lang="ko"
       suppressHydrationWarning
       className={`${GeistSans.variable} ${GeistMono.variable}`}
     >
-      <body>
+      <body suppressHydrationWarning>
+        {/* Warning: Extra attributes from the server: cz-shortcut-listen */}
         <ThemeProvider>
           <StyledComponentsRegistry>
             <GlobalStyle />
