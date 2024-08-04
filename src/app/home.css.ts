@@ -45,6 +45,10 @@ export const StyledFooter = styled.footer`
 export const StyledFooterItem = styled.div`
   display: flex;
   flex-direction: column;
+  justify-content: center;
+  &:first-child {
+    cursor: pointer;
+  }
 `;
 
 export const StyledLogo = styled.div`
@@ -55,7 +59,7 @@ export const StyledLogo = styled.div`
 `;
 
 export const StyledCopyright = styled.div`
-  font-size: 0.8rem;
+  font-size: 0.7rem;
   line-height: 1;
-  color: var(--rose-400);
+  color: var(--gray-500); // instagram color: #737373
 `;
