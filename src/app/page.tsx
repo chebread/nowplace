@@ -2,6 +2,11 @@
 // 1.1. 위치 실패시 또는 위치 거부시 ip로 현재 위치 가져오기
 // 2. 위치를 가져오기 전까지는 로딩 페이지 출력함
 // 3. 장소 추가하기는 하단부 클릭시 추가가능 (블링크 처럼)
+// 로직 간소화 하기
+
+// 1. 로그인 / 데이터 로드하기 => 로딩화면
+// 2. 지도 띄우기
+// 2. 현재위치 마커가 돌아가면서 현재위치 구함
 
 'use client';
 
@@ -44,32 +49,30 @@ export default function Home() {
   }>();
   const [mounted, setMounted] = useState<boolean>();
 
-  useEffect(() => {
-    const showSuccess = (coords: any) => {
-      const { latitude, longitude } = coords;
-      setLocation({ lat: latitude, lng: longitude });
-    };
-    const showError = (error: any) => {
-      switch (error.code) {
-        case error.PERMISSION_DENIED:
-          toast.error('Geolocation API의 사용이 거부되었습니다.');
-          break;
-        case error.POSITION_UNAVAILABLE:
-          toast.error('가져온 위치 정보를 사용할 수 없습니다.');
-          break;
-        case error.TIMEOUT:
-          toast.error(
-            '위치 정보를 가져오기 위한 요청이 허용 시간을 초과했습니다.'
-          );
-          break;
-        default:
-          toast.error(
-            '위치를 가져오는 과정에서 알 수 없는 오류가 발생했습니다.'
-          );
-          break;
-      }
-    };
+  const showSuccess = (coords: any) => {
+    const { latitude, longitude } = coords;
+    setLocation({ lat: latitude, lng: longitude });
+  };
+  const showError = (error: any) => {
+    switch (error.code) {
+      case error.PERMISSION_DENIED:
+        toast.error('Geolocation API의 사용이 거부되었습니다.');
+        break;
+      case error.POSITION_UNAVAILABLE:
+        toast.error('가져온 위치 정보를 사용할 수 없습니다.');
+        break;
+      case error.TIMEOUT:
+        toast.error(
+          '위치 정보를 가져오기 위한 요청이 허용 시간을 초과했습니다.'
+        );
+        break;
+      default:
+        toast.error('위치를 가져오는 과정에서 알 수 없는 오류가 발생했습니다.');
+        break;
+    }
+  };
 
+  useEffect(() => {
     if ('geolocation' in navigator) {
       navigator.geolocation.getCurrentPosition(
         ({ coords }) => showSuccess(coords),
@@ -81,7 +84,6 @@ export default function Home() {
       setLocation(defaultCenter);
     }
   }, []);
-
   useEffect(() => {
     // Fetch data from API if `location` object is set
     if (location) {
@@ -91,10 +93,13 @@ export default function Home() {
     }
   }, [location]);
 
-  return (
+  return mounted ? (
     <StyledMain>
       <StyledMap>
-        <KakaoMap></KakaoMap>
+        <KakaoMap
+          level={'5' || defaultLevel}
+          location={location || defaultCenter}
+        ></KakaoMap>
       </StyledMap>
       <StyledFooterLayout>
         <StyledFooter>
@@ -126,5 +131,9 @@ export default function Home() {
         </StyledFooter>
       </StyledFooterLayout>
     </StyledMain>
+  ) : (
+    <>
+      <h1>Loading</h1>
+    </>
   );
 }
