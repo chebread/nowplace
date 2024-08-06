@@ -102,13 +102,21 @@ export default function Home() {
   };
   const startWatchingPosition = () => {
     if (watchId === null) {
+      navigator.geolocation.getCurrentPosition(
+        ({ coords: { latitude, longitude } }) => {
+          console.log('get current pos');
+          console.log('현재 위치:', latitude, longitude);
+          setCurPos({ lat: latitude, lng: longitude });
+          setCenterPos({ lat: latitude, lng: longitude });
+        },
+        error => {}, // handleGeoError(error) 추가시 막 여러개로 toast 뜸
+        geolocationOptions
+      );
       watchId = navigator.geolocation.watchPosition(
-        function (position) {
-          console.log(
-            '현재 위치:',
-            position.coords.latitude,
-            position.coords.longitude
-          );
+        ({ coords: { latitude, longitude } }) => {
+          console.log('watch pos');
+          console.log('현재 위치:', latitude, longitude);
+          setCurPos({ lat: latitude, lng: longitude });
         },
         error => handleGeoError(error),
         geolocationOptions
@@ -121,15 +129,17 @@ export default function Home() {
       navigator.geolocation.clearWatch(watchId);
       watchId = null;
       console.log('위치 추적을 중지했습니다.');
+      setCurPos(undefined);
+      setIsCurPosFetched(false);
     }
   };
-  const changeGeoPermission = (result: any) => {
-    if (result.state === 'granted') {
+  const changeGeoPermission = (state: any) => {
+    if (state === 'granted') {
       setGeoPermission('granted');
       console.log('위치 액세스가 이미 허용되어 있습니다.');
       startWatchingPosition();
     }
-    if (result.state === 'prompt') {
+    if (state === 'prompt') {
       console.log('위치 액세스 권한을 요청할 수 있습니다.');
       // 위치 권한을 요청하고 사용자 응답에 따라 처리
       navigator.geolocation.getCurrentPosition(
@@ -145,67 +155,21 @@ export default function Home() {
         }
       );
     }
-    if (result.state === 'denied') {
+    if (state === 'denied') {
       setGeoPermission('denied');
-      console.log('위치 액세스가 이미 거부되었습니다.');
+      console.log('위치 액세스가 거부되었습니다.');
       stopWatchingPosition();
     }
   };
   const checkGeoPermission = () => {
-    navigator.permissions
-      .query({ name: 'geolocation' })
-      .then(function (result) {
-        if (result.state === 'granted') {
-          setGeoPermission('granted');
-          console.log('위치 액세스가 이미 허용되어 있습니다.');
-          startWatchingPosition();
-        }
-        if (result.state === 'prompt') {
-          console.log('위치 액세스 권한을 요청할 수 있습니다.');
-          // 위치 권한을 요청하고 사용자 응답에 따라 처리
-          navigator.geolocation.getCurrentPosition(
-            position => {
-              setGeoPermission('granted');
-              console.log('위치 액세스가 허용되었습니다.');
-              startWatchingPosition();
-            },
-            error => {
-              setGeoPermission('denied');
-              console.log('위치 액세스가 거부되었습니다.');
-              stopWatchingPosition();
-            }
-          );
-        }
-        if (result.state === 'denied') {
-          setGeoPermission('denied');
-          console.log('위치 액세스가 이미 거부되었습니다.');
-          stopWatchingPosition();
-        }
-        // 권한 상태 변경 감지
-        result.onchange = function () {
-          console.log('위치 권한 상태가 변경되었습니다:', result.state);
-          if (result.state === 'granted') {
-            // permission
-            startWatchingPosition();
-          }
-          if (result.state === 'prompt') {
-            navigator.geolocation.getCurrentPosition(
-              position => {
-                // permission
-                startWatchingPosition();
-              },
-              error => {
-                // denied
-                stopWatchingPosition();
-              }
-            );
-          }
-          if (result.state === 'denied') {
-            // denied
-            stopWatchingPosition();
-          }
-        };
-      });
+    navigator.permissions.query({ name: 'geolocation' }).then(result => {
+      changeGeoPermission(result.state);
+      // 권한 상태 변경 감지
+      result.onchange = () => {
+        console.log('위치 권한 상태가 변경되었습니다:', result.state);
+        changeGeoPermission(result.state);
+      };
+    });
   };
 
   useEffect(() => {
@@ -216,36 +180,25 @@ export default function Home() {
   }, []);
 
   useEffect(() => {
+    // - [ ] 왜 초기에 2번 코드가 실행되는지 모르겠음
     if (!('geolocation' in navigator)) {
+      checkGeoPermission();
+    } else {
       setCurPos(defaultCenter);
+      setCenterPos(defaultCenter);
+      setGeoPermission('denied'); // 사실은 거부됨이 아니라 지원을 안하는 것임
+      // 아래의  if (curPos && !isCurPosFetched) { ... } 실행되게 됨
     }
-    // navigator.geolocation.getCurrentPosition(
-    //   ({ coords }) => {
-    //     console.log(0);
-    //     const { latitude, longitude } = coords;
-    //     setCenterPos({ lat: latitude, lng: longitude });
-    //   },
-    //   error => {}, // handleGeoError(error) 추가시 막 여러개로 toast 뜸
-    //   geolocationOptions
-    // );
-    // const watchId = navigator.geolocation.watchPosition(
-    //   ({ coords }) => {
-    //     console.log(1);
-
-    //     const { latitude, longitude } = coords;
-    //     setCurPos({ lat: latitude, lng: longitude });
-    //   },
-    //   error => handleGeoError(error),
-    //   geolocationOptions
-    // );
-
-    checkGeoPermission();
     return () => {
-      navigator.geolocation.clearWatch(watchId);
+      if ('geolocation' in navigator) {
+        navigator.geolocation.clearWatch(watchId);
+      }
     };
   }, []);
+
   useEffect(() => {
     if (curPos && !isCurPosFetched) {
+      // && !isCurPosFetched 코드가 없으면 watchPosition시에 이 코드가 또 실행되게 됨
       // isCurPos가 false일때만
       console.log('onload');
       setIsCurPosFetched(true); // 현재위치 불러옴
@@ -263,10 +216,10 @@ export default function Home() {
           onCenterChanged={(map: kakao.maps.Map) => {
             updateCenterPos(map);
           }}
-          onZoomStart={handleMotionDetected}
+          // onZoomStart={handleMotionDetected} // - [ ] isTracking 시에는 zoom 하면 center 좌표를 중심으로 zoom 되기 기능 만들기
           onDragStart={handleMotionDetected}
         >
-          <MapMarker position={curPos || defaultCenter} />
+          {curPos && <MapMarker position={curPos} />}
         </KakaoMap>
       </StyledMap>
       <StyledFooterLayout>
@@ -287,11 +240,7 @@ export default function Home() {
               <DrawerContent>
                 <DrawerModal>
                   <DrawerHandleBar />
-                  <DrawerContents>
-                    <button onClick={() => setIsCurPosFetched(false)}>
-                      hello
-                    </button>
-                  </DrawerContents>
+                  <DrawerContents></DrawerContents>
                 </DrawerModal>
               </DrawerContent>
             </Drawer.Portal>
