@@ -1,6 +1,54 @@
 import styled from 'styled-components';
 import { Drawer } from 'vaul';
 
+/* Drawer */
+export const DrawerOverlay = styled(Drawer.Overlay)`
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  background-color: rgba(0, 0, 0, 0.4);
+`;
+export const DrawerContent = styled(Drawer.Content)`
+  /* background-color: var(--zinc-100); */
+  background-color: #ffffff;
+  display: flex;
+  flex-direction: column;
+  border-top-left-radius: 10px;
+  border-top-right-radius: 10px;
+  height: 96%; // 크기 결정
+  margin-top: 96px;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 10000; // 최상단 위치
+`;
+export const DrawerModal = styled.div`
+  padding: 16px;
+  background-color: white;
+  border-top-left-radius: 10px;
+  border-top-right-radius: 10px;
+  flex: 1 1 0%;
+`;
+export const DrawerHandleBar = styled.div`
+  margin-left: auto;
+  margin-right: auto;
+  width: 48px;
+  height: 6px;
+  flex-shrink: 0;
+  border-radius: 9999px;
+  background-color: var(--zinc-300);
+  margin-bottom: 2rem;
+`;
+export const DrawerContents = styled.div`
+  max-width: 40rem;
+  height: 100%;
+  margin-left: auto;
+  margin-right: auto;
+`;
+/* styling */
 export const StyledMain = styled.main``;
 
 export const StyledMap = styled.div`
@@ -39,7 +87,7 @@ export const StyledFooterLayout = styled.div`
 
 export const StyledFooter = styled.footer`
   height: 100%;
-  width: 50rem;
+  width: 40rem;
   display: flex;
   flex-direction: row;
   justify-content: space-between;
@@ -64,7 +112,7 @@ export const StyledCopyright = styled.div`
   color: var(--gray-500); // instagram color: #737373
 `;
 
-export const StyledFooterSettingsBtn = styled.button`
+export const StyledShowMoreBtn = styled.button`
   user-select: none; // text 선택 방지
   display: flex;
   flex-direction: column;
@@ -73,49 +121,34 @@ export const StyledFooterSettingsBtn = styled.button`
   width: 100%;
 `;
 
-/* Drawer */
-export const DrawerOverlay = styled(Drawer.Overlay)`
-  position: fixed;
-  top: 0;
-  right: 0;
-  bottom: 0;
-  left: 0;
-  background-color: rgba(0, 0, 0, 0.4);
-`;
-export const DrawerContent = styled(Drawer.Content)`
-  background-color: var(--zinc-100);
+export const StyledFooterBtnWrapper = styled.div`
   display: flex;
-  flex-direction: column;
-  border-top-left-radius: 10px;
-  border-top-right-radius: 10px;
-  height: 96%; // 크기 결정
-  margin-top: 96px;
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  z-index: 10000; // 최상단 위치
+  flex-direction: row;
+  align-items: center;
 `;
-export const DrawerModal = styled.div`
-  padding: 16px;
-  background-color: white;
-  border-top-left-radius: 10px;
-  border-top-right-radius: 10px;
-  flex: 1 1 0%;
-`;
-export const DrawerHandleBar = styled.div`
-  margin-left: auto;
-  margin-right: auto;
-  width: 48px;
-  height: 6px;
-  flex-shrink: 0;
-  border-radius: 9999px;
-  background-color: var(--zinc-300);
-  margin-bottom: 2rem;
-`;
-export const DrawerContents = styled.div`
-  max-width: 50rem;
-  height: 100%;
-  margin-left: auto;
-  margin-right: auto;
+
+export const StyledTrackingBtn = styled.button`
+  cursor: pointer;
+  will-change: transform;
+
+  transition-property: transform;
+  transition-duration: 0.2s;
+  transition-timing-function: ease-out;
+
+  &:active {
+    transform: scale(0.86);
+  }
+
+  background-color: #fff;
+  height: 3rem;
+  width: 3rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  svg {
+    height: 1.75rem;
+    width: 1.75rem;
+  }
+  border-radius: 50%;
+  box-shadow: var(--box-shadow);
 `;

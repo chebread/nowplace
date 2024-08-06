@@ -309,6 +309,9 @@ const GlobalStyle = createGlobalStyle`
     transition-property: transform;
     transition-duration: 0.2s;
     transition-timing-function: ease-out; */
+
+    /* */
+    --box-shadow: 0 10.5px 21px rgba(0, 0, 0, 0.08);
   }
 
   [data-theme='dark'] {
