@@ -130,11 +130,10 @@ export const StyledFooterBtnWrapper = styled.div`
 export const StyledTrackingBtn = styled.button`
   cursor: pointer;
   will-change: transform;
-
-  transition-property: transform;
+  transform: transform var(--transition);
+  /* transition-property: transform;
   transition-duration: 0.2s;
-  transition-timing-function: ease-out;
-
+  transition-timing-function: ease-out; */
   &:active {
     transform: scale(0.86);
   }
@@ -152,3 +151,5 @@ export const StyledTrackingBtn = styled.button`
   border-radius: 50%;
   box-shadow: var(--box-shadow);
 `;
+
+export const StyledDeniedBtn = styled.button``;
