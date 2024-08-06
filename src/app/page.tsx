@@ -184,7 +184,6 @@ export default function Home() {
     if (!('geolocation' in navigator)) {
       checkGeoPermission();
     } else {
-      setCurPos(defaultCenter);
       setCenterPos(defaultCenter);
       setGeoPermission('denied'); // 사실은 거부됨이 아니라 지원을 안하는 것임
       // 아래의  if (curPos && !isCurPosFetched) { ... } 실행되게 됨
