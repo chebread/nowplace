@@ -9,6 +9,7 @@
 // 2. 현재위치 마커가 돌아가면서 현재위치 구함
 // map load 되기 전까지는 maploading 페이지 보여주기
 // 현재 위치 icon 추가하기
+// - [ ] data loading 추가하기
 
 'use client';
 
@@ -58,36 +59,9 @@ export default function Home() {
   // const [isGeoDenied, setIsGeoDenied] = useState(false);
   // const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false); // user log in // localstorage에 저장하기 또는 다른 방법 강구
   const [isTracking, setIsTracking] = useState(false);
-  const [geoPermission, setGeoPermission] = useState('');
+  const [geoPermission, setGeoPermission] = useState(''); // 모든 지도의 권한을 설정함
+  let watchId: any = null;
 
-  const geolocationError = (error: any) => {
-    switch (error.code) {
-      case error.PERMISSION_DENIED:
-        //   // 거부는 언제든지 일어날 수 있음
-        toast.warning('Geolocation API의 사용이 거부되었습니다.');
-        //   setIsGeoDenied(true);
-        //   setCurPos(undefined); // init
-        //   setIsCurPosFetched(false); // init
-        break;
-      case error.POSITION_UNAVAILABLE:
-        toast.warning('가져온 위치 정보를 사용할 수 없습니다.');
-        break;
-      case error.TIMEOUT:
-        toast.warning(
-          '위치 정보를 가져오기 위한 요청이 허용 시간을 초과했습니다.'
-        );
-        break;
-      default:
-        toast.error('위치를 가져오는 과정에서 알 수 없는 오류가 발생했습니다.');
-        break;
-    }
-  };
-  // const updateCenterPos = (map: kakao.maps.Map) => {
-  //   setCenterPos({
-  //     lat: map.getCenter().getLat(),
-  //     lng: map.getCenter().getLng(),
-  //   });
-  // };
   const updateCenterPos = useMemo(
     () =>
       _.debounce((map: kakao.maps.Map) => {
@@ -101,50 +75,171 @@ export default function Home() {
   const handleMotionDetected = () => {
     setIsTracking(false);
   };
+  // geolocation
+  const handleGeoError = (error: any) => {
+    switch (error.code) {
+      case error.PERMISSION_DENIED:
+        //   // 거부는 언제든지 일어날 수 있음
+        console.log('hge: Geolocation API의 사용이 거부되었습니다.');
+        //   setIsGeoDenied(true);
+        //   setCurPos(undefined); // init
+        //   setIsCurPosFetched(false); // init
+        break;
+      case error.POSITION_UNAVAILABLE:
+        console.log('hge: 가져온 위치 정보를 사용할 수 없습니다.');
+        break;
+      case error.TIMEOUT:
+        console.log(
+          'hge: 위치 정보를 가져오기 위한 요청이 허용 시간을 초과했습니다.'
+        );
+        break;
+      default:
+        console.log(
+          'hge: 위치를 가져오는 과정에서 알 수 없는 오류가 발생했습니다.'
+        );
+        break;
+    }
+  };
+  const startWatchingPosition = () => {
+    if (watchId === null) {
+      watchId = navigator.geolocation.watchPosition(
+        function (position) {
+          console.log(
+            '현재 위치:',
+            position.coords.latitude,
+            position.coords.longitude
+          );
+        },
+        error => handleGeoError(error),
+        geolocationOptions
+      );
+      console.log('위치 추적을 시작했습니다.');
+    }
+  };
+  const stopWatchingPosition = () => {
+    if (watchId !== null) {
+      navigator.geolocation.clearWatch(watchId);
+      watchId = null;
+      console.log('위치 추적을 중지했습니다.');
+    }
+  };
+  const changeGeoPermission = (result: any) => {
+    if (result.state === 'granted') {
+      setGeoPermission('granted');
+      console.log('위치 액세스가 이미 허용되어 있습니다.');
+      startWatchingPosition();
+    }
+    if (result.state === 'prompt') {
+      console.log('위치 액세스 권한을 요청할 수 있습니다.');
+      // 위치 권한을 요청하고 사용자 응답에 따라 처리
+      navigator.geolocation.getCurrentPosition(
+        position => {
+          setGeoPermission('granted');
+          console.log('위치 액세스가 허용되었습니다.');
+          startWatchingPosition();
+        },
+        error => {
+          setGeoPermission('denied');
+          console.log('위치 액세스가 거부되었습니다.');
+          stopWatchingPosition();
+        }
+      );
+    }
+    if (result.state === 'denied') {
+      setGeoPermission('denied');
+      console.log('위치 액세스가 이미 거부되었습니다.');
+      stopWatchingPosition();
+    }
+  };
+  const checkGeoPermission = () => {
+    navigator.permissions
+      .query({ name: 'geolocation' })
+      .then(function (result) {
+        if (result.state === 'granted') {
+          setGeoPermission('granted');
+          console.log('위치 액세스가 이미 허용되어 있습니다.');
+          startWatchingPosition();
+        }
+        if (result.state === 'prompt') {
+          console.log('위치 액세스 권한을 요청할 수 있습니다.');
+          // 위치 권한을 요청하고 사용자 응답에 따라 처리
+          navigator.geolocation.getCurrentPosition(
+            position => {
+              setGeoPermission('granted');
+              console.log('위치 액세스가 허용되었습니다.');
+              startWatchingPosition();
+            },
+            error => {
+              setGeoPermission('denied');
+              console.log('위치 액세스가 거부되었습니다.');
+              stopWatchingPosition();
+            }
+          );
+        }
+        if (result.state === 'denied') {
+          setGeoPermission('denied');
+          console.log('위치 액세스가 이미 거부되었습니다.');
+          stopWatchingPosition();
+        }
+        // 권한 상태 변경 감지
+        result.onchange = function () {
+          console.log('위치 권한 상태가 변경되었습니다:', result.state);
+          if (result.state === 'granted') {
+            // permission
+            startWatchingPosition();
+          }
+          if (result.state === 'prompt') {
+            navigator.geolocation.getCurrentPosition(
+              position => {
+                // permission
+                startWatchingPosition();
+              },
+              error => {
+                // denied
+                stopWatchingPosition();
+              }
+            );
+          }
+          if (result.state === 'denied') {
+            // denied
+            stopWatchingPosition();
+          }
+        };
+      });
+  };
 
   useEffect(() => {
-    // 권한
+    // Geolocation 권한
     // 거부시 모든 것을 초기화. 그러나 현 위치는 초기화 하지는 않음
     // 다시 승인시 다시 위치 정보를 받기.
     // 요청할 수 있을시 모달을 띄우기. 승인 요청을 해달라는 문구.
-    navigator.permissions.query({ name: 'geolocation' }).then(result => {
-      setGeoPermission(result.state);
-      if (result.state === 'granted') {
-        console.log('위치 액세스가 허용되어 있습니다.');
-      } else if (result.state === 'prompt') {
-        console.log('위치 액세스 권한을 요청할 수 있습니다.');
-      } else if (result.state === 'denied') {
-        console.log('위치 액세스가 거부되었습니다.');
-      }
-      result.onchange = function () {
-        setGeoPermission(result.state);
-        console.log('위치 권한 상태가 변경되었습니다:', result.state);
-      };
-    });
+  }, []);
 
-    // - [ ] data loading 추가하기
+  useEffect(() => {
     if (!('geolocation' in navigator)) {
       setCurPos(defaultCenter);
     }
-    navigator.geolocation.getCurrentPosition(
-      ({ coords }) => {
-        console.log(0);
-        const { latitude, longitude } = coords;
-        setCenterPos({ lat: latitude, lng: longitude });
-      },
-      error => {}, // geolocationError(error) 추가시 막 여러개로 toast 뜸
-      geolocationOptions
-    );
-    const watchId = navigator.geolocation.watchPosition(
-      ({ coords }) => {
-        console.log(1);
+    // navigator.geolocation.getCurrentPosition(
+    //   ({ coords }) => {
+    //     console.log(0);
+    //     const { latitude, longitude } = coords;
+    //     setCenterPos({ lat: latitude, lng: longitude });
+    //   },
+    //   error => {}, // handleGeoError(error) 추가시 막 여러개로 toast 뜸
+    //   geolocationOptions
+    // );
+    // const watchId = navigator.geolocation.watchPosition(
+    //   ({ coords }) => {
+    //     console.log(1);
 
-        const { latitude, longitude } = coords;
-        setCurPos({ lat: latitude, lng: longitude });
-      },
-      error => geolocationError(error),
-      geolocationOptions
-    );
+    //     const { latitude, longitude } = coords;
+    //     setCurPos({ lat: latitude, lng: longitude });
+    //   },
+    //   error => handleGeoError(error),
+    //   geolocationOptions
+    // );
+
+    checkGeoPermission();
     return () => {
       navigator.geolocation.clearWatch(watchId);
     };
