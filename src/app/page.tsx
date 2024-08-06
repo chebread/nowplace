@@ -10,6 +10,8 @@
 // map load 되기 전까지는 maploading 페이지 보여주기
 // 현재 위치 icon 추가하기
 // - [ ] data loading 추가하기
+// 지도위에 길게 눌러서 위치 추가하기
+// 하단부 누르면 현재 위치에 위치 추가됨
 
 'use client';
 
@@ -38,10 +40,10 @@ import { toast } from 'sonner';
 import { useEffect, useMemo, useState } from 'react';
 import { MapMarker } from 'react-kakao-maps-sdk';
 import Loading from '@/components/loading';
-import SvgNavigation from '@/assets/icons/navigation.svg';
-import SvgFilledNavigation from '@/assets/icons/filled-navigation.svg';
+import SvgTracking from '@/assets/icons/tracking.svg';
+import SvgFilledTracking from '@/assets/icons/filled-tracking.svg';
+import SvgDenied from '@/assets/icons/denied.svg';
 import _ from 'lodash';
-import BottomSheet from '@/components/bottom-sheet/bottom-sheet';
 
 export default function Home() {
   const copyright = `© ${new Date().getFullYear()} Cha Haneum`;
@@ -181,7 +183,7 @@ export default function Home() {
 
   useEffect(() => {
     // - [ ] 왜 초기에 2번 코드가 실행되는지 모르겠음
-    if (!('geolocation' in navigator)) {
+    if ('geolocation' in navigator) {
       checkGeoPermission();
     } else {
       setCenterPos(defaultCenter);
@@ -253,10 +255,12 @@ export default function Home() {
                     setIsTracking(true);
                   }}
                 >
-                  {isTracking ? <SvgFilledNavigation /> : <SvgNavigation />}
+                  {isTracking ? <SvgFilledTracking /> : <SvgTracking />}
                 </StyledTrackingBtn>
               ) : geoPermission === 'denied' ? (
-                '위치 거부됨'
+                <StyledTrackingBtn>
+                  <SvgDenied />
+                </StyledTrackingBtn>
               ) : (
                 '현재 위치 불러오는 중'
               )}
