@@ -40,6 +40,7 @@ import Loading from '@/components/loading';
 import SvgNavigation from '@/assets/icons/navigation.svg';
 import SvgFilledNavigation from '@/assets/icons/filled-navigation.svg';
 import _ from 'lodash';
+import BottomSheet from '@/components/bottom-sheet/bottom-sheet';
 
 export default function Home() {
   const copyright = `© ${new Date().getFullYear()} Cha Haneum`;
@@ -54,18 +55,19 @@ export default function Home() {
   const [isCurPosFetched, setIsCurPosFetched] = useState(false);
   const [hasVisited, setHasVisited] = useState(false); // 첫 방문자면 도움말 뜨기 // localStorage 사용
   const [isDataLoading, setIsDataLoading] = useState(false); // data loading // default value = true
-  const [isGeoDenied, setIsGeoDenied] = useState(false);
+  // const [isGeoDenied, setIsGeoDenied] = useState(false);
   // const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false); // user log in // localstorage에 저장하기 또는 다른 방법 강구
   const [isTracking, setIsTracking] = useState(false);
+  const [geoPermission, setGeoPermission] = useState('');
 
   const geolocationError = (error: any) => {
     switch (error.code) {
       case error.PERMISSION_DENIED:
-        // 거부는 언제든지 일어날 수 있음
+        //   // 거부는 언제든지 일어날 수 있음
         toast.warning('Geolocation API의 사용이 거부되었습니다.');
-        setIsGeoDenied(true);
-        setCurPos(undefined); // init
-        setIsCurPosFetched(false); // init
+        //   setIsGeoDenied(true);
+        //   setCurPos(undefined); // init
+        //   setIsCurPosFetched(false); // init
         break;
       case error.POSITION_UNAVAILABLE:
         toast.warning('가져온 위치 정보를 사용할 수 없습니다.');
@@ -102,22 +104,23 @@ export default function Home() {
 
   useEffect(() => {
     // 권한
-    navigator.permissions
-      .query({ name: 'geolocation' })
-      .then(function (result) {
-        if (result.state === 'granted') {
-          console.log('위치 액세스가 이미 허용되어 있습니다.');
-        } else if (result.state === 'prompt') {
-          console.log('위치 액세스 권한을 요청할 수 있습니다.');
-        } else if (result.state === 'denied') {
-          console.log('위치 액세스가 거부되었습니다.');
-        }
-
-        // 권한 상태 변경 감지
-        result.onchange = function () {
-          console.log('위치 권한 상태가 변경되었습니다:', result.state);
-        };
-      });
+    // 거부시 모든 것을 초기화. 그러나 현 위치는 초기화 하지는 않음
+    // 다시 승인시 다시 위치 정보를 받기.
+    // 요청할 수 있을시 모달을 띄우기. 승인 요청을 해달라는 문구.
+    navigator.permissions.query({ name: 'geolocation' }).then(result => {
+      setGeoPermission(result.state);
+      if (result.state === 'granted') {
+        console.log('위치 액세스가 허용되어 있습니다.');
+      } else if (result.state === 'prompt') {
+        console.log('위치 액세스 권한을 요청할 수 있습니다.');
+      } else if (result.state === 'denied') {
+        console.log('위치 액세스가 거부되었습니다.');
+      }
+      result.onchange = function () {
+        setGeoPermission(result.state);
+        console.log('위치 권한 상태가 변경되었습니다:', result.state);
+      };
+    });
 
     // - [ ] data loading 추가하기
     if (!('geolocation' in navigator)) {
@@ -134,6 +137,8 @@ export default function Home() {
     );
     const watchId = navigator.geolocation.watchPosition(
       ({ coords }) => {
+        console.log(1);
+
         const { latitude, longitude } = coords;
         setCurPos({ lat: latitude, lng: longitude });
       },
@@ -207,7 +212,7 @@ export default function Home() {
                 >
                   {isTracking ? <SvgFilledNavigation /> : <SvgNavigation />}
                 </StyledTrackingBtn>
-              ) : isGeoDenied ? (
+              ) : geoPermission === 'denied' ? (
                 '위치 거부됨'
               ) : (
                 '현재 위치 불러오는 중'
