@@ -12,6 +12,9 @@
 // - [ ] data loading 추가하기
 // 지도위에 길게 눌러서 위치 추가하기
 // 하단부 누르면 현재 위치에 위치 추가됨
+// 모든 bottom 아래에는 copyright 표시하기
+// bottomsheet 정형화하기
+// - [ ] bottom sheet의 주소창 까지 검정되는거 막기
 
 'use client';
 
@@ -29,12 +32,12 @@ import {
   StyledFooterItem,
   StyledFooterLayout,
   StyledShowMoreBtn,
-  StyledHeader,
   StyledLogo,
   StyledMain,
   StyledMap,
-  StyledTrackingBtn,
   StyledFooterBtnWrapper,
+  StyledFooterButton,
+  StyledFooterLoadingSpinnerButton,
 } from './home.css';
 import { toast } from 'sonner';
 import { useEffect, useMemo, useState } from 'react';
@@ -42,10 +45,12 @@ import { MapMarker } from 'react-kakao-maps-sdk';
 import Loading from '@/components/loading';
 import SvgTracking from '@/assets/icons/tracking.svg';
 import SvgFilledTracking from '@/assets/icons/filled-tracking.svg';
-import SvgDenied from '@/assets/icons/denied.svg';
+import SvgReject from '@/assets/icons/reject.svg';
+import SvgSpin from '@/assets/icons/spin.svg';
 import _ from 'lodash';
 
 export default function Home() {
+  let watchId: any = null;
   const copyright = `© ${new Date().getFullYear()} Cha Haneum`;
   const defaultCenter = { lat: 37.575857, lng: 126.976805 };
   const geolocationOptions = {
@@ -62,7 +67,6 @@ export default function Home() {
   // const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false); // user log in // localstorage에 저장하기 또는 다른 방법 강구
   const [isTracking, setIsTracking] = useState(false);
   const [geoPermission, setGeoPermission] = useState(''); // 모든 지도의 권한을 설정함
-  let watchId: any = null;
 
   const updateCenterPos = useMemo(
     () =>
@@ -183,12 +187,12 @@ export default function Home() {
 
   useEffect(() => {
     // - [ ] 왜 초기에 2번 코드가 실행되는지 모르겠음
-    if ('geolocation' in navigator) {
+    if ('geolocation' in navigator && 'permissions' in navigator) {
       checkGeoPermission();
     } else {
       setCenterPos(defaultCenter);
       setGeoPermission('denied'); // 사실은 거부됨이 아니라 지원을 안하는 것임
-      // 아래의  if (curPos && !isCurPosFetched) { ... } 실행되게 됨
+      // 아래의 if (curPos && !isCurPosFetched) { ... } 실행되게 됨 => x
     }
     return () => {
       if ('geolocation' in navigator) {
@@ -203,6 +207,7 @@ export default function Home() {
       // isCurPos가 false일때만
       console.log('onload');
       setIsCurPosFetched(true); // 현재위치 불러옴
+      setIsTracking(true); // 현재 위치 tracking 중
     }
   }, [curPos]);
 
@@ -212,12 +217,12 @@ export default function Home() {
     <StyledMain>
       <StyledMap>
         <KakaoMap
-          level={'5'}
+          level={5}
           center={centerPos}
           onCenterChanged={(map: kakao.maps.Map) => {
             updateCenterPos(map);
           }}
-          // onZoomStart={handleMotionDetected} // - [ ] isTracking 시에는 zoom 하면 center 좌표를 중심으로 zoom 되기 기능 만들기
+          onZoomStart={handleMotionDetected} // - [ *** ] isTracking 시에는 zoom 하면 center 좌표를 중심으로 zoom 되기 기능 만들기
           onDragStart={handleMotionDetected}
         >
           {curPos && <MapMarker position={curPos} />}
@@ -238,7 +243,11 @@ export default function Home() {
             </Drawer.Trigger>
             <Drawer.Portal>
               <DrawerOverlay />
-              <DrawerContent>
+              <DrawerContent
+                onOpenAutoFocus={e => {
+                  e.preventDefault();
+                }}
+              >
                 <DrawerModal>
                   <DrawerHandleBar />
                   <DrawerContents></DrawerContents>
@@ -249,20 +258,28 @@ export default function Home() {
           <StyledFooterItem>
             <StyledFooterBtnWrapper>
               {isCurPosFetched ? (
-                <StyledTrackingBtn
+                <StyledFooterButton
                   onClick={() => {
                     setCenterPos(curPos);
                     setIsTracking(true);
                   }}
                 >
                   {isTracking ? <SvgFilledTracking /> : <SvgTracking />}
-                </StyledTrackingBtn>
+                </StyledFooterButton>
               ) : geoPermission === 'denied' ? (
-                <StyledTrackingBtn>
-                  <SvgDenied />
-                </StyledTrackingBtn>
+                <StyledFooterButton
+                  onClick={() => {
+                    // 권한 설정 방법 모달 뜸
+                    // 근데 일단은 toast로 대체함
+                    toast.warning('위치 권한이 거부 되었습니다.');
+                  }}
+                >
+                  <SvgReject />
+                </StyledFooterButton>
               ) : (
-                '현재 위치 불러오는 중'
+                <StyledFooterLoadingSpinnerButton>
+                  <SvgSpin />
+                </StyledFooterLoadingSpinnerButton>
               )}
             </StyledFooterBtnWrapper>
           </StyledFooterItem>
