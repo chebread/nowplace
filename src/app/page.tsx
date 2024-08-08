@@ -3,7 +3,6 @@
 // 2. 위치를 가져오기 전까지는 로딩 페이지 출력함
 // 3. 장소 추가하기는 하단부 클릭시 추가가능 (블링크 처럼)
 // 로직 간소화 하기
-
 // 1. 로그인 / 데이터 로드하기 => 로딩화면
 // 2. 지도 띄우기
 // 2. 현재위치 마커가 돌아가면서 현재위치 구함
@@ -17,6 +16,9 @@
 // - [ ] bottom sheet의 주소창 까지 검정되는거 막기
 // modal시 ?edit=true 이런 사이트도 존재.
 // 장소 추가는 내가 길게 눌러서 장소 추가만 적용하기
+// 모바일에서 실행하기 위해서는 https 필수 (ios safari)
+// 장소 추가 버튼 클릭시  add place 모달 with map 이 뜸
+// 첫 feed에서는 장소만 불러오기
 
 'use client';
 
@@ -25,7 +27,7 @@ import { Drawer } from 'vaul';
 import { toast } from 'sonner';
 import _ from 'lodash';
 import KakaoMap from '@/components/kakao-map';
-import { MapMarker } from 'react-kakao-maps-sdk';
+import { Map, MapMarker } from 'react-kakao-maps-sdk';
 // svgs
 import Loading from '@/components/loading';
 import SvgLogo from '@/assets/icons/logo.svg';
@@ -53,6 +55,7 @@ import {
   StyledFooterButton,
   StyledFooterLoadingSpinnerButton,
 } from './home.css';
+import BottomSheet from '@/components/bottom-sheet';
 
 export default function Home() {
   let watchId: any = null;
@@ -224,7 +227,7 @@ export default function Home() {
         <KakaoMap
           level={5}
           center={centerPos}
-          onCenterChanged={(map: kakao.maps.Map) => {
+          onDragEnd={(map: kakao.maps.Map) => {
             updateCenterPos(map);
           }}
           onZoomStart={handleMotionDetected} // - [ *** ] isTracking 시에는 zoom 하면 center 좌표를 중심으로 zoom 되기 기능 만들기
@@ -262,9 +265,9 @@ export default function Home() {
           </Drawer.Root>
           <StyledFooterItem>
             <StyledFooterBtnWrapper>
-              <StyledFooterButton>
+              {/* <StyledFooterButton>
                 <SvgPlus />
-              </StyledFooterButton>
+              </StyledFooterButton> */}
               {isCurPosFetched ? (
                 <StyledFooterButton
                   onClick={() => {
