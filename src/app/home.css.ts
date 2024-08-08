@@ -24,6 +24,7 @@ export const DrawerContent = styled(Drawer.Content)`
   left: 0;
   right: 0;
   z-index: 10000; // 최상단 위치
+  overflow: auto;
 `;
 export const DrawerModal = styled.div`
   padding: 16px;
