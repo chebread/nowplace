@@ -71,7 +71,7 @@ export const StyledHeader = styled.header`
 `;
 
 export const StyledFooterLayout = styled.div`
-  position: absolute;
+  position: sticky;
   left: 0;
   right: 0;
   bottom: 0;
@@ -125,6 +125,7 @@ export const StyledFooterBtnWrapper = styled.div`
   display: flex;
   flex-direction: row;
   align-items: center;
+  gap: 0.5rem;
 `;
 
 export const StyledFooterButton = styled.button`

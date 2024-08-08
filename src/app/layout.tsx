@@ -29,6 +29,9 @@ export default function RootLayout({ children }: RootLayoutProps) {
       suppressHydrationWarning
       className={`${GeistSans.variable} ${GeistMono.variable}`}
     >
+      <head>
+        <link rel="icon" href="/favicon.ico" sizes="16x16" />
+      </head>
       <body suppressHydrationWarning>
         {/* Warning: Extra attributes from the server: cz-shortcut-listen */}
         <>

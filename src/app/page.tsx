@@ -15,12 +15,26 @@
 // 모든 bottom 아래에는 copyright 표시하기
 // bottomsheet 정형화하기
 // - [ ] bottom sheet의 주소창 까지 검정되는거 막기
+// modal시 ?edit=true 이런 사이트도 존재.
+// 장소 추가는 내가 길게 눌러서 장소 추가만 적용하기
 
 'use client';
 
-import KakaoMap from '@/components/kakao-map';
+import { useEffect, useMemo, useState } from 'react';
 import { Drawer } from 'vaul';
+import { toast } from 'sonner';
+import _ from 'lodash';
+import KakaoMap from '@/components/kakao-map';
+import { MapMarker } from 'react-kakao-maps-sdk';
+// svgs
+import Loading from '@/components/loading';
 import SvgLogo from '@/assets/icons/logo.svg';
+import SvgTracking from '@/assets/icons/tracking.svg';
+import SvgFilledTracking from '@/assets/icons/filled-tracking.svg';
+import SvgReject from '@/assets/icons/reject.svg';
+import SvgSpin from '@/assets/icons/spin.svg';
+import SvgPlus from '@/assets/icons/plus.svg';
+// css
 import {
   DrawerContent,
   DrawerContents,
@@ -39,15 +53,6 @@ import {
   StyledFooterButton,
   StyledFooterLoadingSpinnerButton,
 } from './home.css';
-import { toast } from 'sonner';
-import { useEffect, useMemo, useState } from 'react';
-import { MapMarker } from 'react-kakao-maps-sdk';
-import Loading from '@/components/loading';
-import SvgTracking from '@/assets/icons/tracking.svg';
-import SvgFilledTracking from '@/assets/icons/filled-tracking.svg';
-import SvgReject from '@/assets/icons/reject.svg';
-import SvgSpin from '@/assets/icons/spin.svg';
-import _ from 'lodash';
 
 export default function Home() {
   let watchId: any = null;
@@ -257,6 +262,9 @@ export default function Home() {
           </Drawer.Root>
           <StyledFooterItem>
             <StyledFooterBtnWrapper>
+              <StyledFooterButton>
+                <SvgPlus />
+              </StyledFooterButton>
               {isCurPosFetched ? (
                 <StyledFooterButton
                   onClick={() => {

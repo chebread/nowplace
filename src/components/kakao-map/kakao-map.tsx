@@ -1,7 +1,5 @@
 import { Map, useKakaoLoader } from 'react-kakao-maps-sdk';
 import KaKaoMapError from './kakao-map-error';
-import useLongPress from '@/utils/use-long-press';
-import { toast } from 'sonner';
 
 // 만약 아예 권한조차 허락받지 않은 사용자라면 버튼으로하여금 허락을 요청하기
 // - [ ] 길게 누르면 장소 추가 기능 만들기
@@ -13,19 +11,6 @@ export default function KakaoMap(props: any) {
     appkey: process.env.NEXT_PUBLIC_KAKAO_API_KEY!,
     libraries: ['clusterer', 'drawing', 'services'],
   });
-
-  const handleLongPress = () => {
-    toast('long press');
-  };
-
-  const {
-    onMouseDown,
-    onMouseUp,
-    onMouseLeave,
-    onTouchStart,
-    onTouchEnd,
-    stopLongPress,
-  } = useLongPress(handleLongPress, 1000);
 
   if (error) return <KaKaoMapError />;
 
@@ -41,16 +26,9 @@ export default function KakaoMap(props: any) {
         center={props?.center || defaultCenter}
         onCenterChanged={map => {
           props?.onCenterChanged(map);
-          stopLongPress(); // - [ ] longpress 지우기
         }}
         onZoomStart={props?.onZoomStart || undefined}
         onDragStart={props?.onDragStart || undefined}
-        /* 장소 추가 */
-        onMouseDown={onMouseDown}
-        onMouseUp={onMouseUp}
-        onMouseLeave={onMouseLeave}
-        onTouchStart={onTouchStart}
-        onTouchEnd={onTouchEnd}
       >
         {props.children}
       </Map>
