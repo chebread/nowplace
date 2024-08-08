@@ -3,8 +3,9 @@ import KaKaoMapError from './kakao-map-error';
 import useLongPress from '@/utils/use-long-press';
 import { useRef, useState } from 'react';
 
-// 만약 아예 권한조차 허락받지 않은 사용자라면 버튼으로하여금 허락을 요청하기
+// 만약 아예 권한조차 허락받지 않은 사용자라면 버튼으로하여금 허락을 요청하기 => 메뉴얼
 // - [ ] 길게 누르면 장소 추가 기능 만들기
+// 안되면, 클릭을 해서 modal 띄워서 지도 추가하기
 
 export default function KakaoMap(props: any) {
   const mapRef = useRef<any>();

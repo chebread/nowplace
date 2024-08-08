@@ -18,6 +18,8 @@
 // 장소 추가는 내가 길게 눌러서 장소 추가만 적용하기
 // 모바일에서 실행하기 위해서는 https 필수 (ios safari)
 // 장소 추가 버튼 클릭시  add place 모달 with map 이 뜸
+// 모달에서 스크롤 가능하게 하기
+// 장소 추가 모달에서 스크롤 막고, 상단부만 클릭시 스크롤 되게 하기
 // 첫 feed에서는 장소만 불러오기
 
 'use client';
@@ -210,6 +212,11 @@ export default function Home() {
   }, []);
 
   useEffect(() => {
+    if (curPos && isCurPosFetched && isTracking) {
+      // 현재 위치 불러왔음
+      // tracking 모드일때는 현재 위치를 따라가게됨
+      setCenterPos(curPos);
+    }
     if (curPos && !isCurPosFetched) {
       // && !isCurPosFetched 코드가 없으면 watchPosition시에 이 코드가 또 실행되게 됨
       // isCurPos가 false일때만
@@ -265,9 +272,9 @@ export default function Home() {
           </Drawer.Root>
           <StyledFooterItem>
             <StyledFooterBtnWrapper>
-              {/* <StyledFooterButton>
+              <StyledFooterButton>
                 <SvgPlus />
-              </StyledFooterButton> */}
+              </StyledFooterButton>
               {isCurPosFetched ? (
                 <StyledFooterButton
                   onClick={() => {
