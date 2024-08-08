@@ -1,13 +1,14 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
+import { debounce } from 'lodash';
 
-const useLongPress = (callback = () => {}, ms = 1000) => {
-  // default ms = 1000
+const useLongPress = (handleLongPress: any, ms = 3000, debounceMs = 300) => {
   const [startLongPress, setStartLongPress] = useState(false);
+  const [event, setEvent] = useState(null);
 
   useEffect(() => {
     let timerId: any;
-    if (startLongPress) {
-      timerId = setTimeout(callback, ms);
+    if (startLongPress && event) {
+      timerId = setTimeout(() => handleLongPress(null, event), ms);
     } else {
       clearTimeout(timerId);
     }
@@ -15,23 +16,20 @@ const useLongPress = (callback = () => {}, ms = 1000) => {
     return () => {
       clearTimeout(timerId);
     };
-  }, [callback, ms, startLongPress]);
+  }, [handleLongPress, ms, startLongPress, event]);
 
-  // const stopLongPress = () => {
-  //   setStartLongPress(false);
-  //   console.log('중지됨');
-  // };
-
-  const stopLongPress = () => {
-    setStartLongPress(false);
-    console.log('중지됨');
+  const startPress = (e: any) => {
+    setEvent(e);
+    setStartLongPress(true);
   };
 
+  const stopLongPress = () => setStartLongPress(false);
+
   return {
-    onMouseDown: () => setStartLongPress(true),
+    onMouseDown: startPress,
     onMouseUp: () => setStartLongPress(false),
     onMouseLeave: () => setStartLongPress(false),
-    onTouchStart: () => setStartLongPress(true),
+    onTouchStart: startPress,
     onTouchEnd: () => setStartLongPress(false),
     stopLongPress,
   };
