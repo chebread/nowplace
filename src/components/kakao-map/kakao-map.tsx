@@ -1,7 +1,7 @@
 import { Map, useKakaoLoader } from 'react-kakao-maps-sdk';
 import KaKaoMapError from './kakao-map-error';
-import useLongPress from '@/utils/use-long-press';
-import { useRef, useState } from 'react';
+import { useRef } from 'react';
+import { StyledMap } from './kakao-map.css';
 
 // 만약 아예 권한조차 허락받지 않은 사용자라면 버튼으로하여금 허락을 요청하기 => 메뉴얼
 // - [ ] 길게 누르면 장소 추가 기능 만들기
@@ -15,58 +15,30 @@ export default function KakaoMap(props: any) {
     appkey: process.env.NEXT_PUBLIC_KAKAO_API_KEY!,
     libraries: ['clusterer', 'drawing', 'services'],
   });
-  const [latlng, setLatlng] = useState({});
-
-  const handleLongPress = (e: any) => {
-    console.log('long press', latlng);
-  };
-  const defaultOptions = {
-    shouldPreventDefault: true,
-    delay: 500,
-  };
-  const longPressEvent = useLongPress(
-    handleLongPress,
-    () => {},
-    defaultOptions
-  );
-
-  const handleMouseDown = (map: any, mouseEvent: any) => {
-    const latLng = mouseEvent.latLng;
-    setLatlng({
-      lat: latLng.getLat(),
-      lng: latLng.getLng(),
-    });
-  };
 
   if (error) return <KaKaoMapError />;
 
   return (
     <>
-      <Map
+      <StyledMap
         ref={mapRef}
-        style={{
-          height: '100%',
-          width: '100%',
-        }}
+        // style={{
+        //   height: '100%',
+        //   width: '100%',
+        // }}
         isPanto // 이동시 부드럽게
         level={props?.level || defaultLevel} // - [ ] props.level number로 제한하기
         center={props?.center || defaultCenter}
-        onDragEnd={map => {
-          props?.onDragEnd(map);
+        onDragEnd={(map: any) => {
+          props?.onDragEnd(map); // drag 종료시 center 값 변경
           // stopLongPress(); // - [ ] longpress 지우기
         }}
         onZoomStart={props?.onZoomStart || undefined}
         onDragStart={props?.onDragStart || undefined}
         /* 장소 추가 */
-        {...longPressEvent}
-        onCreate={map => {
-          kakao.maps.event.addListener(map, 'mousedown', (mouseEvent: any) =>
-            handleMouseDown(map, mouseEvent)
-          );
-        }}
       >
         {props.children}
-      </Map>
+      </StyledMap>
     </>
   );
 }
