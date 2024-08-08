@@ -1,4 +1,4 @@
-import styled from 'styled-components';
+import styled, { keyframes } from 'styled-components';
 import { Drawer } from 'vaul';
 
 /* Drawer */
@@ -54,7 +54,7 @@ export const StyledMain = styled.main``;
 export const StyledMap = styled.div`
   position: relative;
   height: 100vh;
-  width: 100%;
+  width: 100vw;
   z-index: 0;
 `;
 
@@ -127,29 +127,33 @@ export const StyledFooterBtnWrapper = styled.div`
   align-items: center;
 `;
 
-export const StyledTrackingBtn = styled.button`
+export const StyledFooterButton = styled.button`
   cursor: pointer;
   will-change: transform;
-  transform: transform var(--transition);
-  /* transition-property: transform;
-  transition-duration: 0.2s;
-  transition-timing-function: ease-out; */
+  transition: transform var(--transition);
   &:active {
     transform: scale(0.86);
   }
-
-  background-color: #fff;
+  background-color: #ffffff;
   height: 3rem;
   width: 3rem;
   display: flex;
   justify-content: center;
   align-items: center;
-  svg {
-    height: 1.75rem;
-    width: 1.75rem;
-  }
   border-radius: 50%;
   box-shadow: var(--box-shadow);
 `;
 
-export const StyledDeniedBtn = styled.button``;
+const spin = keyframes`
+    from {
+        transform: rotate(0deg);
+    }
+    to {
+        transform: rotate(360deg);
+    }
+`;
+export const StyledFooterLoadingSpinnerButton = styled(StyledFooterButton)`
+  svg {
+    animation: ${spin} 1s ease-in-out infinite;
+  }
+`;

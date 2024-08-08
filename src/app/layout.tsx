@@ -35,7 +35,13 @@ export default function RootLayout({ children }: RootLayoutProps) {
           {/* ThemeProvider */}
           <StyledComponentsRegistry>
             <GlobalStyle />
-            <Toaster position="top-center" />
+            <Toaster
+              // theme="system"
+
+              visibleToasts={3}
+              position="top-center"
+              toastOptions={{ className: 'toaster', duration: 3000 }}
+            />
             <div vaul-drawer-wrapper="">{children}</div>
             {/* vaul의 shouldScaleBackground를 사용하기 위해서는 vaul-drawer-wrapper가 필요함 */}
           </StyledComponentsRegistry>

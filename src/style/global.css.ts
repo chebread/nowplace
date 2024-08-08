@@ -287,8 +287,8 @@ const GlobalStyle = createGlobalStyle`
 
     // transition: background-color var(--transition), color var(--transition);
     /* Transitions */
-    --transition: 0.2s ease-in-out;
-    --transition-slow: 0.3s ease-in-out;
+    --transition: 0.2s ease-out;
+    --transition-slow: 0.3s ease-out;
 
     /* animation-duration: 0.2s;
     animation-timing-function: ease-out;
@@ -332,6 +332,9 @@ const GlobalStyle = createGlobalStyle`
     -webkit-text-size-adjust: 110%;
     font-size: 16px; // 1rem = 16px
     line-height: 1.55em;
+    -ms-user-select: none;
+    -webkit-user-select: none;
+    user-select: none;
   }
 
   body {
@@ -356,6 +359,10 @@ const GlobalStyle = createGlobalStyle`
     cursor: pointer;
     outline: inherit;
     -webkit-tap-highlight-color: transparent; // 비표준 
+  }
+
+  .toaster {
+    font-family: var(--font-sans);
   }
 `;
 
