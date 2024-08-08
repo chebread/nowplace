@@ -18,9 +18,16 @@
 // 장소 추가는 내가 길게 눌러서 장소 추가만 적용하기
 // 모바일에서 실행하기 위해서는 https 필수 (ios safari)
 // 장소 추가 버튼 클릭시  add place 모달 with map 이 뜸
-// 모달에서 스크롤 가능하게 하기
+// 모달에서 스크롤 가능하게 하기 (vaul github 참고하기)
 // 장소 추가 모달에서 스크롤 막고, 상단부만 클릭시 스크롤 되게 하기
 // 첫 feed에서는 장소만 불러오기
+// 거부는 언제든지 일어날 수 있음
+// 저장한 장소에는 도로명 주소가 뜸
+// feed 상단에 검색창 만들기 => 저장한 장소의 메모에 기반하여 검색 가능! => 그 저장한 장소의 검색 결과는 bottomsheet 위의 지도에 띄워짐
+// - [ ] 길게 눌러서 장소 추가하는 기능 개발하기
+// 여기서의 관건은 길게 눌러서 그 누른 좌표만 구하면 됨
+// 모달도 다시 가꾸기
+// 일단은 모달 먼저하자
 
 'use client';
 
@@ -56,6 +63,8 @@ import {
   StyledFooterBtnWrapper,
   StyledFooterButton,
   StyledFooterLoadingSpinnerButton,
+  DrawerTitle,
+  DrawerDescription,
 } from './home.css';
 import BottomSheet from '@/components/bottom-sheet';
 
@@ -91,15 +100,15 @@ export default function Home() {
   const handleMotionDetected = () => {
     setIsTracking(false);
   };
+  const onCurPosTracking = () => {
+    setCenterPos(curPos);
+    setIsTracking(true);
+  };
   // geolocation
   const handleGeoError = (error: any) => {
     switch (error.code) {
       case error.PERMISSION_DENIED:
-        //   // 거부는 언제든지 일어날 수 있음
         console.log('hge: Geolocation API의 사용이 거부되었습니다.');
-        //   setIsGeoDenied(true);
-        //   setCurPos(undefined); // init
-        //   setIsCurPosFetched(false); // init
         break;
       case error.POSITION_UNAVAILABLE:
         console.log('hge: 가져온 위치 정보를 사용할 수 없습니다.');
@@ -125,7 +134,7 @@ export default function Home() {
           setCurPos({ lat: latitude, lng: longitude });
           setCenterPos({ lat: latitude, lng: longitude });
         },
-        error => {}, // handleGeoError(error) 추가시 막 여러개로 toast 뜸
+        error => handleGeoError(error), // handleGeoError(error) 추가시 막 여러개로 toast 뜸
         geolocationOptions
       );
       watchId = navigator.geolocation.watchPosition(
@@ -240,7 +249,7 @@ export default function Home() {
           onZoomStart={handleMotionDetected} // - [ *** ] isTracking 시에는 zoom 하면 center 좌표를 중심으로 zoom 되기 기능 만들기
           onDragStart={handleMotionDetected}
         >
-          {curPos && <MapMarker position={curPos} />}
+          {curPos && <MapMarker onClick={onCurPosTracking} position={curPos} />}
         </KakaoMap>
       </StyledMap>
       <StyledFooterLayout>
@@ -260,12 +269,16 @@ export default function Home() {
               <DrawerOverlay />
               <DrawerContent
                 onOpenAutoFocus={e => {
+                  // safari focused 막기
                   e.preventDefault();
                 }}
               >
                 <DrawerModal>
                   <DrawerHandleBar />
-                  <DrawerContents></DrawerContents>
+                  <DrawerContents>
+                    <DrawerTitle>hello</DrawerTitle>
+                    <DrawerDescription>lorem</DrawerDescription>
+                  </DrawerContents>
                 </DrawerModal>
               </DrawerContent>
             </Drawer.Portal>
@@ -276,12 +289,7 @@ export default function Home() {
                 <SvgPlus />
               </StyledFooterButton>
               {isCurPosFetched ? (
-                <StyledFooterButton
-                  onClick={() => {
-                    setCenterPos(curPos);
-                    setIsTracking(true);
-                  }}
-                >
+                <StyledFooterButton onClick={onCurPosTracking}>
                   {isTracking ? <SvgFilledTracking /> : <SvgTracking />}
                 </StyledFooterButton>
               ) : geoPermission === 'denied' ? (
