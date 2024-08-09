@@ -1,13 +1,21 @@
 // 'use client' 없으면 Server component임
 
-import StyledComponentsRegistry from '@/lib/registry';
-import { GeistSans } from 'geist/font/sans';
-import { GeistMono } from 'geist/font/mono';
-import { ThemeProvider } from 'next-themes';
-import GlobalStyle from '@/style/global.css';
-import { Metadata } from 'next';
+import { Metadata, Viewport } from 'next';
 import { Analytics } from '@vercel/analytics/react';
 import { Toaster } from 'sonner';
+import { ThemeProvider } from 'next-themes';
+import { GeistSans } from 'geist/font/sans';
+import { GeistMono } from 'geist/font/mono';
+import StyledComponentsRegistry from '@/lib/registry';
+import GlobalStyle from '@/style/global.css';
+
+export const viewport: Viewport = {
+  themeColor: [
+    // vaul 사용시 이거를 지정하지 않아서 주소창의 색상이 바뀌는 오류가 있음
+    { media: '(prefers-color-scheme: light)', color: '#ffffff' },
+    { media: '(prefers-color-scheme: dark)', color: '#000000' },
+  ],
+};
 
 export const metadata: Metadata = {
   metadataBase: new URL('https://nowplace.kr/'),
