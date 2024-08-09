@@ -1,34 +1,3 @@
-// -- 1. 현재 위치 가져오기 -> kakao-map.tsx 에서 가져오기
-// -- 1.1. 위치 실패시 또는 위치 거부시 ip로 현재 위치 가져오기 => default 값 사용하기
-// 2. 위치를 가져오기 전까지는 로딩 페이지 출력함
-// 3. 장소 추가하기는 하단부 클릭시 추가가능 (블링크 처럼)
-// 로직 간소화 하기
-// 1. 로그인 / 데이터 로드하기 => 로딩화면
-// 2. 지도 띄우기
-// 2. 현재위치 마커가 돌아가면서 현재위치 구함
-// map load 되기 전까지는 maploading 페이지 보여주기
-// 현재 위치 icon 추가하기
-// - [ ] data loading 추가하기
-// 지도위에 길게 눌러서 위치 추가하기
-// 하단부 누르면 현재 위치에 위치 추가됨
-// 모든 bottom 아래에는 copyright 표시하기
-// bottomsheet 정형화하기
-// - [ ] bottom sheet의 주소창 까지 검정되는거 막기
-// modal시 ?edit=true 이런 사이트도 존재.
-// 장소 추가는 내가 길게 눌러서 장소 추가만 적용하기
-// 모바일에서 실행하기 위해서는 https 필수 (ios safari)
-// 장소 추가 버튼 클릭시  add place 모달 with map 이 뜸
-// 모달에서 스크롤 가능하게 하기 (vaul github 참고하기)
-// 장소 추가 모달에서 스크롤 막고, 상단부만 클릭시 스크롤 되게 하기
-// 첫 feed에서는 장소만 불러오기
-// 거부는 언제든지 일어날 수 있음
-// 저장한 장소에는 도로명 주소가 뜸
-// feed 상단에 검색창 만들기 => 저장한 장소의 메모에 기반하여 검색 가능! => 그 저장한 장소의 검색 결과는 bottomsheet 위의 지도에 띄워짐
-// - [ ] 길게 눌러서 장소 추가하는 기능 개발하기
-// 여기서의 관건은 길게 눌러서 그 누른 좌표만 구하면 됨
-// 모달도 다시 가꾸기
-// 일단은 모달 먼저하자
-
 'use client';
 
 import { useEffect, useMemo, useState } from 'react';
@@ -36,7 +5,7 @@ import { Drawer } from 'vaul';
 import { toast } from 'sonner';
 import _ from 'lodash';
 import KakaoMap from '@/components/kakao-map';
-import { Map, MapMarker } from 'react-kakao-maps-sdk';
+import { MapMarker } from 'react-kakao-maps-sdk';
 // svgs
 import Loading from '@/components/loading';
 import SvgLogo from '@/assets/icons/logo.svg';
@@ -66,7 +35,6 @@ import {
   DrawerTitle,
   DrawerDescription,
 } from './home.css';
-import BottomSheet from '@/components/bottom-sheet';
 
 export default function Home() {
   let watchId: any = null;
@@ -80,7 +48,7 @@ export default function Home() {
   const [curPos, setCurPos] = useState<any>(); // current location
   const [centerPos, setCenterPos] = useState<any>();
   const [isCurPosFetched, setIsCurPosFetched] = useState(false);
-  const [hasVisited, setHasVisited] = useState(false); // 첫 방문자면 도움말 뜨기 // localStorage 사용
+  // const [hasVisited, setHasVisited] = useState(false); // 첫 방문자면 도움말 뜨기 // localStorage 사용
   const [isDataLoading, setIsDataLoading] = useState(false); // data loading // default value = true
   // const [isGeoDenied, setIsGeoDenied] = useState(false);
   // const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false); // user log in // localstorage에 저장하기 또는 다른 방법 강구
@@ -202,6 +170,9 @@ export default function Home() {
     // 거부시 모든 것을 초기화. 그러나 현 위치는 초기화 하지는 않음
     // 다시 승인시 다시 위치 정보를 받기.
     // 요청할 수 있을시 모달을 띄우기. 승인 요청을 해달라는 문구.
+    setTimeout(() => {
+      setIsDataLoading(true);
+    }, 1000);
   }, []);
 
   useEffect(() => {
@@ -235,7 +206,28 @@ export default function Home() {
     }
   }, [curPos]);
 
-  return isDataLoading ? (
+  const [visibleMarkers, setVisibleMarkers] = useState([]);
+  console.log(visibleMarkers);
+
+  const markers = [
+    { position: { lat: 33.450701, lng: 126.570667 }, content: 'Marker 1' },
+    { position: { lat: 33.450936, lng: 126.569477 }, content: 'Marker 2' },
+    { position: { lat: 33.451, lng: 126.572 }, content: 'Marker 3' },
+  ];
+  const handleBoundsChanged = (map: any) => {
+    const bounds = map.getBounds();
+    const visible: any = markers.filter(marker => {
+      const position = new kakao.maps.LatLng(
+        marker.position.lat,
+        marker.position.lng
+      );
+
+      return bounds.contain(position);
+    });
+    setVisibleMarkers(visible);
+  };
+
+  return !isDataLoading ? (
     <Loading />
   ) : (
     <StyledMain>
@@ -248,8 +240,25 @@ export default function Home() {
           }}
           onZoomStart={handleMotionDetected} // - [ *** ] isTracking 시에는 zoom 하면 center 좌표를 중심으로 zoom 되기 기능 만들기
           onDragStart={handleMotionDetected}
+          /* 장소 추가 */
+          onDoubleClick={(_: any, mouseEvent: any) => {
+            const latlng = mouseEvent.latLng;
+            console.table({
+              lat: latlng.getLat(),
+              lng: latlng.getLng(),
+            });
+          }}
+          onBoundsChanged={handleBoundsChanged}
         >
           {curPos && <MapMarker onClick={onCurPosTracking} position={curPos} />}
+
+          {visibleMarkers.map((marker: any, index: any) => (
+            <MapMarker key={index} position={marker.position}>
+              <div style={{ padding: '5px', color: '#000' }}>
+                {marker.content}
+              </div>
+            </MapMarker>
+          ))}
         </KakaoMap>
       </StyledMap>
       <StyledFooterLayout>

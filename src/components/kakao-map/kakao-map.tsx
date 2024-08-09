@@ -35,7 +35,10 @@ export default function KakaoMap(props: any) {
         }}
         onZoomStart={props?.onZoomStart || undefined}
         onDragStart={props?.onDragStart || undefined}
+        disableDoubleClickZoom // double click 막기
         /* 장소 추가 */
+        onDoubleClick={props?.onDoubleClick || undefined}
+        onBoundsChanged={props?.onBoundsChanged || undefined}
       >
         {props.children}
       </StyledMap>

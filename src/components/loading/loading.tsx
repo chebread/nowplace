@@ -18,11 +18,12 @@ import {
   StyledItem,
   StyledMain,
 } from './loading.css';
-import ImageCombinationLogo from '@/assets/icons/combination-logo.png';
+import ImageCombinationLogo from '@/assets/icons/favicon.png';
 
 export default function Loading() {
   const copyright = `© ${new Date().getFullYear()} Cha Haneum`;
 
+  // - [ ] 로딩 opacity 사라짐 효과 구현하기
   return (
     <StyledMain>
       <StyledItem></StyledItem>

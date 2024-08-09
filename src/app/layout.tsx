@@ -8,7 +8,6 @@ import GlobalStyle from '@/style/global.css';
 import { Metadata } from 'next';
 import { Analytics } from '@vercel/analytics/react';
 import { Toaster } from 'sonner';
-import Script from 'next/script';
 
 export const metadata: Metadata = {
   metadataBase: new URL('https://nowplace.kr/'),

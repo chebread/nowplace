@@ -1,3 +1,4 @@
+import { motion } from 'framer-motion';
 import Image from 'next/image';
 import styled from 'styled-components';
 
@@ -38,6 +39,8 @@ export const StyledBottomItem = styled(StyledItem)`
 `;
 
 export const StyledImage = styled(Image)`
-  height: 2.75rem;
-  width: 14.0625rem;
+  /* height: 2.75rem;
+  width: 14.0625rem; */
+  height: 10rem;
+  width: 10rem;
 `;
