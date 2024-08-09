@@ -3,10 +3,6 @@ import KaKaoMapError from './kakao-map-error';
 import { useRef } from 'react';
 import { StyledMap } from './kakao-map.css';
 
-// 만약 아예 권한조차 허락받지 않은 사용자라면 버튼으로하여금 허락을 요청하기 => 메뉴얼
-// - [ ] 길게 누르면 장소 추가 기능 만들기
-// 안되면, 클릭을 해서 modal 띄워서 지도 추가하기
-
 export default function KakaoMap(props: any) {
   const mapRef = useRef<any>();
   const defaultLevel = 5; // 상수 선언 => 추후 변경값이면 useRef로 Wrapping 하기
@@ -22,12 +18,12 @@ export default function KakaoMap(props: any) {
     <>
       <StyledMap
         ref={mapRef}
-        // style={{
-        //   height: '100%',
-        //   width: '100%',
-        // }}
         isPanto // 이동시 부드럽게
-        level={props?.level || defaultLevel} // - [ ] props.level number로 제한하기
+        /* 장소 추가 */
+        onDoubleClick={props?.onDoubleClick || undefined}
+        onBoundsChanged={props?.onBoundsChanged || undefined}
+        /* 현재 위치 */
+        level={props?.level || defaultLevel}
         center={props?.center || defaultCenter}
         onDragEnd={(map: any) => {
           props?.onDragEnd(map); // drag 종료시 center 값 변경
@@ -36,9 +32,6 @@ export default function KakaoMap(props: any) {
         onZoomStart={props?.onZoomStart || undefined}
         onDragStart={props?.onDragStart || undefined}
         disableDoubleClickZoom // double click 막기
-        /* 장소 추가 */
-        onDoubleClick={props?.onDoubleClick || undefined}
-        onBoundsChanged={props?.onBoundsChanged || undefined}
       >
         {props.children}
       </StyledMap>
