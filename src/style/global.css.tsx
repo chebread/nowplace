@@ -9,6 +9,8 @@ const GlobalStyle = createGlobalStyle`
   ${reset} // later this code must be below 'reset code'
 
   :root {
+    --100vh: calc(var(--vh, 1vh) * 100);
+
     /* Typography */
     --font-sans: var(--font-geist-sans), -apple-system, BlinkMacSystemFont, 'Roboto',
       'Helvetica Neue', sans-serif;
@@ -332,9 +334,7 @@ const GlobalStyle = createGlobalStyle`
     -webkit-text-size-adjust: 110%;
     font-size: 16px; // 1rem = 16px
     line-height: 1.55em;
-    -ms-user-select: none;
-    -webkit-user-select: none;
-    user-select: none;
+
   }
 
   body {
@@ -359,6 +359,11 @@ const GlobalStyle = createGlobalStyle`
     cursor: pointer;
     outline: inherit;
     -webkit-tap-highlight-color: transparent; // 비표준 
+
+    user-select: none;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
   }
 
   .toaster {

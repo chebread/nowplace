@@ -1,7 +1,6 @@
 import styled, { keyframes } from 'styled-components';
 import { Drawer } from 'vaul';
 
-/* Drawer */
 export const DrawerOverlay = styled(Drawer.Overlay)`
   position: fixed;
   top: 0;
@@ -10,6 +9,7 @@ export const DrawerOverlay = styled(Drawer.Overlay)`
   left: 0;
   background-color: rgba(0, 0, 0, 0.4);
 `;
+
 export const DrawerContent = styled(Drawer.Content)`
   /* background-color: var(--zinc-100); */
   background-color: #ffffff;
@@ -25,6 +25,7 @@ export const DrawerContent = styled(Drawer.Content)`
   right: 0;
   z-index: 10000; // 최상단 위치
 `;
+
 export const DrawerModal = styled.div`
   padding: 16px;
   background-color: white;
@@ -32,6 +33,7 @@ export const DrawerModal = styled.div`
   border-top-right-radius: 10px;
   flex: 1 1 0%;
 `;
+
 export const DrawerHandleBar = styled.div`
   margin-left: auto;
   margin-right: auto;
@@ -42,21 +44,27 @@ export const DrawerHandleBar = styled.div`
   background-color: var(--zinc-300);
   margin-bottom: 2rem;
 `;
+
 export const DrawerContents = styled.div`
   max-width: 40rem;
   height: 100%;
   margin-left: auto;
   margin-right: auto;
 `;
+
 export const DrawerTitle = styled(Drawer.Title)``;
+
 export const DrawerDescription = styled(Drawer.Description)``;
-/* styling */
-export const StyledMain = styled.main``;
+
+export const StyledMain = styled.main`
+  height: 100vh;
+  width: 100vw;
+`;
 
 export const StyledMap = styled.div`
   position: relative;
-  height: 100vh;
-  width: 100vw;
+  height: 100%;
+  width: 100%;
   z-index: 0;
 `;
 
@@ -115,12 +123,16 @@ export const StyledCopyright = styled.div`
 `;
 
 export const StyledShowMoreBtn = styled.button`
-  user-select: none; // text 선택 방지
   display: flex;
   flex-direction: column;
   justify-content: center;
   height: 100%;
   width: 100%;
+
+  user-select: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
 `;
 
 export const StyledFooterBtnWrapper = styled.div`
@@ -155,6 +167,7 @@ const spin = keyframes`
         transform: rotate(360deg);
     }
 `;
+
 export const StyledFooterLoadingSpinnerButton = styled(StyledFooterButton)`
   svg {
     animation: ${spin} 1s ease-in-out infinite;

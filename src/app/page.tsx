@@ -59,18 +59,20 @@ import {
   StyledFooter,
   StyledFooterItem,
   StyledFooterLayout,
+  StyledFooterBtnWrapper,
+  StyledFooterButton,
+  StyledFooterLoadingSpinnerButton,
   StyledShowMoreBtn,
   StyledLogo,
   StyledMain,
   StyledMap,
-  StyledFooterBtnWrapper,
-  StyledFooterButton,
-  StyledFooterLoadingSpinnerButton,
   DrawerTitle,
   DrawerDescription,
 } from './home.css';
+import use100vh from '@/hooks/use-100vh';
 
 export default function Home() {
+  use100vh(); // 100vh 모바일 대응
   const copyright = `© ${new Date().getFullYear()} Cha Haneum`;
   /* 데이터 */
   const [hasVisited, setHasVisited] = useState(false); // 첫 방문자면 도움말 뜨기 // localStorage 사용
@@ -91,7 +93,6 @@ export default function Home() {
 
   /* 데이터 */
   // const [visibleMarkers, setVisibleMarkers] = useState([]);
-
   // const markers = [
   //   { position: { lat: 33.450701, lng: 126.570667 }, content: 'Marker 1' },
   //   { position: { lat: 33.450936, lng: 126.569477 }, content: 'Marker 2' },
@@ -104,7 +105,6 @@ export default function Home() {
   //       marker.position.lat,
   //       marker.position.lng
   //     );
-
   //     return bounds.contain(position);
   //   });
   //   setVisibleMarkers(visible);
@@ -245,7 +245,7 @@ export default function Home() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [curPos]);
 
-  return !isDataLoading ? (
+  return isDataLoading ? (
     /* 로딩 */
     <Loading />
   ) : (
