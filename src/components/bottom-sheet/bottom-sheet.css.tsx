@@ -61,6 +61,7 @@ export const DrawerModal = styled.div`
 `;
 
 export const DrawerContents = styled.div`
+  position: relative;
   max-width: 40rem;
   width: 100%;
   height: 100%;

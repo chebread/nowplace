@@ -23,11 +23,22 @@ const GlobalStyle = createGlobalStyle`
     --black: #000000;
     --bg: var(--white);
     --fg: var(--black);
+    
+    /* 앱 아이콘 대표색 */
+    --app-icon-color-100: #D9D9D9;
+    --app-icon-color-200: #BFBFBF;
+    --app-icon-color-300: #8C8C8C;
+    --app-icon-color-400: #595959;
+    --app-icon-color-500: #262626;
 
     /* Tailwind color palette */
     ${tailwindColorPalette}
 
     // transition: background-color var(--transition), color var(--transition);
+    /* transform */
+    --btn-scale-large: scale(0.96);
+    --btn-scale-small: scale(0.86);
+
     /* Transitions */
     --transition: 0.2s ease-out;
     --transition-slow: 0.3s ease-out;
@@ -53,7 +64,6 @@ const GlobalStyle = createGlobalStyle`
     transition-timing-function: ease-out; */
 
     /* */
-    --box-shadow: 0 10.5px 21px rgba(0, 0, 0, 0.08);
   }
 
   [data-theme='dark'] {
@@ -104,6 +114,7 @@ const GlobalStyle = createGlobalStyle`
     -webkit-user-select: none;
     -moz-user-select: none;
     -ms-user-select: none;
+    
   }
 
   textarea {

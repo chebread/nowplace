@@ -93,7 +93,7 @@ export const StyledFooterBtn = styled.button`
   will-change: transform;
   transition: transform var(--transition);
   &:active {
-    transform: scale(0.86);
+    transform: var(--btn-scale-small);
   }
   background-color: #ffffff;
   height: 3rem;
@@ -102,7 +102,7 @@ export const StyledFooterBtn = styled.button`
   justify-content: center;
   align-items: center;
   border-radius: 50%;
-  box-shadow: var(--box-shadow);
+  box-shadow: 0 10.5px 21px rgba(0, 0, 0, 0.08);
 `;
 
 const spin = keyframes`
@@ -137,9 +137,10 @@ export const AddPlaceDrawerModal = styled(DrawerModal)`
   height: 100%;
   width: 100%;
 `;
+
 export const AddPlaceDrawerContents = styled(DrawerContents)`
-  // - [ ] 왜 contents에서는 안될까?
   height: 100%;
+  width: 100%;
 `;
 
 export const AddPlaceTextareaWrapper = styled.div`
@@ -147,6 +148,7 @@ export const AddPlaceTextareaWrapper = styled.div`
   width: 100%;
   background-color: #ffffff; // textarea 회색 잔상 제거
 `;
+
 export const AddPlaceTextarea = styled(TextareaAutosize)`
   white-space: normal;
   overflow-wrap: break-word;
@@ -158,4 +160,41 @@ export const AddPlaceTextarea = styled(TextareaAutosize)`
   border-radius: 0;
   -webkit-tap-highlight-color: transparent; // 비표준
   width: 100%;
+`;
+
+export const AddPlaceFooter = styled.footer`
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  max-width: 40rem;
+  margin: 0 auto;
+`;
+
+export const AddPlaceFooterX = styled.div`
+  height: 34px;
+  background: linear-gradient(
+    to top,
+    rgb(255, 255, 255),
+    rgba(255, 255, 255, 0)
+  );
+`;
+
+export const AddPlaceFooterWrapper = styled.div`
+  padding: 1rem;
+  background-color: #fff;
+`;
+
+export const AddPlaceFooterBtn = styled.button`
+  height: 3rem;
+  width: 100%;
+  font-weight: 600;
+  color: white;
+  background-color: var(--app-icon-color-500);
+  border-radius: 1rem;
+  will-change: transform;
+  transition: transform var(--transition);
+  &:active {
+    transform: var(--btn-scale-large);
+  }
 `;
