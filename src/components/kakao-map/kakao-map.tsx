@@ -20,6 +20,7 @@ export default function KakaoMap(props: any) {
         ref={mapRef}
         isPanto // 이동시 부드럽게
         /* 장소 추가 */
+        disableDoubleClickZoom // double click 막기
         onDoubleClick={props?.onDoubleClick || undefined}
         onBoundsChanged={props?.onBoundsChanged || undefined}
         /* 현재 위치 */
@@ -31,7 +32,6 @@ export default function KakaoMap(props: any) {
         }}
         onZoomStart={props?.onZoomStart || undefined}
         onDragStart={props?.onDragStart || undefined}
-        disableDoubleClickZoom // double click 막기
       >
         {props.children}
       </StyledMap>
