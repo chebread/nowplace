@@ -106,6 +106,10 @@ const GlobalStyle = createGlobalStyle`
     -ms-user-select: none;
   }
 
+  textarea {
+    
+  }
+
   .toaster {
     font-family: var(--font-sans);
     

@@ -1,3 +1,8 @@
+import {
+  DrawerContents,
+  DrawerModal,
+} from '@/components/bottom-sheet/bottom-sheet.css';
+import TextareaAutosize from 'react-textarea-autosize';
 import styled, { keyframes } from 'styled-components';
 
 export const StyledMain = styled.main``;
@@ -83,7 +88,7 @@ export const StyledFooterBtnWrapper = styled.div`
   gap: 0.5rem;
 `;
 
-export const StyledFooterButton = styled.button`
+export const StyledFooterBtn = styled.button`
   cursor: pointer;
   will-change: transform;
   transition: transform var(--transition);
@@ -109,10 +114,14 @@ const spin = keyframes`
     }
 `;
 
-export const StyledFooterLoadingSpinnerButton = styled(StyledFooterButton)`
+export const StyledFooterLoadingSpinnerButton = styled(StyledFooterBtn)`
   svg {
     animation: ${spin} 1s ease-in-out infinite;
   }
+`;
+
+export const CurPosMarkerBtn = styled.button`
+  display: flex;
 `;
 
 export const CurPosMarker = styled.div`
@@ -122,4 +131,31 @@ export const CurPosMarker = styled.div`
   border: var(--white) solid 0.125rem;
   box-shadow: 0 0 0.125rem rgba(0, 0, 0, 0.35);
   background-color: var(--blue-500); // apple map: rgb(0, 122, 254)
+`;
+
+export const AddPlaceDrawerModal = styled(DrawerModal)`
+  height: 100%;
+  width: 100%;
+`;
+export const AddPlaceDrawerContents = styled(DrawerContents)`
+  // - [ ] 왜 contents에서는 안될까?
+  height: 100%;
+`;
+
+export const AddPlaceTextareaWrapper = styled.div`
+  display: flex;
+  width: 100%;
+  background-color: #ffffff; // textarea 회색 잔상 제거
+`;
+export const AddPlaceTextarea = styled(TextareaAutosize)`
+  white-space: normal;
+  overflow-wrap: break-word;
+  word-wrap: break-word;
+  resize: none;
+  border: 0;
+  outline: 0;
+  overflow: auto;
+  border-radius: 0;
+  -webkit-tap-highlight-color: transparent; // 비표준
+  width: 100%;
 `;
