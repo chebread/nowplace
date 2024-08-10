@@ -48,7 +48,7 @@
 
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { Drawer } from 'vaul';
 import { toast } from 'sonner';
 import _ from 'lodash';
@@ -84,7 +84,7 @@ import {
   AddPlaceFooterWrapper,
   AddPlaceFooterBtn,
   AddPlaceFooter,
-  AddPlaceFooterX,
+  AddPlaceFooterGradient,
 } from './home.css';
 
 import {
@@ -99,7 +99,8 @@ import {
   DrawerDescription,
   DrawerCopyright,
 } from '@/components/bottom-sheet/bottom-sheet.css';
-import TextareaAutosize from 'react-textarea-autosize';
+import { useSearchParams } from 'next/navigation';
+import { v4 as uuidv4 } from 'uuid';
 
 export default function Home() {
   const copyright = `© ${new Date().getFullYear()} Cha Haneum`;
@@ -108,6 +109,8 @@ export default function Home() {
   //   useState(false); // denied 되면 권한을 재요청 해주십시오 라는 바텀시트 올라가는 것을 제어하는 토글
   const [addPlaceToggle, setAddPlaceToggle] = useState(false); // 장소 추가시 바텀시트 작동 Toggle
   /* 데이터 */
+  const searchParams = useSearchParams();
+  const [addPlaceMemo, setAddPlaceMemo] = useState<string>();
   const addPlaceTextareaRef = useRef<any>(null);
   const [addPlacePos, setAddPlacePos] = useState<any>();
   const [hasVisited, setHasVisited] = useState(false); // 첫 방문자면 도움말 뜨기 // localStorage 사용
@@ -127,17 +130,52 @@ export default function Home() {
   const [geoPermission, setGeoPermission] = useState(''); // 모든 지도의 권한을 설정함
 
   /* toggle */
-  // const closeGeoPermissionRequestBottomSheet = () => {
-  //   setGeoPermissionRequestToggle(false);
-  // };
   const closeAddPlaceBottomSheet = () => {
     setAddPlaceToggle(false);
-    setDoubleClickedPos(undefined);
+    setAddPlacePos(undefined);
   };
   /* 데이터 */
+  const createQueryString = useCallback(
+    (key: string, value: string) => {
+      const params = new URLSearchParams(searchParams.toString());
+      params.set(key, value);
+
+      return params.toString();
+    },
+    [searchParams]
+  );
+  const deleteQueryString = useCallback(
+    (key: string) => {
+      const params = new URLSearchParams(searchParams.toString());
+      params.delete(key); // 이제 쿼리 문자열이 'bar=2'
+
+      return params.toString();
+    },
+    [searchParams]
+  );
+  function generateUUIDWithoutHyphens() {
+    return uuidv4().replace(/-/g, '');
+  }
+  const savePlace = (pos: any, content: any) => {
+    // 위치를 URL에 저장하기
+    // ?data=[{ ... }, { ... }](base64)
+    // [{ id, ..., position: { lat: ..., lng: ... }, content: ... }, ... ]
+    console.log(`#${content || ''}#`);
+
+    const saveDataId = generateUUIDWithoutHyphens();
+    const saveData = {
+      id: saveDataId,
+      position: {
+        lat: pos.lat,
+        lng: pos.lng,
+      },
+      content: content || '', // undefined면 빈 문자열을 저장
+    };
+    console.log(saveData);
+  };
   const addPlace = (pos: any) => {
     setAddPlaceToggle(true);
-    setDoubleClickedPos(pos);
+    setAddPlacePos(pos);
   };
   // const [visibleMarkers, setVisibleMarkers] = useState([]);
   // const markers = [
@@ -360,7 +398,6 @@ export default function Home() {
                   if (addPlaceTextareaRef.current !== null) {
                     // addPlaceTextareaRef.current.disabled = false;
                     addPlaceTextareaRef.current.focus();
-                    console.log(3);
                   }
                 }}
               >
@@ -376,11 +413,14 @@ export default function Home() {
                       autoFocus
                       maxLength={150}
                       rows={6}
+                      defaultValue=""
+                      value={addPlaceMemo}
+                      onChange={event => setAddPlaceMemo(event.target.value)} // - [ ] 개선하기
                       placeholder="저장할 장소에 메모를 추가하세요."
                     />
                   </AddPlaceTextareaWrapper>
                   <AddPlaceFooter>
-                    <AddPlaceFooterX></AddPlaceFooterX>
+                    <AddPlaceFooterGradient></AddPlaceFooterGradient>
                     <AddPlaceFooterWrapper
                       onClick={event => {
                         event.stopPropagation();
@@ -388,7 +428,7 @@ export default function Home() {
                     >
                       <AddPlaceFooterBtn
                         onClick={() => {
-                          console.log(doubleClickedPos);
+                          savePlace(addPlacePos, addPlaceMemo);
                         }}
                       >
                         장소 저장하기
