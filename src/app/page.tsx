@@ -157,11 +157,9 @@ export default function Home() {
     return uuidv4().replace(/-/g, '');
   }
   const savePlace = (pos: any, content: any) => {
-    // 위치를 URL에 저장하기
+    // - [ ] 위치를 URL에 저장하기 / 삭제하기 / 조회하기 (조회는 처음 마운트 될때)
     // ?data=[{ ... }, { ... }](base64)
     // [{ id, ..., position: { lat: ..., lng: ... }, content: ... }, ... ]
-    console.log(`#${content || ''}#`);
-
     const saveDataId = generateUUIDWithoutHyphens();
     const saveData = {
       id: saveDataId,
