@@ -44,6 +44,7 @@
 // 5. 개인정보...
 // 6. 문의 => fromhaneum@gmail.com
 // - [ ] 모든 바텀 시트 밑에는 copyright 배출하기
+// 기본적으로 제공하는 prompt toggle(yes or no)도 고려해보기
 
 'use client';
 
@@ -80,6 +81,10 @@ import {
   AddPlaceDrawerContents,
   AddPlaceTextareaWrapper,
   AddPlaceTextarea,
+  AddPlaceFooterWrapper,
+  AddPlaceFooterBtn,
+  AddPlaceFooter,
+  AddPlaceFooterX,
 } from './home.css';
 
 import {
@@ -104,7 +109,7 @@ export default function Home() {
   const [addPlaceToggle, setAddPlaceToggle] = useState(false); // 장소 추가시 바텀시트 작동 Toggle
   /* 데이터 */
   const addPlaceTextareaRef = useRef<any>(null);
-  const [doubleClickedPos, setDoubleClickedPos] = useState<any>();
+  const [addPlacePos, setAddPlacePos] = useState<any>();
   const [hasVisited, setHasVisited] = useState(false); // 첫 방문자면 도움말 뜨기 // localStorage 사용
   const [isDataLoading, setIsDataLoading] = useState(false); // data loading // default value = true
   /* 현재 위치 */
@@ -359,27 +364,37 @@ export default function Home() {
                   }
                 }}
               >
-                <AddPlaceDrawerContents
-                  onClick={event => {
-                    event.stopPropagation();
-                  }}
-                >
-                  {addPlaceToggle ? (
-                    // 모달 렌더링시
-                    <>
-                      <AddPlaceTextareaWrapper>
-                        <AddPlaceTextarea
-                          ref={addPlaceTextareaRef}
-                          autoFocus
-                          maxLength={150}
-                          rows={6}
-                          placeholder="저장할 장소에 메모를 추가하세요"
-                        />
-                      </AddPlaceTextareaWrapper>
-                    </>
-                  ) : (
-                    ''
-                  )}
+                <AddPlaceDrawerContents>
+                  <AddPlaceTextareaWrapper
+                    onClick={event => {
+                      // focus 이벤트 적용하지 않기
+                      event.stopPropagation();
+                    }}
+                  >
+                    <AddPlaceTextarea
+                      ref={addPlaceTextareaRef}
+                      autoFocus
+                      maxLength={150}
+                      rows={6}
+                      placeholder="저장할 장소에 메모를 추가하세요."
+                    />
+                  </AddPlaceTextareaWrapper>
+                  <AddPlaceFooter>
+                    <AddPlaceFooterX></AddPlaceFooterX>
+                    <AddPlaceFooterWrapper
+                      onClick={event => {
+                        event.stopPropagation();
+                      }}
+                    >
+                      <AddPlaceFooterBtn
+                        onClick={() => {
+                          console.log(doubleClickedPos);
+                        }}
+                      >
+                        장소 저장하기
+                      </AddPlaceFooterBtn>
+                    </AddPlaceFooterWrapper>
+                  </AddPlaceFooter>
                 </AddPlaceDrawerContents>
               </AddPlaceDrawerModal>
             </DrawerContent>
