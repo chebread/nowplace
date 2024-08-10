@@ -82,12 +82,18 @@ import {
   DrawerHeader,
   DrawerHandlebarWrapper,
   DrawerHandlebar,
+  DrawerTitle,
 } from '@/components/bottom-sheet/bottom-sheet.css';
 
 export default function Home() {
   const copyright = `© ${new Date().getFullYear()} Cha Haneum`;
+  /* toggle */
+  const [showMoreToggle, setShowMoreToggle] = useState(false);
+  const [geoPermissionRequestToggle, setGeoPermissionRequestToggle] =
+    useState(false); // denied 되면 권한을 재요청 해주십시오 라는 바텀시트 올라가는 것을 제어하는 토글
+  const [addPlaceToggle, setAddPlaceToggle] = useState(false); // 장소 추가시 바텀시트 작동 Toggle
   /* 데이터 */
-  const [doubleClicked, setDoubleClicked] = useState(false);
+
   const [doubleClickedPos, setDoubleClickedPos] = useState<any>();
   const [hasVisited, setHasVisited] = useState(false); // 첫 방문자면 도움말 뜨기 // localStorage 사용
   const [isDataLoading, setIsDataLoading] = useState(false); // data loading // default value = true
@@ -105,14 +111,21 @@ export default function Home() {
   const [isTracking, setIsTracking] = useState(false);
   const [geoPermission, setGeoPermission] = useState(''); // 모든 지도의 권한을 설정함
 
-  /* 데이터 */
-  const addPlace = (pos: any) => {
-    setDoubleClicked(true);
-    setDoubleClickedPos(pos);
+  /* toggle */
+  const closeShowMoreBottomSheet = () => {
+    setShowMoreToggle(false);
+  };
+  const closeGeoPermissionRequestBottomSheet = () => {
+    setGeoPermissionRequestToggle(false);
   };
   const closeAddPlaceBottomSheet = () => {
-    setDoubleClicked(false);
+    setAddPlaceToggle(false);
     setDoubleClickedPos(undefined);
+  };
+  /* 데이터 */
+  const addPlace = (pos: any) => {
+    setAddPlaceToggle(true);
+    setDoubleClickedPos(pos);
   };
   // const [visibleMarkers, setVisibleMarkers] = useState([]);
   // const markers = [
@@ -314,7 +327,7 @@ export default function Home() {
         {/* 장소 추가 Bottom sheet */}
         <Drawer.Root
           shouldScaleBackground
-          open={doubleClicked}
+          open={addPlaceToggle}
           onClose={closeAddPlaceBottomSheet}
         >
           <Drawer.Portal>
@@ -331,7 +344,7 @@ export default function Home() {
               </DrawerHeader>
               <DrawerModal>
                 <DrawerContents>
-                  {doubleClicked ? (
+                  {addPlaceToggle ? (
                     // 모달 렌더링시
                     <>
                       <h1>장소 추가</h1>
@@ -398,15 +411,54 @@ export default function Home() {
                   {isTracking ? <SvgFilledTracking /> : <SvgTracking />}
                 </StyledFooterButton>
               ) : geoPermission === 'denied' ? (
-                <StyledFooterButton
-                  onClick={() => {
-                    // 권한 설정 방법 모달 뜸
-                    // 근데 일단은 toast로 대체함
-                    toast.warning('위치 권한이 거부 되었습니다.');
-                  }}
-                >
-                  <SvgReject />
-                </StyledFooterButton>
+                <>
+                  <StyledFooterButton
+                    onClick={() => {
+                      // 권한 설정 방법 모달 뜸
+                      // 근데 일단은 toast로 대체함
+                      // toast.warning('위치 권한이 거부 되었습니다.');
+                      setGeoPermissionRequestToggle(true);
+                    }}
+                  >
+                    <SvgReject />
+                  </StyledFooterButton>
+                  {/* 위치 권한 요청 바텀 시트 */}
+                  <Drawer.Root
+                    shouldScaleBackground
+                    open={geoPermissionRequestToggle}
+                    onClose={closeGeoPermissionRequestBottomSheet}
+                  >
+                    <Drawer.Portal>
+                      <DrawerOverlay
+                        onClick={closeGeoPermissionRequestBottomSheet}
+                      />
+                      <DrawerContent
+                        onOpenAutoFocus={e => {
+                          e.preventDefault(); // safari focused 막기
+                        }}
+                      >
+                        <DrawerHeader>
+                          <DrawerHandlebarWrapper
+                            onClick={closeGeoPermissionRequestBottomSheet}
+                          >
+                            <DrawerHandlebar></DrawerHandlebar>
+                          </DrawerHandlebarWrapper>
+                        </DrawerHeader>
+                        <DrawerModal>
+                          <DrawerContents>
+                            {geoPermissionRequestToggle ? (
+                              <>
+                                <h1>위치 권한이 거부되었습니다</h1>
+                              </>
+                            ) : (
+                              ''
+                            )}
+                          </DrawerContents>
+                        </DrawerModal>
+                      </DrawerContent>
+                    </Drawer.Portal>
+                  </Drawer.Root>
+                </>
               ) : (
                 <StyledFooterLoadingSpinnerButton>
                   <SvgSpin />
