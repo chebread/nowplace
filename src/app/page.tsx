@@ -39,7 +39,7 @@ import { Drawer } from 'vaul';
 import { toast } from 'sonner';
 import _ from 'lodash';
 import KakaoMap from '@/components/kakao-map';
-import { MapMarker } from 'react-kakao-maps-sdk';
+import { Map, MapMarker } from 'react-kakao-maps-sdk';
 // svgs
 import Loading from '@/components/loading';
 import SvgLogo from '@/assets/icons/logo.svg';
@@ -52,7 +52,6 @@ import SvgPlus from '@/assets/icons/plus.svg';
 import {
   DrawerContent,
   DrawerContents,
-  DrawerHandleBar,
   DrawerModal,
   DrawerOverlay,
   StyledCopyright,
@@ -68,6 +67,9 @@ import {
   StyledMap,
   DrawerTitle,
   DrawerDescription,
+  DrawerHeader,
+  DrawerHandlebarWrapper,
+  DrawerHandlebar,
 } from './home.css';
 
 export default function Home() {
@@ -280,7 +282,7 @@ export default function Home() {
       </StyledMap>
       <StyledFooterLayout>
         <StyledFooter>
-          <Drawer.Root shouldScaleBackground>
+          <Drawer.Root shouldScaleBackground dismissible={false}>
             <Drawer.Trigger asChild>
               <StyledFooterItem>
                 <StyledShowMoreBtn>
@@ -298,11 +300,20 @@ export default function Home() {
                   e.preventDefault(); // safari focused 막기
                 }}
               >
+                <DrawerHeader>
+                  <DrawerHandlebarWrapper>
+                    <DrawerHandlebar></DrawerHandlebar>
+                  </DrawerHandlebarWrapper>
+                </DrawerHeader>
                 <DrawerModal>
-                  <DrawerHandleBar />
                   <DrawerContents>
-                    <DrawerTitle>hello</DrawerTitle>
-                    <DrawerDescription>lorem</DrawerDescription>
+                    <Map
+                      style={{
+                        height: '100%',
+                        width: '100%',
+                      }}
+                      center={centerPos}
+                    ></Map>
                   </DrawerContents>
                 </DrawerModal>
               </DrawerContent>
