@@ -37,6 +37,8 @@
 // undefined 말고 null로 모두 전환하기 like setDoubleClickedPos(undefined);
 // - [ ] 100vh 오류 해결하기
 /* show more */
+// 데이터 지우기 => Url 다 지우면 됨
+// 위치 권한 상태: 거부됨 / 승인됨 / undefined (prompt)
 //
 
 'use client';
@@ -131,7 +133,6 @@ export default function Home() {
   // };
   /* 현재 위치 */
   const updateCenterPos = (map: kakao.maps.Map) => {
-    console.log(1);
     setCenterPos({
       lat: map.getCenter().getLat(),
       lng: map.getCenter().getLng(),
@@ -197,6 +198,8 @@ export default function Home() {
       setIsCurPosFetched(false);
     }
   };
+  console.log(geoPermission);
+
   const changeGeoPermission = (state: any) => {
     if (state === 'granted') {
       setGeoPermission('granted');
@@ -204,6 +207,7 @@ export default function Home() {
       startWatchingPosition();
     }
     if (state === 'prompt') {
+      // setGeoPermission('prompt'); // 필요하지는 않음 undefined = prompt
       // console.log('위치 액세스 권한을 요청할 수 있습니다.');
       navigator.geolocation.getCurrentPosition(
         position => {
@@ -343,6 +347,7 @@ export default function Home() {
       </StyledMap>
       <StyledFooterLayout>
         <StyledFooter>
+          {/* ShowMore Bottom sheet */}
           <Drawer.Root shouldScaleBackground>
             <Drawer.Trigger asChild>
               {/* 이것도 open 이랑 toggle 쓰면 click으로 구현 가능 */}
