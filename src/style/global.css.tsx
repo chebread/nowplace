@@ -96,8 +96,7 @@ const GlobalStyle = createGlobalStyle`
     font: inherit;
     cursor: pointer;
     outline: inherit;
-    -webkit-tap-highlight-color: transparent; // 비표준 
-
+    -webkit-tap-highlight-color: transparent; // 비표준
     user-select: none;
     -webkit-user-select: none;
     -moz-user-select: none;
@@ -106,6 +105,10 @@ const GlobalStyle = createGlobalStyle`
 
   .toaster {
     font-family: var(--font-sans);
+    user-select: none;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
   }
 `;
 
