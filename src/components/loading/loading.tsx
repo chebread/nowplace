@@ -18,7 +18,7 @@ import {
   StyledItem,
   StyledMain,
 } from './loading.css';
-import ImageCombinationLogo from '@/assets/icons/favicon.png';
+import SvgAppIcon from '@/assets/icons/app-icon.png';
 
 export default function Loading() {
   const copyright = `© ${new Date().getFullYear()} Cha Haneum`;
@@ -28,7 +28,7 @@ export default function Loading() {
     <StyledMain>
       <StyledItem></StyledItem>
       <StyledCenterItem>
-        <StyledImage src={ImageCombinationLogo} alt="" />
+        <StyledImage src={SvgAppIcon} alt="NowPlace 앱 아이콘" />
       </StyledCenterItem>
       <StyledBottomItem>{copyright}</StyledBottomItem>
     </StyledMain>

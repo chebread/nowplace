@@ -31,6 +31,13 @@
 // - [ ] 만약 아예 권한조차 허락받지 않은 사용자라면 버튼으로하여금 허락을 요청하기 => 메뉴얼
 // - [ ] 길게 누르면 장소 추가 기능 만들기
 // - [ ] 장소 클릭시 bottomsheet에서 메모 뜸
+// - [ ] 위치 추가는 더블 클릭으로 가능.
+// - [ ] + 누르면 현재 위치 추가
+// - [ ] 아니면 + 누르면 위치 추가할 수 있는 핑 나오기?
+// undefined 말고 null로 모두 전환하기 like setDoubleClickedPos(undefined);
+// - [ ] 100vh 오류 해결하기
+/* show more */
+//
 
 'use client';
 
@@ -39,7 +46,7 @@ import { Drawer } from 'vaul';
 import { toast } from 'sonner';
 import _ from 'lodash';
 import KakaoMap from '@/components/kakao-map';
-import { Map, MapMarker } from 'react-kakao-maps-sdk';
+import { CustomOverlayMap, Map, MapMarker } from 'react-kakao-maps-sdk';
 // svgs
 import Loading from '@/components/loading';
 import SvgLogo from '@/assets/icons/logo.svg';
@@ -48,12 +55,9 @@ import SvgFilledTracking from '@/assets/icons/filled-tracking.svg';
 import SvgReject from '@/assets/icons/reject.svg';
 import SvgSpin from '@/assets/icons/spin.svg';
 import SvgPlus from '@/assets/icons/plus.svg';
+import SvgCurrentPin from '@/assets/icons/current-pin.svg';
 // css
 import {
-  DrawerContent,
-  DrawerContents,
-  DrawerModal,
-  DrawerOverlay,
   StyledCopyright,
   StyledFooter,
   StyledFooterItem,
@@ -65,16 +69,24 @@ import {
   StyledLogo,
   StyledMain,
   StyledMap,
-  DrawerTitle,
-  DrawerDescription,
+  CurPosMarker,
+} from './home.css';
+
+import {
+  DrawerContent,
+  DrawerContents,
+  DrawerModal,
+  DrawerOverlay,
   DrawerHeader,
   DrawerHandlebarWrapper,
   DrawerHandlebar,
-} from './home.css';
+} from '@/components/bottom-sheet/bottom-sheet.css';
 
 export default function Home() {
   const copyright = `© ${new Date().getFullYear()} Cha Haneum`;
   /* 데이터 */
+  const [doubleClicked, setDoubleClicked] = useState(false);
+  const [doubleClickedPos, setDoubleClickedPos] = useState<any>();
   const [hasVisited, setHasVisited] = useState(false); // 첫 방문자면 도움말 뜨기 // localStorage 사용
   const [isDataLoading, setIsDataLoading] = useState(false); // data loading // default value = true
   /* 현재 위치 */
@@ -92,6 +104,14 @@ export default function Home() {
   const [geoPermission, setGeoPermission] = useState(''); // 모든 지도의 권한을 설정함
 
   /* 데이터 */
+  const addPlace = (pos: any) => {
+    setDoubleClicked(true);
+    setDoubleClickedPos(pos);
+  };
+  const closeAddPlaceBottomSheet = () => {
+    setDoubleClicked(false);
+    setDoubleClickedPos(undefined);
+  };
   // const [visibleMarkers, setVisibleMarkers] = useState([]);
   // const markers = [
   //   { position: { lat: 33.450701, lng: 126.570667 }, content: 'Marker 1' },
@@ -256,7 +276,7 @@ export default function Home() {
           /* 장소 추가 */
           onDoubleClick={(_: any, mouseEvent: any) => {
             const latlng = mouseEvent.latLng;
-            console.table({
+            addPlace({
               lat: latlng.getLat(),
               lng: latlng.getLng(),
             });
@@ -265,6 +285,7 @@ export default function Home() {
           /* 현재 위치 */
           center={centerPos}
           onDragEnd={updateCenterPos}
+          onZoomChanged={updateCenterPos}
           onZoomStart={handleMotionDetected} // - [ *** ] isTracking 시에는 zoom 하면 center 좌표를 중심으로 zoom 되기 기능 만들기
           onDragStart={handleMotionDetected}
         >
@@ -277,13 +298,54 @@ export default function Home() {
             </MapMarker>
           ))} */}
           {/* 현재 위치 마커 */}
-          {curPos && <MapMarker onClick={onCurPosTracking} position={curPos} />}
+          {curPos && (
+            <>
+              <CustomOverlayMap position={curPos}>
+                <SvgCurrentPin onClick={onCurPosTracking} />
+                {/* <CurPosMarker onClick={onCurPosTracking} /> */}
+              </CustomOverlayMap>
+            </>
+          )}
         </KakaoMap>
+        {/* 장소 추가 Bottom sheet */}
+        <Drawer.Root
+          shouldScaleBackground
+          open={doubleClicked}
+          onClose={closeAddPlaceBottomSheet}
+        >
+          <Drawer.Portal>
+            <DrawerOverlay onClick={closeAddPlaceBottomSheet} />
+            <DrawerContent
+              onOpenAutoFocus={e => {
+                e.preventDefault(); // safari focused 막기
+              }}
+            >
+              <DrawerHeader>
+                <DrawerHandlebarWrapper onClick={closeAddPlaceBottomSheet}>
+                  <DrawerHandlebar></DrawerHandlebar>
+                </DrawerHandlebarWrapper>
+              </DrawerHeader>
+              <DrawerModal>
+                <DrawerContents>
+                  {doubleClicked ? (
+                    // 모달 렌더링시
+                    <>
+                      <h1>장소 추가</h1>
+                    </>
+                  ) : (
+                    ''
+                  )}
+                </DrawerContents>
+              </DrawerModal>
+            </DrawerContent>
+          </Drawer.Portal>
+        </Drawer.Root>
       </StyledMap>
       <StyledFooterLayout>
         <StyledFooter>
-          <Drawer.Root shouldScaleBackground dismissible={false}>
+          <Drawer.Root shouldScaleBackground>
             <Drawer.Trigger asChild>
+              {/* 이것도 open 이랑 toggle 쓰면 click으로 구현 가능 */}
               <StyledFooterItem>
                 <StyledShowMoreBtn>
                   <StyledLogo>
@@ -306,28 +368,28 @@ export default function Home() {
                   </DrawerHandlebarWrapper>
                 </DrawerHeader>
                 <DrawerModal>
-                  <DrawerContents>
-                    <Map
-                      style={{
-                        height: '100%',
-                        width: '100%',
-                      }}
-                      center={centerPos}
-                    ></Map>
-                  </DrawerContents>
+                  <DrawerContents>hello</DrawerContents>
                 </DrawerModal>
               </DrawerContent>
             </Drawer.Portal>
           </Drawer.Root>
           <StyledFooterItem>
             <StyledFooterBtnWrapper>
-              {/* 장소 추가 */}
-              <StyledFooterButton>
+              {/* 장소 추가 => doubleclick으로 하자 */}
+              <StyledFooterButton
+                onClick={() => {
+                  addPlace(curPos);
+                }}
+              >
                 <SvgPlus />
               </StyledFooterButton>
               {/* 현재 위치 */}
               {isCurPosFetched ? (
-                <StyledFooterButton onClick={onCurPosTracking}>
+                <StyledFooterButton
+                  onClick={() => {
+                    onCurPosTracking();
+                  }}
+                >
                   {isTracking ? <SvgFilledTracking /> : <SvgTracking />}
                 </StyledFooterButton>
               ) : geoPermission === 'denied' ? (
