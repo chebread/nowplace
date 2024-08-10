@@ -56,6 +56,8 @@ export const DrawerModal = styled.div`
   display: flex;
   flex-direction: column;
   overflow: auto;
+  padding: 0 1rem 0 1rem; // 1rem left, right 띄움
+  box-sizing: border-box;
 `;
 
 export const DrawerContents = styled.div`
@@ -69,3 +71,9 @@ export const DrawerContents = styled.div`
 export const DrawerTitle = styled(Drawer.Title)``;
 
 export const DrawerDescription = styled(Drawer.Description)``;
+
+export const DrawerCopyright = () => {
+  const copyright = `© ${new Date().getFullYear()} Cha Haneum`;
+
+  return <>{copyright}</>;
+};

@@ -37,13 +37,17 @@
 // undefined 말고 null로 모두 전환하기 like setDoubleClickedPos(undefined);
 // - [ ] 100vh 오류 해결하기
 /* show more */
-// 데이터 지우기 => Url 다 지우면 됨
-// 위치 권한 상태: 거부됨 / 승인됨 / undefined (prompt)
-//
+// 1. 데이터 지우기 => Url 다 지우면 됨
+// 2. 위치 권한 상태: 거부됨 / 승인됨 / undefined (prompt) => 변경법 알려주는 모달 첨부 (블링크 참조: 도움말)
+// 3. 다크모드 변경
+// 4. 버전
+// 5. 개인정보...
+// 6. 문의 => fromhaneum@gmail.com
+// - [ ] 모든 바텀 시트 밑에는 copyright 배출하기
 
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Drawer } from 'vaul';
 import { toast } from 'sonner';
 import _ from 'lodash';
@@ -65,13 +69,17 @@ import {
   StyledFooterItem,
   StyledFooterLayout,
   StyledFooterBtnWrapper,
-  StyledFooterButton,
+  StyledFooterBtn,
   StyledFooterLoadingSpinnerButton,
   StyledShowMoreBtn,
   StyledLogo,
   StyledMain,
   StyledMap,
-  CurPosMarker,
+  CurPosMarkerBtn,
+  AddPlaceDrawerModal,
+  AddPlaceDrawerContents,
+  AddPlaceTextareaWrapper,
+  AddPlaceTextarea,
 } from './home.css';
 
 import {
@@ -83,17 +91,19 @@ import {
   DrawerHandlebarWrapper,
   DrawerHandlebar,
   DrawerTitle,
+  DrawerDescription,
+  DrawerCopyright,
 } from '@/components/bottom-sheet/bottom-sheet.css';
+import TextareaAutosize from 'react-textarea-autosize';
 
 export default function Home() {
   const copyright = `© ${new Date().getFullYear()} Cha Haneum`;
   /* toggle */
-  const [showMoreToggle, setShowMoreToggle] = useState(false);
-  const [geoPermissionRequestToggle, setGeoPermissionRequestToggle] =
-    useState(false); // denied 되면 권한을 재요청 해주십시오 라는 바텀시트 올라가는 것을 제어하는 토글
+  // const [geoPermissionRequestToggle, setGeoPermissionRequestToggle] =
+  //   useState(false); // denied 되면 권한을 재요청 해주십시오 라는 바텀시트 올라가는 것을 제어하는 토글
   const [addPlaceToggle, setAddPlaceToggle] = useState(false); // 장소 추가시 바텀시트 작동 Toggle
   /* 데이터 */
-
+  const addPlaceTextareaRef = useRef<any>(null);
   const [doubleClickedPos, setDoubleClickedPos] = useState<any>();
   const [hasVisited, setHasVisited] = useState(false); // 첫 방문자면 도움말 뜨기 // localStorage 사용
   const [isDataLoading, setIsDataLoading] = useState(false); // data loading // default value = true
@@ -112,12 +122,9 @@ export default function Home() {
   const [geoPermission, setGeoPermission] = useState(''); // 모든 지도의 권한을 설정함
 
   /* toggle */
-  const closeShowMoreBottomSheet = () => {
-    setShowMoreToggle(false);
-  };
-  const closeGeoPermissionRequestBottomSheet = () => {
-    setGeoPermissionRequestToggle(false);
-  };
+  // const closeGeoPermissionRequestBottomSheet = () => {
+  //   setGeoPermissionRequestToggle(false);
+  // };
   const closeAddPlaceBottomSheet = () => {
     setAddPlaceToggle(false);
     setDoubleClickedPos(undefined);
@@ -211,7 +218,6 @@ export default function Home() {
       setIsCurPosFetched(false);
     }
   };
-  console.log(geoPermission);
 
   const changeGeoPermission = (state: any) => {
     if (state === 'granted') {
@@ -318,13 +324,15 @@ export default function Home() {
           {curPos && (
             <>
               <CustomOverlayMap position={curPos}>
-                <SvgCurrentPin onClick={onCurPosTracking} />
+                <CurPosMarkerBtn onClick={onCurPosTracking}>
+                  <SvgCurrentPin />
+                </CurPosMarkerBtn>
                 {/* <CurPosMarker onClick={onCurPosTracking} /> */}
               </CustomOverlayMap>
             </>
           )}
         </KakaoMap>
-        {/* 장소 추가 Bottom sheet */}
+        {/* 장소 추가 바텀 시트 */}
         <Drawer.Root
           shouldScaleBackground
           open={addPlaceToggle}
@@ -342,28 +350,47 @@ export default function Home() {
                   <DrawerHandlebar></DrawerHandlebar>
                 </DrawerHandlebarWrapper>
               </DrawerHeader>
-              <DrawerModal>
-                <DrawerContents>
+              <AddPlaceDrawerModal
+                onClick={() => {
+                  if (addPlaceTextareaRef.current !== null) {
+                    // addPlaceTextareaRef.current.disabled = false;
+                    addPlaceTextareaRef.current.focus();
+                    console.log(3);
+                  }
+                }}
+              >
+                <AddPlaceDrawerContents
+                  onClick={event => {
+                    event.stopPropagation();
+                  }}
+                >
                   {addPlaceToggle ? (
                     // 모달 렌더링시
                     <>
-                      <h1>장소 추가</h1>
+                      <AddPlaceTextareaWrapper>
+                        <AddPlaceTextarea
+                          ref={addPlaceTextareaRef}
+                          autoFocus
+                          maxLength={150}
+                          rows={6}
+                          placeholder="저장할 장소에 메모를 추가하세요"
+                        />
+                      </AddPlaceTextareaWrapper>
                     </>
                   ) : (
                     ''
                   )}
-                </DrawerContents>
-              </DrawerModal>
+                </AddPlaceDrawerContents>
+              </AddPlaceDrawerModal>
             </DrawerContent>
           </Drawer.Portal>
         </Drawer.Root>
       </StyledMap>
       <StyledFooterLayout>
         <StyledFooter>
-          {/* ShowMore Bottom sheet */}
+          {/* 더보기 바텀 시트 */}
           <Drawer.Root shouldScaleBackground>
             <Drawer.Trigger asChild>
-              {/* 이것도 open 이랑 toggle 쓰면 click으로 구현 가능 */}
               <StyledFooterItem>
                 <StyledShowMoreBtn>
                   <StyledLogo>
@@ -386,7 +413,29 @@ export default function Home() {
                   </DrawerHandlebarWrapper>
                 </DrawerHeader>
                 <DrawerModal>
-                  <DrawerContents>hello</DrawerContents>
+                  <DrawerContents>
+                    {/* <ul>
+                      <li>차한음 @chahaneum</li>
+                      <li>프로필 수정</li>
+                      <></>
+                      <h2>서비스 설정</h2>
+                      <li>저장한 장소 모두 삭제</li>
+                      <li>위치 권한 상태: {geoPermission}</li>
+                      <li>로그아웃</li>
+                      <li>계정 삭제</li>
+                      <></>
+                      <h2>이용 안내</h2>
+                      <li>사용법</li>
+                      <li>문의하기: fromhaneum@gmail.com</li>
+                      <></>
+                      <h2>서비스 안내</h2>
+                      nested 쓰기 또는 notion 연결하기
+                      <li>서비스 이용약관</li>
+                      <li>개인정보 취급 방침</li>
+                      <></>
+                      <li>앱 버전 확인: v1.0.0</li>
+                    </ul> */}
+                  </DrawerContents>
                 </DrawerModal>
               </DrawerContent>
             </Drawer.Portal>
@@ -394,65 +443,46 @@ export default function Home() {
           <StyledFooterItem>
             <StyledFooterBtnWrapper>
               {/* 장소 추가 => doubleclick으로 하자 */}
-              <StyledFooterButton
+              <StyledFooterBtn
                 onClick={() => {
                   addPlace(curPos);
                 }}
               >
                 <SvgPlus />
-              </StyledFooterButton>
+              </StyledFooterBtn>
               {/* 현재 위치 */}
               {isCurPosFetched ? (
-                <StyledFooterButton
+                <StyledFooterBtn
                   onClick={() => {
                     onCurPosTracking();
                   }}
                 >
                   {isTracking ? <SvgFilledTracking /> : <SvgTracking />}
-                </StyledFooterButton>
+                </StyledFooterBtn>
               ) : geoPermission === 'denied' ? (
                 <>
-                  <StyledFooterButton
-                    onClick={() => {
-                      // 권한 설정 방법 모달 뜸
-                      // 근데 일단은 toast로 대체함
-                      // toast.warning('위치 권한이 거부 되었습니다.');
-                      setGeoPermissionRequestToggle(true);
-                    }}
-                  >
-                    <SvgReject />
-                  </StyledFooterButton>
                   {/* 위치 권한 요청 바텀 시트 */}
-                  <Drawer.Root
-                    shouldScaleBackground
-                    open={geoPermissionRequestToggle}
-                    onClose={closeGeoPermissionRequestBottomSheet}
-                  >
+                  <Drawer.Root shouldScaleBackground>
+                    <Drawer.Trigger asChild>
+                      <StyledFooterBtn>
+                        <SvgReject />
+                      </StyledFooterBtn>
+                    </Drawer.Trigger>
                     <Drawer.Portal>
-                      <DrawerOverlay
-                        onClick={closeGeoPermissionRequestBottomSheet}
-                      />
+                      <DrawerOverlay />
                       <DrawerContent
                         onOpenAutoFocus={e => {
-                          e.preventDefault(); // safari focused 막기
+                          e.preventDefault();
                         }}
                       >
                         <DrawerHeader>
-                          <DrawerHandlebarWrapper
-                            onClick={closeGeoPermissionRequestBottomSheet}
-                          >
+                          <DrawerHandlebarWrapper>
                             <DrawerHandlebar></DrawerHandlebar>
                           </DrawerHandlebarWrapper>
                         </DrawerHeader>
                         <DrawerModal>
                           <DrawerContents>
-                            {geoPermissionRequestToggle ? (
-                              <>
-                                <h1>위치 권한이 거부되었습니다</h1>
-                              </>
-                            ) : (
-                              ''
-                            )}
+                            <h1>위치 권한이 거부되었습니다</h1>
                           </DrawerContents>
                         </DrawerModal>
                       </DrawerContent>
