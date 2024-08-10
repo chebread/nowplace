@@ -171,8 +171,8 @@ export const AddPlaceFooter = styled.footer`
   margin: 0 auto;
 `;
 
-export const AddPlaceFooterX = styled.div`
-  height: 34px;
+export const AddPlaceFooterGradient = styled.div`
+  height: 2rem;
   background: linear-gradient(
     to top,
     rgb(255, 255, 255),
@@ -182,7 +182,7 @@ export const AddPlaceFooterX = styled.div`
 
 export const AddPlaceFooterWrapper = styled.div`
   padding: 1rem;
-  background-color: #fff;
+  background-color: #ffffff;
 `;
 
 export const AddPlaceFooterBtn = styled.button`
