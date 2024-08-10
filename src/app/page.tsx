@@ -69,10 +69,8 @@ import {
   DrawerTitle,
   DrawerDescription,
 } from './home.css';
-import use100vh from '@/hooks/use-100vh';
 
 export default function Home() {
-  use100vh(); // 100vh 모바일 대응
   const copyright = `© ${new Date().getFullYear()} Cha Haneum`;
   /* 데이터 */
   const [hasVisited, setHasVisited] = useState(false); // 첫 방문자면 도움말 뜨기 // localStorage 사용

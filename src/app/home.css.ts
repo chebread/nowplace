@@ -3,10 +3,7 @@ import { Drawer } from 'vaul';
 
 export const DrawerOverlay = styled(Drawer.Overlay)`
   position: fixed;
-  top: 0;
-  right: 0;
-  bottom: 0;
-  left: 0;
+  inset: 0px;
   background-color: rgba(0, 0, 0, 0.4);
 `;
 
@@ -56,15 +53,12 @@ export const DrawerTitle = styled(Drawer.Title)``;
 
 export const DrawerDescription = styled(Drawer.Description)``;
 
-export const StyledMain = styled.main`
-  height: 100vh;
-  width: 100vw;
-`;
+export const StyledMain = styled.main``;
 
 export const StyledMap = styled.div`
   position: relative;
-  height: 100%;
-  width: 100%;
+  height: 100vh;
+  width: 100vw;
   z-index: 0;
 `;
 
@@ -81,7 +75,7 @@ export const StyledHeader = styled.header`
 `;
 
 export const StyledFooterLayout = styled.div`
-  position: sticky;
+  position: absolute; // - [ ] safari에서 주소창 때문에 가려짐. 근데 sticky 쓰면 되긴 하는데 그러면 100vh 이상해짐
   left: 0;
   right: 0;
   bottom: 0;
