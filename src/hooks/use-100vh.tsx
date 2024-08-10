@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 
-export default function use100vh() {
+function use100vh() {
   const handleResize = () => {
     const vh = window.innerHeight * 0.01;
     document.documentElement.style.setProperty('--vh', `${vh}px`);
@@ -8,8 +8,11 @@ export default function use100vh() {
 
   useEffect(() => {
     window.addEventListener('resize', handleResize);
+    alert(1);
     return () => {
       window.removeEventListener('resize', handleResize);
     };
   }, []);
 }
+
+export default use100vh;

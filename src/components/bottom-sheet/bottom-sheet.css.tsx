@@ -3,36 +3,42 @@ import { Drawer } from 'vaul';
 
 export const DrawerOverlay = styled(Drawer.Overlay)`
   position: fixed;
-  top: 0;
-  right: 0;
-  bottom: 0;
-  left: 0;
-  background-color: rgba(0, 0, 0, 0.4);
+  inset: 0;
+  background-color: rgb(0 0 0 / 0.4);
 `;
 
 export const DrawerContent = styled(Drawer.Content)`
-  background-color: var(--zinc-100);
+  --tw-bg-opacity: 1;
+  background-color: rgb(255 255 255 / var(--tw-bg-opacity)) /* #ffffff */;
   display: flex;
   flex-direction: column;
-  border-top-left-radius: 10px;
-  border-top-right-radius: 10px;
-  height: 96%;
-  margin-top: 96px;
   position: fixed;
   bottom: 0;
   left: 0;
   right: 0;
-`;
-
-export const DrawerModal = styled.div`
-  padding: 16px;
-  background-color: white;
+  height: 96%; // max-height: 96%
   border-top-left-radius: 10px;
   border-top-right-radius: 10px;
-  flex: 1 1 0%;
 `;
 
-export const DrawerHandleBar = styled.div`
+export const DrawerHeader = styled.header`
+  background-color: #ffffff;
+  width: 100%;
+  height: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  border-top-left-radius: 10px;
+  border-top-right-radius: 10px;
+`;
+
+export const DrawerHandlebarWrapper = styled(Drawer.Close)`
+  width: 100%;
+  padding: 1rem;
+  cursor: ns-resize;
+`;
+
+export const DrawerHandlebar = styled.div`
   margin-left: auto;
   margin-right: auto;
   width: 48px;
@@ -40,11 +46,26 @@ export const DrawerHandleBar = styled.div`
   flex-shrink: 0;
   border-radius: 9999px;
   background-color: var(--zinc-300);
-  margin-bottom: 2rem; /* 32px */
+`;
+
+export const DrawerModal = styled.div`
+  height: auto; // default value
+  width: 100%;
+  margin-left: auto;
+  margin-right: auto;
+  display: flex;
+  flex-direction: column;
+  overflow: auto;
 `;
 
 export const DrawerContents = styled.div`
-  max-width: 28rem; /* 448px */
+  max-width: 40rem;
+  width: 100%;
+  height: 100%;
   margin-left: auto;
   margin-right: auto;
 `;
+
+export const DrawerTitle = styled(Drawer.Title)``;
+
+export const DrawerDescription = styled(Drawer.Description)``;

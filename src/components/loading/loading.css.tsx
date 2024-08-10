@@ -3,13 +3,22 @@ import Image from 'next/image';
 import styled from 'styled-components';
 
 export const StyledMain = styled.main`
-  position: fixed;
+  position: relative;
   display: flex;
   flex-direction: column;
   height: 100vh;
   width: 100vw;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
   justify-content: center;
   align-items: center;
+
+  user-select: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
 `;
 
 export const StyledItem = styled.div`

@@ -19,8 +19,10 @@ const GlobalStyle = createGlobalStyle`
       monospace;
 
     /* Colors */
-    --bg: #ffffff;
-    --fg: #000000;
+    --white: #ffffff;
+    --black: #000000;
+    --bg: var(--white);
+    --fg: var(--black);
 
     /* Tailwind color palette */
     ${tailwindColorPalette}
@@ -97,6 +99,7 @@ const GlobalStyle = createGlobalStyle`
     cursor: pointer;
     outline: inherit;
     -webkit-tap-highlight-color: transparent; // 비표준
+    
     user-select: none;
     -webkit-user-select: none;
     -moz-user-select: none;
@@ -105,6 +108,7 @@ const GlobalStyle = createGlobalStyle`
 
   .toaster {
     font-family: var(--font-sans);
+    
     user-select: none;
     -webkit-user-select: none;
     -moz-user-select: none;

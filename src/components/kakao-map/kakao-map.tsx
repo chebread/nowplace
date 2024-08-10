@@ -22,7 +22,7 @@ export default function KakaoMap(props: any) {
         /* 장소 추가 */
         disableDoubleClickZoom // double click 막기
         onDoubleClick={props?.onDoubleClick || undefined}
-        onBoundsChanged={props?.onBoundsChanged || undefined}
+        // onBoundsChanged={props?.onBoundsChanged || undefined}
         /* 현재 위치 */
         level={props?.level || defaultLevel}
         center={props?.center || defaultCenter}
@@ -30,6 +30,9 @@ export default function KakaoMap(props: any) {
           props?.onDragEnd(map); // drag 종료시 center 값 변경
           // stopLongPress(); // - [ ] longpress 지우기
         }}
+        onZoomChanged={(map: any) => {
+          props?.onDragEnd(map); // zoom 종료시 center 값 변경
+        }} // zoom 바뀌면 onDragEnd 인식 못하는 문제 대응
         onZoomStart={props?.onZoomStart || undefined}
         onDragStart={props?.onDragStart || undefined}
       >
