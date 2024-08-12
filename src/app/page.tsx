@@ -116,7 +116,6 @@ import { omit } from 'es-toolkit';
 import { encode, decode } from 'he';
 
 export default function Home() {
-  const mapRef = useRef();
   const copyright = `© ${new Date().getFullYear()} Cha Haneum`;
   /* toggle */
   const [mapMovedToggle, setMapMovedToggle] = useState(false); // 움직임 발생시
@@ -134,6 +133,7 @@ export default function Home() {
   const [markers, setMarkers] = useState([]);
   const [visibleMarkers, setVisibleMarkers] = useState([]);
   /* 위치 */
+  const mapRef = useRef<any>();
   let watchId: any = null;
   const defaultCenter = { lat: 37.575857, lng: 126.976805 };
   const geolocationOptions = {
@@ -241,9 +241,12 @@ export default function Home() {
   // 그러므로 handle~~ 이 함수는 내가 "이 지역 검색" 클릭시에만 작동되면 아주 아주 좋게 될 듯
   // 그리고 처음 로드시에는 handle... 이 함수 실행해야함
   const handleBoundsChanged = () => {
-    const map: any = mapRef.current;
+    console.log(2);
+    const fetchedData: any = fetchDataFromUrl('data');
+    const fetchedMarkers = transformObjectToArray(fetchedData);
+    const map: kakao.maps.Map = mapRef.current;
     const bounds = map.getBounds();
-    const visible: any = markers.filter((marker: any) => {
+    const visible: any = fetchedMarkers.filter((marker: any) => {
       const position = new kakao.maps.LatLng(
         marker.position.lat,
         marker.position.lng
@@ -251,33 +254,33 @@ export default function Home() {
       return bounds.contain(position);
     });
     setVisibleMarkers(visible);
+    // - [ ] 지금 보이는 데이터는 다시 그 반영을 안하나? 그 렌더링?
+    // 근데 유의할 점은, 이미 로드한 데이터도, 현재 보이는 지역을 벗어나서 새로고침을 하면 다시 로드해야함 (약간 성능 부과될 수 있다...)
+    setFetchDataToggle(false); // 읽어들이는 중... 그거 없엠
+    setMapMovedToggle(false); // - [ ] 이거 초기에 실행하는데 문제 없겠지?
+    console.log(3);
   };
   /* 현재 위치의 데이터 불러오기 */
   useEffect(() => {
-    // {id: {  ..., position: { lat: ..., lng: ... }, content: ... }, id: { ... }, ... ]
-    // const testMarkers = [
-    //   { position: { lat: 33.450701, lng: 126.570667 }, content: 'Marker 1' },
-    //   { position: { lat: 33.450936, lng: 126.569477 }, content: 'Marker 2' },
-    //   { position: { lat: 33.451, lng: 126.572 }, content: 'Marker 3' },
-    // ];
     console.log(1);
     if (mapRef.current) {
       // - [ ] 이거 불러오기 전까지는 map을 보여주면 안되요!!!
       // - [ ] isDataLoading 쓰기
       // 로딩 페이지는 map을 렌더링 한 상태에서 그 위에 위치 해야함 (z-index: 10000) 으로!!!
-      const fetchedData: any = fetchDataFromUrl('data');
-      const markers = transformObjectToArray(fetchedData);
-      const map: kakao.maps.Map = mapRef.current;
-      const bounds = map.getBounds();
-      const visible: any = markers.filter((marker: any) => {
-        const position = new kakao.maps.LatLng(
-          marker.position.lat,
-          marker.position.lng
-        );
-        return bounds.contain(position);
-      });
-      setVisibleMarkers(visible);
-      console.log(2);
+      // const fetchedData: any = fetchDataFromUrl('data');
+      // const fetchedMarkers = transformObjectToArray(fetchedData);
+      // const map: kakao.maps.Map = mapRef.current;
+      // const bounds = map.getBounds();
+      // const visible: any = fetchedMarkers.filter((marker: any) => {
+      //   const position = new kakao.maps.LatLng(
+      //     marker.position.lat,
+      //     marker.position.lng
+      //   );
+      //   return bounds.contain(position);
+      // });
+      // setVisibleMarkers(visible);
+      handleBoundsChanged();
+      console.log(4);
       setIsDataLoading(false);
     }
     // - [ ] 근데 mapRef.current로 추적하는게 맞나? => 맞나봄
@@ -553,17 +556,19 @@ export default function Home() {
           </Drawer.Root>
         </StyledMap>
 
+        {/* 마커 로드 버튼 */}
         {mapMovedToggle && (
           <DataFetcherBtnWrapper>
             <DataFetcherBtn
               onClick={() => {
-                setFetchDataToggle(true);
-                // test code //
-                setTimeout(() => {
-                  // 데이터 페칭 완료시
-                  setFetchDataToggle(false);
-                  setMapMovedToggle(false);
-                }, 1000);
+                setFetchDataToggle(true); // - [ ] mapMovedToggle랑 fetchDataToggle랑 똑같은 기능 아님? => 아님. click하면 fetchingDataToggle이 true가 됨 (읽어들이는 중)
+                handleBoundsChanged();
+                // // test code //
+                // setTimeout(() => {
+                //   // 데이터 페칭 완료시
+                //   setFetchDataToggle(false);
+                //   setMapMovedToggle(false);
+                // }, 1000);
               }}
             >
               {fetchDataToggle ? '읽어들이는 중...' : '이 지역 검색'}
