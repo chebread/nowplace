@@ -14,11 +14,16 @@ export const StyledMap = styled.div`
   z-index: 0;
 `;
 
+export const StyledHeaderLayout = styled.div``;
+
 export const StyledHeader = styled.header`
   position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
   z-index: 1;
-  height: 100px;
-  width: 300px;
+  height: auto;
+  width: 100%;
   backdrop-filter: blur(1.5rem);
   background-color: rgba(255, 255, 255, 0.85);
   svg {
