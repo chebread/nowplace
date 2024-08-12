@@ -50,6 +50,7 @@
 // 데이터 관련은 모두 Data~로 명명함
 // - [ ] 위치를 URL에 저장하기 / 삭제하기 / 조회하기 (조회는 처음 마운트 될때)
 // - [ ] fetchedData에서 특정 id 객체를 삭제하는 코드 작성하기
+// 그리고 데이터 로딩은 항상 Url에 반영시키는 것임. url이 그냥 state고 storage임. 모든 것은 url storage를 사용함
 
 'use client';
 
@@ -115,10 +116,9 @@ import { omit } from 'es-toolkit';
 import { encode, decode } from 'he';
 
 export default function Home() {
+  const mapRef = useRef();
   const copyright = `© ${new Date().getFullYear()} Cha Haneum`;
   /* toggle */
-  // const [geoPermissionRequestToggle, setGeoPermissionRequestToggle] =
-  //   useState(false); // denied 되면 권한을 재요청 해주십시오 라는 바텀시트 올라가는 것을 제어하는 토글
   const [mapMovedToggle, setMapMovedToggle] = useState(false); // 움직임 발생시
   const [fetchDataToggle, setFetchDataToggle] = useState(false);
   const [dataToAddToggle, setDataToAddToggle] = useState(false); // 장소 추가시 바텀시트 작동 Toggle
@@ -129,8 +129,10 @@ export default function Home() {
   const [contentData, setContentData] = useState<string>();
   const dataToAddTextareaRef = useRef<any>(null);
   const [dataToAddPos, setDataToAddPos] = useState<any>();
-  const [hasVisited, setHasVisited] = useState(false); // 첫 방문자면 도움말 뜨기 // localStorage 사용
-  const [isDataLoading, setIsDataLoading] = useState(false); // data loading // default value = true
+  // const [hasVisited, setHasVisited] = useState(false); // 첫 방문자면 도움말 뜨기 // localStorage 사용
+  const [isDataLoading, setIsDataLoading] = useState(true); // data loading // default value = true
+  const [markers, setMarkers] = useState([]);
+  const [visibleMarkers, setVisibleMarkers] = useState([]);
   /* 위치 */
   let watchId: any = null;
   const defaultCenter = { lat: 37.575857, lng: 126.976805 };
@@ -145,29 +147,16 @@ export default function Home() {
   const [isTracking, setIsTracking] = useState(false);
   const [geoPermission, setGeoPermission] = useState(''); // 모든 지도의 권한을 설정함
 
+  /* 데이터 */
   const closeDataToAddBottomSheet = () => {
     setDataToAddToggle(false);
     setDataToAddPos(undefined);
+    setContentData(undefined); // - [ ] 나중에는 ''로 init 정하자
   };
-  /* 데이터 */
-  // 특정 지역 내에서만 데이터 불러오기
-  // const [visibleMarkers, setVisibleMarkers] = useState([]);
-  // const markers = [
-  //   { position: { lat: 33.450701, lng: 126.570667 }, content: 'Marker 1' },
-  //   { position: { lat: 33.450936, lng: 126.569477 }, content: 'Marker 2' },
-  //   { position: { lat: 33.451, lng: 126.572 }, content: 'Marker 3' },
-  // ];
-  // const handleBoundsChanged = (map: any) => {
-  //   const bounds = map.getBounds();
-  //   const visible: any = markers.filter(marker => {
-  //     const position = new kakao.maps.LatLng(
-  //       marker.position.lat,
-  //       marker.position.lng
-  //     );
-  //     return bounds.contain(position);
-  //   });
-  //   setVisibleMarkers(visible);
-  // };
+  const addDataToAdd = (pos: any) => {
+    setDataToAddToggle(true);
+    setDataToAddPos(pos);
+  };
   // QueryString 추가
   const createQueryString = useCallback(
     // querystring 라는 것을 추가하여 문자열로 반환하는 코드임
@@ -214,6 +203,7 @@ export default function Home() {
     saveDataToUrl('data', dataToSave);
   };
   // 마커 데이터 저장
+  // - [ ] 에러 판단해야함
   const saveData = (position: any, content: any) => {
     // ?data={UUID(id): { ... }, UUID: { ... }](base64)
     const fetchedData: any = fetchDataFromUrl('data'); // {id: {  ..., position: { lat: ..., lng: ... }, content: ... }, id: { ... }, ... ]
@@ -239,10 +229,60 @@ export default function Home() {
     const fetchedData: any = fetchDataFromUrl('data');
     removeDataToUrl(fetchedData, ['2e79a0eb23844800ba8a229a092228ff']);
   };
-  const addDataToAdd = (pos: any) => {
-    setDataToAddToggle(true);
-    setDataToAddPos(pos);
+  /* useEffect */
+  // 특정 지역 내에서만 데이터 불러오기
+  function transformObjectToArray(obj: any) {
+    return Object.entries(obj).map(([id, value]: [any, any]) => ({
+      id,
+      ...value,
+    }));
+  }
+  // bounds라는 것은 현재 지도의 영역이 바뀌면 동작되는 것임: 지도 영역이 변경되면 발생한다
+  // 그러므로 handle~~ 이 함수는 내가 "이 지역 검색" 클릭시에만 작동되면 아주 아주 좋게 될 듯
+  // 그리고 처음 로드시에는 handle... 이 함수 실행해야함
+  const handleBoundsChanged = () => {
+    const map: any = mapRef.current;
+    const bounds = map.getBounds();
+    const visible: any = markers.filter((marker: any) => {
+      const position = new kakao.maps.LatLng(
+        marker.position.lat,
+        marker.position.lng
+      );
+      return bounds.contain(position);
+    });
+    setVisibleMarkers(visible);
   };
+  /* 현재 위치의 데이터 불러오기 */
+  useEffect(() => {
+    // {id: {  ..., position: { lat: ..., lng: ... }, content: ... }, id: { ... }, ... ]
+    // const testMarkers = [
+    //   { position: { lat: 33.450701, lng: 126.570667 }, content: 'Marker 1' },
+    //   { position: { lat: 33.450936, lng: 126.569477 }, content: 'Marker 2' },
+    //   { position: { lat: 33.451, lng: 126.572 }, content: 'Marker 3' },
+    // ];
+    console.log(1);
+    if (mapRef.current) {
+      // - [ ] 이거 불러오기 전까지는 map을 보여주면 안되요!!!
+      // - [ ] isDataLoading 쓰기
+      // 로딩 페이지는 map을 렌더링 한 상태에서 그 위에 위치 해야함 (z-index: 10000) 으로!!!
+      const fetchedData: any = fetchDataFromUrl('data');
+      const markers = transformObjectToArray(fetchedData);
+      const map: kakao.maps.Map = mapRef.current;
+      const bounds = map.getBounds();
+      const visible: any = markers.filter((marker: any) => {
+        const position = new kakao.maps.LatLng(
+          marker.position.lat,
+          marker.position.lng
+        );
+        return bounds.contain(position);
+      });
+      setVisibleMarkers(visible);
+      console.log(2);
+      setIsDataLoading(false);
+    }
+    // - [ ] 근데 mapRef.current로 추적하는게 맞나? => 맞나봄
+  }, [mapRef.current]);
+
   /* 현재 위치 */
   const updateCenterPos = (map: kakao.maps.Map) => {
     setMapMovedToggle(true);
@@ -381,172 +421,186 @@ export default function Home() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [curPos]);
 
-  return isDataLoading ? (
-    /* 로딩 */
-    <Loading />
-  ) : (
-    <StyledMain>
-      <StyledMap>
-        <KakaoMap
-          level={5}
-          /* 장소 추가 */
-          onDoubleClick={(_: any, mouseEvent: any) => {
-            const latlng = mouseEvent.latLng;
-            addDataToAdd({
-              lat: latlng.getLat(),
-              lng: latlng.getLng(),
-            });
-          }}
-          // onBoundsChanged={handleBoundsChanged}
-          /* 현재 위치 */
-          center={centerPos}
-          onDragEnd={updateCenterPos}
-          onZoomChanged={updateCenterPos}
-          onZoomStart={handleMotionDetected} // - [ *** ] isTracking 시에는 zoom 하면 center 좌표를 중심으로 zoom 되기 기능 만들기
-          onDragStart={handleMotionDetected}
-        >
-          {/* 장소 마커 */}
-          {/* {visibleMarkers.map((marker: any, index: any) => (
+  return (
+    <>
+      {isDataLoading && (
+        /* 로딩 */
+        <Loading />
+      )}
+      <StyledMain>
+        <StyledMap>
+          <KakaoMap
+            onCreate={(map: any) => {
+              mapRef.current = map;
+            }}
+            level={5}
+            /* 장소 추가 */
+            onDoubleClick={(_: any, mouseEvent: any) => {
+              const latlng = mouseEvent.latLng;
+              addDataToAdd({
+                lat: latlng.getLat(),
+                lng: latlng.getLng(),
+              });
+            }}
+            // onBoundsChanged={handleBoundsChanged}
+            /* 현재 위치 */
+            center={centerPos}
+            onDragEnd={updateCenterPos}
+            onZoomChanged={updateCenterPos}
+            onZoomStart={handleMotionDetected} // - [ *** ] isTracking 시에는 zoom 하면 center 좌표를 중심으로 zoom 되기 기능 만들기
+            onDragStart={handleMotionDetected}
+          >
+            {/* 장소 마커 */}
+            {/* {visibleMarkers.map((marker: any, index: any) => (
             <MapMarker key={index} position={marker.position}>
               <div style={{ padding: '5px', color: '#000' }}>
                 {marker.content}
               </div>
             </MapMarker>
           ))} */}
-          {/* 현재 위치 마커 */}
-          {curPos && (
-            <>
-              <CustomOverlayMap position={curPos}>
-                <CurPosMarkerBtn onClick={onCurPosTracking}>
-                  <SvgCurrentPin />
-                </CurPosMarkerBtn>
-                {/* <CurPosMarker onClick={onCurPosTracking} /> */}
-              </CustomOverlayMap>
-            </>
-          )}
-        </KakaoMap>
-        {/* 장소 추가 바텀 시트 */}
-        <Drawer.Root
-          shouldScaleBackground
-          open={dataToAddToggle}
-          onClose={closeDataToAddBottomSheet}
-        >
-          <Drawer.Portal>
-            <DrawerOverlay onClick={closeDataToAddBottomSheet} />
-            <DrawerContent
-              onOpenAutoFocus={e => {
-                e.preventDefault(); // safari focused 막기
-              }}
-            >
-              <DrawerHeader>
-                <DrawerHandlebarWrapper onClick={closeDataToAddBottomSheet}>
-                  <DrawerHandlebar></DrawerHandlebar>
-                </DrawerHandlebarWrapper>
-              </DrawerHeader>
-              <DataToAddDrawerModal
-                onClick={() => {
-                  if (dataToAddTextareaRef.current !== null) {
-                    // dataToAddTextareaRef.current.disabled = false;
-                    dataToAddTextareaRef.current.focus();
-                  }
-                }}
-              >
-                <DataToAddDrawerContents>
-                  <DrawerTitle />
-                  <DrawerDescription />
-                  <DataToAddTextareaWrapper
-                    onClick={event => {
-                      // focus 이벤트 적용하지 않기
-                      event.stopPropagation();
-                    }}
-                  >
-                    <DataToAddTextarea
-                      ref={dataToAddTextareaRef}
-                      autoFocus
-                      maxLength={150}
-                      rows={6}
-                      defaultValue=""
-                      value={contentData}
-                      onChange={(event: any) => {
-                        const {
-                          target: { value },
-                        } = event;
-                        setContentData(event.target.value); // 굳이 html로 바꿔서 저장안해도 됨. jsx는 string만 출력을 허용함. \n도 자동적으로 인식하는 듯?
-                      }} // - [ ] 개선하기
-                      placeholder="저장할 장소에 메모를 추가하세요."
-                    />
-                  </DataToAddTextareaWrapper>
-                  <DataToAddFooter>
-                    <DataToAddFooterGradient></DataToAddFooterGradient>
-                    <DataToAddFooterWrapper
-                      onClick={(event: any) => {
-                        event.stopPropagation();
-                      }}
-                    >
-                      <DataToAddFooterBtn
-                        onClick={() => {
-                          // saveData(dataToAddPos, contentData);
-                        }}
-                      >
-                        장소 저장하기
-                      </DataToAddFooterBtn>
-                    </DataToAddFooterWrapper>
-                  </DataToAddFooter>
-                </DataToAddDrawerContents>
-              </DataToAddDrawerModal>
-            </DrawerContent>
-          </Drawer.Portal>
-        </Drawer.Root>
-      </StyledMap>
+            {visibleMarkers.map((marker: any) => (
+              <MapMarker
+                key={marker.id}
+                position={marker.position}
+                title={marker.content}
+              />
+            ))}
 
-      {mapMovedToggle && (
-        <DataFetcherBtnWrapper>
-          <DataFetcherBtn
-            onClick={() => {
-              setFetchDataToggle(true);
-              // test code //
-              setTimeout(() => {
-                // 데이터 페칭 완료시
-                setFetchDataToggle(false);
-                setMapMovedToggle(false);
-              }, 1000);
-            }}
+            {/* 현재 위치 마커 */}
+            {curPos && (
+              <>
+                <CustomOverlayMap position={curPos}>
+                  <CurPosMarkerBtn onClick={onCurPosTracking}>
+                    <SvgCurrentPin />
+                  </CurPosMarkerBtn>
+                  {/* <CurPosMarker onClick={onCurPosTracking} /> */}
+                </CustomOverlayMap>
+              </>
+            )}
+          </KakaoMap>
+          {/* 장소 추가 바텀 시트 */}
+          <Drawer.Root
+            shouldScaleBackground
+            open={dataToAddToggle}
+            onClose={closeDataToAddBottomSheet}
           >
-            {fetchDataToggle ? '읽어들이는 중...' : '이 지역 검색'}
-          </DataFetcherBtn>
-        </DataFetcherBtnWrapper>
-      )}
-
-      <StyledFooterLayout>
-        <StyledFooter>
-          {/* 더보기 바텀 시트 */}
-          <Drawer.Root shouldScaleBackground>
-            <Drawer.Trigger asChild>
-              <StyledFooterItem>
-                <StyledShowMoreBtn>
-                  <StyledLogo>
-                    <SvgLogo />
-                  </StyledLogo>
-                  <StyledCopyright>{copyright}</StyledCopyright>
-                </StyledShowMoreBtn>
-              </StyledFooterItem>
-            </Drawer.Trigger>
             <Drawer.Portal>
-              <DrawerOverlay />
+              <DrawerOverlay onClick={closeDataToAddBottomSheet} />
               <DrawerContent
                 onOpenAutoFocus={e => {
                   e.preventDefault(); // safari focused 막기
                 }}
               >
                 <DrawerHeader>
-                  <DrawerHandlebarWrapper>
+                  <DrawerHandlebarWrapper onClick={closeDataToAddBottomSheet}>
                     <DrawerHandlebar></DrawerHandlebar>
                   </DrawerHandlebarWrapper>
                 </DrawerHeader>
-                <DrawerModal>
-                  <DrawerContents>
-                    {contentData}
-                    {/* <ul>
+                <DataToAddDrawerModal
+                  onClick={() => {
+                    if (dataToAddTextareaRef.current !== null) {
+                      // dataToAddTextareaRef.current.disabled = false;
+                      dataToAddTextareaRef.current.focus();
+                    }
+                  }}
+                >
+                  <DataToAddDrawerContents>
+                    <DrawerTitle />
+                    <DrawerDescription />
+                    <DataToAddTextareaWrapper
+                      onClick={event => {
+                        // focus 이벤트 적용하지 않기
+                        event.stopPropagation();
+                      }}
+                    >
+                      <DataToAddTextarea
+                        ref={dataToAddTextareaRef}
+                        autoFocus
+                        maxLength={150}
+                        rows={6}
+                        defaultValue=""
+                        value={contentData}
+                        onChange={(event: any) => {
+                          const {
+                            target: { value },
+                          } = event;
+                          setContentData(value); // 굳이 html로 바꿔서 저장안해도 됨. jsx는 string만 출력을 허용함. \n도 자동적으로 인식하는 듯?
+                        }} // - [ ] 개선하기
+                        placeholder="저장할 장소에 메모를 추가하세요."
+                      />
+                    </DataToAddTextareaWrapper>
+                    <DataToAddFooter>
+                      <DataToAddFooterGradient></DataToAddFooterGradient>
+                      <DataToAddFooterWrapper
+                        onClick={(event: any) => {
+                          event.stopPropagation();
+                        }}
+                      >
+                        <DataToAddFooterBtn
+                          onClick={() => {
+                            saveData(dataToAddPos, contentData);
+                            closeDataToAddBottomSheet();
+                          }}
+                        >
+                          장소 저장하기
+                        </DataToAddFooterBtn>
+                      </DataToAddFooterWrapper>
+                    </DataToAddFooter>
+                  </DataToAddDrawerContents>
+                </DataToAddDrawerModal>
+              </DrawerContent>
+            </Drawer.Portal>
+          </Drawer.Root>
+        </StyledMap>
+
+        {mapMovedToggle && (
+          <DataFetcherBtnWrapper>
+            <DataFetcherBtn
+              onClick={() => {
+                setFetchDataToggle(true);
+                // test code //
+                setTimeout(() => {
+                  // 데이터 페칭 완료시
+                  setFetchDataToggle(false);
+                  setMapMovedToggle(false);
+                }, 1000);
+              }}
+            >
+              {fetchDataToggle ? '읽어들이는 중...' : '이 지역 검색'}
+            </DataFetcherBtn>
+          </DataFetcherBtnWrapper>
+        )}
+
+        <StyledFooterLayout>
+          <StyledFooter>
+            {/* 더보기 바텀 시트 */}
+            <Drawer.Root shouldScaleBackground>
+              <Drawer.Trigger asChild>
+                <StyledFooterItem>
+                  <StyledShowMoreBtn>
+                    <StyledLogo>
+                      <SvgLogo />
+                    </StyledLogo>
+                    <StyledCopyright>{copyright}</StyledCopyright>
+                  </StyledShowMoreBtn>
+                </StyledFooterItem>
+              </Drawer.Trigger>
+              <Drawer.Portal>
+                <DrawerOverlay />
+                <DrawerContent
+                  onOpenAutoFocus={e => {
+                    e.preventDefault(); // safari focused 막기
+                  }}
+                >
+                  <DrawerHeader>
+                    <DrawerHandlebarWrapper>
+                      <DrawerHandlebar></DrawerHandlebar>
+                    </DrawerHandlebarWrapper>
+                  </DrawerHeader>
+                  <DrawerModal>
+                    <DrawerContents>
+                      <h1>더보기</h1>
+                      {/* <ul>
                       <li>차한음 @chahaneum</li>
                       <li>프로필 수정</li>
                       <></>
@@ -567,88 +621,89 @@ export default function Home() {
                       <></>
                       <li>앱 버전 확인: v1.0.0</li>
                     </ul> */}
-                  </DrawerContents>
-                </DrawerModal>
-              </DrawerContent>
-            </Drawer.Portal>
-          </Drawer.Root>
-          <StyledFooterItem>
-            <StyledFooterBtnWrapper>
-              {/* 장소 검색 => 저장된 도로명 주소, 메모에 기반해서! */}
-              <Drawer.Root shouldScaleBackground>
-                <Drawer.Trigger asChild>
-                  <StyledFooterBtn>
-                    <SvgSearch />
-                  </StyledFooterBtn>
-                </Drawer.Trigger>
-                <Drawer.Portal>
-                  <DrawerOverlay />
-                  <DrawerContent
-                    onOpenAutoFocus={e => {
-                      e.preventDefault();
+                    </DrawerContents>
+                  </DrawerModal>
+                </DrawerContent>
+              </Drawer.Portal>
+            </Drawer.Root>
+            <StyledFooterItem>
+              <StyledFooterBtnWrapper>
+                {/* 장소 검색 => 저장된 도로명 주소, 메모에 기반해서! */}
+                <Drawer.Root shouldScaleBackground>
+                  <Drawer.Trigger asChild>
+                    <StyledFooterBtn>
+                      <SvgSearch />
+                    </StyledFooterBtn>
+                  </Drawer.Trigger>
+                  <Drawer.Portal>
+                    <DrawerOverlay />
+                    <DrawerContent
+                      onOpenAutoFocus={e => {
+                        e.preventDefault();
+                      }}
+                    >
+                      <DrawerHeader>
+                        <DrawerHandlebarWrapper>
+                          <DrawerHandlebar></DrawerHandlebar>
+                        </DrawerHandlebarWrapper>
+                      </DrawerHeader>
+                      <DrawerModal>
+                        <DrawerContents>
+                          <h1>검색</h1>
+                        </DrawerContents>
+                      </DrawerModal>
+                    </DrawerContent>
+                  </Drawer.Portal>
+                </Drawer.Root>
+                {/* 현재 위치 */}
+                {isCurPosFetched ? (
+                  <StyledFooterBtn
+                    onClick={() => {
+                      onCurPosTracking();
                     }}
                   >
-                    <DrawerHeader>
-                      <DrawerHandlebarWrapper>
-                        <DrawerHandlebar></DrawerHandlebar>
-                      </DrawerHandlebarWrapper>
-                    </DrawerHeader>
-                    <DrawerModal>
-                      <DrawerContents>
-                        <h1>검색</h1>
-                      </DrawerContents>
-                    </DrawerModal>
-                  </DrawerContent>
-                </Drawer.Portal>
-              </Drawer.Root>
-              {/* 현재 위치 */}
-              {isCurPosFetched ? (
-                <StyledFooterBtn
-                  onClick={() => {
-                    onCurPosTracking();
-                  }}
-                >
-                  {isTracking ? <SvgFilledTracking /> : <SvgTracking />}
-                </StyledFooterBtn>
-              ) : geoPermission === 'denied' ? (
-                <>
-                  {/* 위치 권한 요청 바텀 시트 */}
-                  <Drawer.Root shouldScaleBackground>
-                    <Drawer.Trigger asChild>
-                      <StyledFooterBtn>
-                        <SvgReject />
-                      </StyledFooterBtn>
-                    </Drawer.Trigger>
-                    <Drawer.Portal>
-                      <DrawerOverlay />
-                      <DrawerContent
-                        onOpenAutoFocus={e => {
-                          e.preventDefault();
-                        }}
-                      >
-                        <DrawerHeader>
-                          <DrawerHandlebarWrapper>
-                            <DrawerHandlebar></DrawerHandlebar>
-                          </DrawerHandlebarWrapper>
-                        </DrawerHeader>
-                        <DrawerModal>
-                          <DrawerContents>
-                            <h1>위치 권한이 거부되었습니다</h1>
-                          </DrawerContents>
-                        </DrawerModal>
-                      </DrawerContent>
-                    </Drawer.Portal>
-                  </Drawer.Root>
-                </>
-              ) : (
-                <StyledFooterLoadingSpinnerButton>
-                  <SvgSpin />
-                </StyledFooterLoadingSpinnerButton>
-              )}
-            </StyledFooterBtnWrapper>
-          </StyledFooterItem>
-        </StyledFooter>
-      </StyledFooterLayout>
-    </StyledMain>
+                    {isTracking ? <SvgFilledTracking /> : <SvgTracking />}
+                  </StyledFooterBtn>
+                ) : geoPermission === 'denied' ? (
+                  <>
+                    {/* 위치 권한 요청 바텀 시트 */}
+                    <Drawer.Root shouldScaleBackground>
+                      <Drawer.Trigger asChild>
+                        <StyledFooterBtn>
+                          <SvgReject />
+                        </StyledFooterBtn>
+                      </Drawer.Trigger>
+                      <Drawer.Portal>
+                        <DrawerOverlay />
+                        <DrawerContent
+                          onOpenAutoFocus={e => {
+                            e.preventDefault();
+                          }}
+                        >
+                          <DrawerHeader>
+                            <DrawerHandlebarWrapper>
+                              <DrawerHandlebar></DrawerHandlebar>
+                            </DrawerHandlebarWrapper>
+                          </DrawerHeader>
+                          <DrawerModal>
+                            <DrawerContents>
+                              <h1>위치 권한이 거부되었습니다</h1>
+                            </DrawerContents>
+                          </DrawerModal>
+                        </DrawerContent>
+                      </Drawer.Portal>
+                    </Drawer.Root>
+                  </>
+                ) : (
+                  <StyledFooterLoadingSpinnerButton>
+                    <SvgSpin />
+                  </StyledFooterLoadingSpinnerButton>
+                )}
+              </StyledFooterBtnWrapper>
+            </StyledFooterItem>
+          </StyledFooter>
+        </StyledFooterLayout>
+      </StyledMain>
+    </>
   );
 }

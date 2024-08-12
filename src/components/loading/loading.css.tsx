@@ -12,6 +12,7 @@ export const StyledMain = styled.main`
   right: 0;
   bottom: 0;
   left: 0;
+  z-index: 10000; // 항상 최상단으로 지도 위에 위치 해야하기 때문에 z-index: 10000으로 지정함
   justify-content: center;
   align-items: center;
 
