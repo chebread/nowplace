@@ -62,6 +62,10 @@
 // - [ ] 심각한 문제: querystring의 값이 즉각적으로 반영이 안되고 있다.
 // - [ ] 마커 클릭시 content, delete 모달 만들기
 // - [ ] 더보기 꾸미기
+// - [ ] Loading 창 안 곂치는 거 수정하기 => o
+// - [ ] 현재 위치 저장시 도로명 주소도 함께 저장하기
+// - [ ] 마커 꾸미기
+// - [ * ] 모바일에서 이거 때문에 계속 close... 함수 실행됨. 아니 근데 왜 Drawer.Root이게 화면상에서 없어지지 아니하는가? */
 
 'use client';
 
@@ -77,9 +81,9 @@ import SvgTracking from '@/assets/icons/tracking.svg';
 import SvgFilledTracking from '@/assets/icons/filled-tracking.svg';
 import SvgReject from '@/assets/icons/reject.svg';
 import SvgSpin from '@/assets/icons/spin.svg';
-import SvgPlus from '@/assets/icons/plus.svg';
 import SvgCurrentPin from '@/assets/icons/current-pin.svg';
 import SvgSearch from '@/assets/icons/search.svg';
+import SvgPlacePin from '@/assets/icons/place-pin.svg';
 // css
 import {
   StyledCopyright,
@@ -104,6 +108,7 @@ import {
   DataToAddFooterBtn,
   DataFetcherBtn,
   DataFetcherBtnWrapper,
+  PlaceMarker,
 } from './home.css';
 
 import {
@@ -162,12 +167,11 @@ export default function Home() {
   const closeDataToAddBottomSheet = () => {
     setDataToAddToggle(false);
     setDataToAddPos(undefined);
-    setContentData(undefined); // - [ ] 나중에는 ''로 init 정하자
+    setContentData(undefined);
   };
   const addDataToAdd = (pos: any) => {
-    setDataToAddToggle(true);
     setDataToAddPos(pos);
-    console.log('add pos!!!!!');
+    setDataToAddToggle(true);
   };
   // QueryString 추가
   const createQueryString = useCallback(
@@ -466,11 +470,11 @@ export default function Home() {
 
   return (
     <>
-      {isDataLoading && (
-        /* 로딩 */
-        <Loading />
-      )}
       <StyledMain>
+        {isDataLoading && (
+          /* 로딩 */
+          <Loading />
+        )}
         <StyledMap>
           <KakaoMap
             onCreate={(map: any) => {
@@ -494,11 +498,11 @@ export default function Home() {
           >
             {/* 장소 마커 */}
             {visibleMarkers.map((marker: any) => (
-              <MapMarker
-                key={marker.id}
-                position={marker.position}
-                title={marker.content}
-              />
+              <CustomOverlayMap key={marker.id} position={marker.position}>
+                <PlaceMarker onClick={() => console.log(marker.id)}>
+                  <SvgPlacePin />
+                </PlaceMarker>
+              </CustomOverlayMap>
             ))}
 
             {/* 현재 위치 마커 */}
@@ -514,20 +518,33 @@ export default function Home() {
             )}
           </KakaoMap>
           {/* 장소 추가 바텀 시트 */}
+
           <Drawer.Root
             shouldScaleBackground
             open={dataToAddToggle}
-            onClose={closeDataToAddBottomSheet}
+            onClose={() => {
+              closeDataToAddBottomSheet();
+            }}
           >
             <Drawer.Portal>
-              <DrawerOverlay onClick={closeDataToAddBottomSheet} />
+              <DrawerOverlay
+              /* - [ ] 모바일에서 이거 때문에 계속 close... 함수 실행됨. 아니 근데 왜 Drawer.Root이게 화면상에서 없어지지 아니하는가? */
+              // onClick={() => {
+              //   closeDataToAddBottomSheet();
+              // }}
+              />
+
               <DrawerContent
                 onOpenAutoFocus={e => {
                   e.preventDefault(); // safari focused 막기
                 }}
               >
                 <DrawerHeader>
-                  <DrawerHandlebarWrapper onClick={closeDataToAddBottomSheet}>
+                  <DrawerHandlebarWrapper
+                    onClick={() => {
+                      closeDataToAddBottomSheet();
+                    }}
+                  >
                     <DrawerHandlebar></DrawerHandlebar>
                   </DrawerHandlebarWrapper>
                 </DrawerHeader>
