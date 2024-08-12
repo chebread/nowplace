@@ -156,8 +156,6 @@ export default function Home() {
   const [isTracking, setIsTracking] = useState(false);
   const [geoPermission, setGeoPermission] = useState(''); // 모든 지도의 권한을 설정함
 
-  console.log('***', searchParams);
-
   /* 데이터 */
   const closeDataToAddBottomSheet = () => {
     setDataToAddToggle(false);
@@ -196,7 +194,10 @@ export default function Home() {
   // Base64 데이터 가져오기
   // 손상된 데이터(빈 값도 포함)가 발생시 null 반환함
   const fetchDataFromUrl = (key: string) => {
-    console.log('***', searchParams); // 이게 useState같은 거라서 바로 반영이 안됨. 렌더링 한다음에 반영해야함.
+    // - [ ] 지금 오류는 saveData에서만 일어남. 일단 임시로 fetchDataFromUrl을 saveData에서 handleBounds할때 쓰는게 아니고, 일단 saveData에서 생성한 데이터를 가지고 handBoudns에서 사용하도록 함
+    console.log(window.location.search);
+    const searchParams = new URLSearchParams(window.location.search);
+    console.log('xxx', searchParams); // - [ ] 이게 useState같은 거라서 바로 반영이 안됨. 렌더링 한다음에 반영해야함.
     let returnValue = null;
     console.log(10000);
     const params: any = searchParams.get(key); // key is parameter key
