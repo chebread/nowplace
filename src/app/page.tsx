@@ -45,13 +45,14 @@
 // 6. 문의 => fromhaneum@gmail.com
 // - [ ] 모든 바텀 시트 밑에는 copyright 배출하기
 // 기본적으로 제공하는 prompt toggle(yes or no)도 고려해보기
+/* 장소 검색 */
+// 도로명 주소, (지명 이름), 메모에 기반해서 데이터를 찾고, 검색 결과는 리스트 형태로 도로명 주소를 뜨면서 제공함
 
 'use client';
 
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { Drawer } from 'vaul';
 import { toast } from 'sonner';
-import _ from 'lodash';
 import KakaoMap from '@/components/kakao-map';
 import { CustomOverlayMap, Map, MapMarker } from 'react-kakao-maps-sdk';
 // svgs
@@ -63,6 +64,7 @@ import SvgReject from '@/assets/icons/reject.svg';
 import SvgSpin from '@/assets/icons/spin.svg';
 import SvgPlus from '@/assets/icons/plus.svg';
 import SvgCurrentPin from '@/assets/icons/current-pin.svg';
+import SvgSearch from '@/assets/icons/search.svg';
 // css
 import {
   StyledCopyright,
@@ -82,11 +84,11 @@ import {
   AddPlaceTextareaWrapper,
   AddPlaceTextarea,
   AddPlaceFooterWrapper,
-  AddPlaceFooterBtn,
   AddPlaceFooter,
   AddPlaceFooterGradient,
-  StyledHeader,
-  StyledHeaderLayout,
+  AddPlaceFooterBtn,
+  DataFetcherBtn,
+  DataFetcherBtnWrapper,
 } from './home.css';
 
 import {
@@ -99,27 +101,31 @@ import {
   DrawerHandlebar,
   DrawerTitle,
   DrawerDescription,
-  DrawerCopyright,
 } from '@/components/bottom-sheet/bottom-sheet.css';
 import { useSearchParams } from 'next/navigation';
-import { v4 as uuidv4 } from 'uuid';
 import { base64ArrayDecoder } from '@/utils/base64ArrayDecoder';
 import { base64ArrayEncoder } from '@/utils/base64ArrayEncoder';
+import { useRouter } from 'next/navigation';
+import generateUUID from '@/lib/generateUUID';
+import { isNil } from 'es-toolkit/predicate';
 
 export default function Home() {
   const copyright = `© ${new Date().getFullYear()} Cha Haneum`;
   /* toggle */
   // const [geoPermissionRequestToggle, setGeoPermissionRequestToggle] =
   //   useState(false); // denied 되면 권한을 재요청 해주십시오 라는 바텀시트 올라가는 것을 제어하는 토글
-  const [addPlaceToggle, setAddPlaceToggle] = useState(false); // 장소 추가시 바텀시트 작동 Toggle
+  const [mapMovedToggle, setMapMovedToggle] = useState(false); // 움직임 발생시
+  const [fetchDataToggle, setFetchDataToggle] = useState(false);
+  const [addDataToggle, setAddDataToggle] = useState(false); // 장소 추가시 바텀시트 작동 Toggle
   /* 데이터 */
+  const router = useRouter();
   const searchParams = useSearchParams();
   const [addPlaceMemo, setAddPlaceMemo] = useState<string>();
   const addPlaceTextareaRef = useRef<any>(null);
-  const [addPlacePos, setAddPlacePos] = useState<any>();
+  const [addDataPos, setAddDataPos] = useState<any>();
   const [hasVisited, setHasVisited] = useState(false); // 첫 방문자면 도움말 뜨기 // localStorage 사용
   const [isDataLoading, setIsDataLoading] = useState(false); // data loading // default value = true
-  /* 현재 위치 */
+  /* 위치 */
   let watchId: any = null;
   const defaultCenter = { lat: 37.575857, lng: 126.976805 };
   const geolocationOptions = {
@@ -133,10 +139,9 @@ export default function Home() {
   const [isTracking, setIsTracking] = useState(false);
   const [geoPermission, setGeoPermission] = useState(''); // 모든 지도의 권한을 설정함
 
-  /* toggle */
   const closeAddPlaceBottomSheet = () => {
-    setAddPlaceToggle(false);
-    setAddPlacePos(undefined);
+    setAddDataToggle(false);
+    setAddDataPos(undefined);
   };
   /* 데이터 */
   const createQueryString = useCallback(
@@ -157,31 +162,43 @@ export default function Home() {
     },
     [searchParams]
   );
-  function generateUUIDWithoutHyphens() {
-    return uuidv4().replace(/-/g, '');
-  }
-  const savePlace = (pos: any, content: any) => {
+  // ?data= 라는 곳으로 데이터를 저장함
+  // 데이터 패칭
+  const fetchPlace = () => {
+    setFetchDataToggle(true);
+    // test code //
+    setTimeout(() => {
+      // 데이터 페칭 완료시
+      setFetchDataToggle(false);
+      setMapMovedToggle(false);
+    }, 1000);
+  };
+  // 데이터 저장
+  const saveData = (pos: any, content: any) => {
     // - [ ] 위치를 URL에 저장하기 / 삭제하기 / 조회하기 (조회는 처음 마운트 될때)
-    // ?data=[{ ... }, { ... }](base64)
+    // ?data={UUID(id): { ... }, UUID: { ... }](base64)
     // [{ id, ..., position: { lat: ..., lng: ... }, content: ... }, ... ]
     const params: any = searchParams.get('data');
-    const decodedData = base64ArrayDecoder(params);
-    const saveDataId = generateUUIDWithoutHyphens();
-    const saveData = {
-      id: saveDataId,
-      position: {
-        lat: pos.lat,
-        lng: pos.lng,
+    const decodedData = isNil(params) ? '' : base64ArrayDecoder(params);
+
+    const dataId = generateUUID();
+    const data = {
+      [dataId]: {
+        position: {
+          lat: pos.lat,
+          lng: pos.lng,
+        },
+        content: content || '',
       },
-      content: content || '',
     };
-    decodedData[decodedData.length] = saveData;
-    const encodedData = base64ArrayEncoder(decodedData);
+    console.log(data);
+    // decodedData[decodedData.length] = saveData;
+    // const encodedData = base64ArrayEncoder(decodedData);
     // 데이터 url에 반영하기
   };
-  const addPlace = (pos: any) => {
-    setAddPlaceToggle(true);
-    setAddPlacePos(pos);
+  const addData = (pos: any) => {
+    setAddDataToggle(true);
+    setAddDataPos(pos);
   };
   // const [visibleMarkers, setVisibleMarkers] = useState([]);
   // const markers = [
@@ -202,6 +219,7 @@ export default function Home() {
   // };
   /* 현재 위치 */
   const updateCenterPos = (map: kakao.maps.Map) => {
+    setMapMovedToggle(true);
     setCenterPos({
       lat: map.getCenter().getLat(),
       lng: map.getCenter().getLng(),
@@ -348,7 +366,7 @@ export default function Home() {
           /* 장소 추가 */
           onDoubleClick={(_: any, mouseEvent: any) => {
             const latlng = mouseEvent.latLng;
-            addPlace({
+            addData({
               lat: latlng.getLat(),
               lng: latlng.getLng(),
             });
@@ -384,7 +402,7 @@ export default function Home() {
         {/* 장소 추가 바텀 시트 */}
         <Drawer.Root
           shouldScaleBackground
-          open={addPlaceToggle}
+          open={addDataToggle}
           onClose={closeAddPlaceBottomSheet}
         >
           <Drawer.Portal>
@@ -408,6 +426,8 @@ export default function Home() {
                 }}
               >
                 <AddPlaceDrawerContents>
+                  <DrawerTitle />
+                  <DrawerDescription />
                   <AddPlaceTextareaWrapper
                     onClick={event => {
                       // focus 이벤트 적용하지 않기
@@ -434,7 +454,7 @@ export default function Home() {
                     >
                       <AddPlaceFooterBtn
                         onClick={() => {
-                          savePlace(addPlacePos, addPlaceMemo);
+                          saveData(addDataPos, addPlaceMemo);
                         }}
                       >
                         장소 저장하기
@@ -448,7 +468,17 @@ export default function Home() {
         </Drawer.Root>
       </StyledMap>
 
-      <StyledHeader>hello</StyledHeader>
+      {mapMovedToggle && (
+        <DataFetcherBtnWrapper>
+          <DataFetcherBtn
+            onClick={() => {
+              fetchPlace();
+            }}
+          >
+            {fetchDataToggle ? '읽어들이는 중...' : '이 지역 검색'}
+          </DataFetcherBtn>
+        </DataFetcherBtnWrapper>
+      )}
 
       <StyledFooterLayout>
         <StyledFooter>
@@ -506,14 +536,33 @@ export default function Home() {
           </Drawer.Root>
           <StyledFooterItem>
             <StyledFooterBtnWrapper>
-              {/* 장소 추가 => doubleclick으로 하자 */}
-              <StyledFooterBtn
-                onClick={() => {
-                  addPlace(curPos);
-                }}
-              >
-                <SvgPlus />
-              </StyledFooterBtn>
+              {/* 장소 검색 => 저장된 도로명 주소, 메모에 기반해서! */}
+              <Drawer.Root shouldScaleBackground>
+                <Drawer.Trigger asChild>
+                  <StyledFooterBtn>
+                    <SvgSearch />
+                  </StyledFooterBtn>
+                </Drawer.Trigger>
+                <Drawer.Portal>
+                  <DrawerOverlay />
+                  <DrawerContent
+                    onOpenAutoFocus={e => {
+                      e.preventDefault();
+                    }}
+                  >
+                    <DrawerHeader>
+                      <DrawerHandlebarWrapper>
+                        <DrawerHandlebar></DrawerHandlebar>
+                      </DrawerHandlebarWrapper>
+                    </DrawerHeader>
+                    <DrawerModal>
+                      <DrawerContents>
+                        <h1>검색</h1>
+                      </DrawerContents>
+                    </DrawerModal>
+                  </DrawerContent>
+                </Drawer.Portal>
+              </Drawer.Root>
               {/* 현재 위치 */}
               {isCurPosFetched ? (
                 <StyledFooterBtn
