@@ -3,7 +3,10 @@ import { Drawer } from 'vaul';
 
 export const DrawerOverlay = styled(Drawer.Overlay)`
   position: fixed;
-  inset: 0;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
   background-color: rgb(0 0 0 / 0.4);
 `;
 

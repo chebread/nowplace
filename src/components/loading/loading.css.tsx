@@ -3,7 +3,7 @@ import Image from 'next/image';
 import styled from 'styled-components';
 
 export const StyledMain = styled.main`
-  position: relative;
+  position: absolute;
   display: flex;
   flex-direction: column;
   height: 100vh;
@@ -20,6 +20,8 @@ export const StyledMain = styled.main`
   -webkit-user-select: none;
   -moz-user-select: none;
   -ms-user-select: none;
+
+  background-color: var(--bg);
 `;
 
 export const StyledItem = styled.div`

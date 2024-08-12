@@ -7,7 +7,7 @@ import styled, { keyframes } from 'styled-components';
 
 export const StyledMain = styled.main`
   position: relative;
-  height: 100dvh;
+  height: 100vh;
   width: 100vw;
   display: flex;
   justify-content: center;
@@ -214,6 +214,10 @@ export const CurPosMarker = styled.div`
   border: var(--white) solid 0.125rem;
   box-shadow: 0 0 0.125rem rgba(0, 0, 0, 0.35);
   background-color: var(--blue-500); // apple map: rgb(0, 122, 254)
+`;
+
+export const PlaceMarker = styled.div`
+  display: flex;
 `;
 
 export const DataToAddDrawerModal = styled(DrawerModal)`
