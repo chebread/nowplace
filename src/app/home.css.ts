@@ -216,23 +216,23 @@ export const CurPosMarker = styled.div`
   background-color: var(--blue-500); // apple map: rgb(0, 122, 254)
 `;
 
-export const AddDataDrawerModal = styled(DrawerModal)`
+export const DataToAddDrawerModal = styled(DrawerModal)`
   height: 100%;
   width: 100%;
 `;
 
-export const AddDataDrawerContents = styled(DrawerContents)`
+export const DataToAddDrawerContents = styled(DrawerContents)`
   height: 100%;
   width: 100%;
 `;
 
-export const AddDataTextareaWrapper = styled.div`
+export const DataToAddTextareaWrapper = styled.div`
   display: flex;
   width: 100%;
   background-color: #ffffff; // textarea 회색 잔상 제거
 `;
 
-export const AddDataTextarea = styled(TextareaAutosize)`
+export const DataToAddTextarea = styled(TextareaAutosize)`
   white-space: normal;
   overflow-wrap: break-word;
   word-wrap: break-word;
@@ -246,7 +246,7 @@ export const AddDataTextarea = styled(TextareaAutosize)`
   width: 100%;
 `;
 
-export const AddDataFooter = styled.footer`
+export const DataToAddFooter = styled.footer`
   position: fixed;
   bottom: 0;
   left: 0;
@@ -255,7 +255,7 @@ export const AddDataFooter = styled.footer`
   margin: 0 auto;
 `;
 
-export const AddDataFooterGradient = styled.div`
+export const DataToAddFooterGradient = styled.div`
   height: 2rem;
   background: linear-gradient(
     to top,
@@ -264,12 +264,12 @@ export const AddDataFooterGradient = styled.div`
   );
 `;
 
-export const AddDataFooterWrapper = styled.div`
+export const DataToAddFooterWrapper = styled.div`
   padding: 1rem;
   background-color: #ffffff;
 `;
 
-export const AddDataFooterBtn = styled.button`
+export const DataToAddFooterBtn = styled.button`
   height: 3rem;
   width: 100%;
   font-weight: 600;
