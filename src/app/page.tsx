@@ -85,6 +85,8 @@ import {
   AddPlaceFooterBtn,
   AddPlaceFooter,
   AddPlaceFooterGradient,
+  StyledHeader,
+  StyledHeaderLayout,
 } from './home.css';
 
 import {
@@ -101,6 +103,8 @@ import {
 } from '@/components/bottom-sheet/bottom-sheet.css';
 import { useSearchParams } from 'next/navigation';
 import { v4 as uuidv4 } from 'uuid';
+import { base64ArrayDecoder } from '@/utils/base64ArrayDecoder';
+import { base64ArrayEncoder } from '@/utils/base64ArrayEncoder';
 
 export default function Home() {
   const copyright = `© ${new Date().getFullYear()} Cha Haneum`;
@@ -160,6 +164,8 @@ export default function Home() {
     // - [ ] 위치를 URL에 저장하기 / 삭제하기 / 조회하기 (조회는 처음 마운트 될때)
     // ?data=[{ ... }, { ... }](base64)
     // [{ id, ..., position: { lat: ..., lng: ... }, content: ... }, ... ]
+    const params: any = searchParams.get('data');
+    const decodedData = base64ArrayDecoder(params);
     const saveDataId = generateUUIDWithoutHyphens();
     const saveData = {
       id: saveDataId,
@@ -167,9 +173,11 @@ export default function Home() {
         lat: pos.lat,
         lng: pos.lng,
       },
-      content: content || '', // undefined면 빈 문자열을 저장
+      content: content || '',
     };
-    console.log(saveData);
+    decodedData[decodedData.length] = saveData;
+    const encodedData = base64ArrayEncoder(decodedData);
+    // 데이터 url에 반영하기
   };
   const addPlace = (pos: any) => {
     setAddPlaceToggle(true);
@@ -439,6 +447,9 @@ export default function Home() {
           </Drawer.Portal>
         </Drawer.Root>
       </StyledMap>
+
+      <StyledHeader>hello</StyledHeader>
+
       <StyledFooterLayout>
         <StyledFooter>
           {/* 더보기 바텀 시트 */}
