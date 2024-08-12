@@ -102,7 +102,7 @@ import {
   DrawerTitle,
   DrawerDescription,
 } from '@/components/bottom-sheet/bottom-sheet.css';
-import { useSearchParams } from 'next/navigation';
+import { usePathname, useSearchParams } from 'next/navigation';
 import { base64ArrayDecoder } from '@/utils/base64ArrayDecoder';
 import { base64ArrayEncoder } from '@/utils/base64ArrayEncoder';
 import { useRouter } from 'next/navigation';
@@ -119,6 +119,7 @@ export default function Home() {
   const [dataToAddToggle, setDataToAddToggle] = useState(false); // 장소 추가시 바텀시트 작동 Toggle
   /* 데이터 */
   const router = useRouter();
+  const pathname = usePathname();
   const searchParams = useSearchParams();
   const [contentData, setContentData] = useState<string>();
   const dataToAddTextareaRef = useRef<any>(null);
@@ -153,6 +154,7 @@ export default function Home() {
     },
     [searchParams]
   );
+
   const deleteQueryString = useCallback(
     (key: string) => {
       const params = new URLSearchParams(searchParams.toString());
@@ -163,25 +165,29 @@ export default function Home() {
     [searchParams]
   );
   // Base64 데이터 Fetching
-  const fetchData = (parameterKey: string) => {
-    const params: any = searchParams.get(parameterKey);
-    const decodedData = isNil(params) ? '' : base64ArrayDecoder(params);
-    return decodedData;
+  const fetchDataFromUrl = (key: string) => {
+    const params: any = searchParams.get(key); // key is parameter key
+    const fetchedData = isNil(params) ? '' : base64ArrayDecoder(params); // decode
+    return fetchedData;
+  };
+  const saveDataToUrl = (key: string, value: string) => {
+    router.push(pathname + '?' + createQueryString(key, value));
   };
   // 데이터 저장
   const saveData = (position: any, content: any) => {
     // 데이터 관련은 모두 Data~로 명명함
     // - [ ] 위치를 URL에 저장하기 / 삭제하기 / 조회하기 (조회는 처음 마운트 될때)
     // ?data={UUID(id): { ... }, UUID: { ... }](base64)
-    // const fetchedData: any = fetchData('data'); // {id: {  ..., position: { lat: ..., lng: ... }, content: ... }, id: { ... }, ... ]
-    const fetchedData = {
-      // temporay
-      '2e79a0eb23844800ba8a229a092228ff': {
-        content: '',
-        position: { lat: 36.36376506307412, lng: 127.44778680277417 },
-      },
-    };
-    const addData = {
+    const fetchedData: any = fetchDataFromUrl('data'); // {id: {  ..., position: { lat: ..., lng: ... }, content: ... }, id: { ... }, ... ]
+    console.log(fetchedData);
+    // const fetchedData = {
+    //   // temporay
+    //   '2e79a0eb23844800ba8a229a092228ff': {
+    //     content: '',
+    //     position: { lat: 36.36376506307412, lng: 127.44778680277417 },
+    //   },
+    // };
+    const data = {
       [generateUUID()]: {
         position: {
           lat: position.lat,
@@ -190,13 +196,12 @@ export default function Home() {
         content: content || '',
       },
     };
-    const mergedData = { ...fetchedData, ...addData }; // fetchData와 병합
-    const encodedData = base64ArrayEncoder(mergedData);
-    console.log(encodedData);
-
+    const mergedData: any = { ...fetchedData, ...data }; // fetchData와 병합
+    const dataToSave = base64ArrayEncoder(mergedData); // encode
+    // saveDataToUrl('data', dataToSave); // 데이터 url에 저장하기
     // 데이터 url에 반영하기
   };
-  const addData = (pos: any) => {
+  const addDataToAdd = (pos: any) => {
     setDataToAddToggle(true);
     setDataToAddPos(pos);
   };
@@ -366,7 +371,7 @@ export default function Home() {
           /* 장소 추가 */
           onDoubleClick={(_: any, mouseEvent: any) => {
             const latlng = mouseEvent.latLng;
-            addData({
+            addDataToAdd({
               lat: latlng.getLat(),
               lng: latlng.getLng(),
             });
