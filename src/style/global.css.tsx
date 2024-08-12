@@ -108,8 +108,11 @@ const GlobalStyle = createGlobalStyle`
     font: inherit;
     cursor: pointer;
     outline: inherit;
-    -webkit-tap-highlight-color: transparent; // 비표준
+    -webkit-tap-highlight-color: transparent;
+    -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
     
+    -webkit-touch-callout: none;
+    -khtml-user-select: none;
     user-select: none;
     -webkit-user-select: none;
     -moz-user-select: none;
