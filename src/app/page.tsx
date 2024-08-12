@@ -79,14 +79,14 @@ import {
   StyledMain,
   StyledMap,
   CurPosMarkerBtn,
-  AddPlaceDrawerModal,
-  AddPlaceDrawerContents,
-  AddPlaceTextareaWrapper,
-  AddPlaceTextarea,
-  AddPlaceFooterWrapper,
-  AddPlaceFooter,
-  AddPlaceFooterGradient,
-  AddPlaceFooterBtn,
+  AddDataDrawerModal,
+  AddDataDrawerContents,
+  AddDataTextareaWrapper,
+  AddDataTextarea,
+  AddDataFooterWrapper,
+  AddDataFooter,
+  AddDataFooterGradient,
+  AddDataFooterBtn,
   DataFetcherBtn,
   DataFetcherBtnWrapper,
 } from './home.css';
@@ -120,8 +120,8 @@ export default function Home() {
   /* 데이터 */
   const router = useRouter();
   const searchParams = useSearchParams();
-  const [addPlaceMemo, setAddPlaceMemo] = useState<string>();
-  const addPlaceTextareaRef = useRef<any>(null);
+  const [contentData, setContentData] = useState<string>();
+  const addDataTextareaRef = useRef<any>(null);
   const [addDataPos, setAddDataPos] = useState<any>();
   const [hasVisited, setHasVisited] = useState(false); // 첫 방문자면 도움말 뜨기 // localStorage 사용
   const [isDataLoading, setIsDataLoading] = useState(false); // data loading // default value = true
@@ -139,7 +139,7 @@ export default function Home() {
   const [isTracking, setIsTracking] = useState(false);
   const [geoPermission, setGeoPermission] = useState(''); // 모든 지도의 권한을 설정함
 
-  const closeAddPlaceBottomSheet = () => {
+  const closeAddDataBottomSheet = () => {
     setAddDataToggle(false);
     setAddDataPos(undefined);
   };
@@ -162,36 +162,28 @@ export default function Home() {
     },
     [searchParams]
   );
-  // ?data= 라는 곳으로 데이터를 저장함
-  // 데이터 패칭
-  const fetchPlace = () => {
-    setFetchDataToggle(true);
-    // test code //
-    setTimeout(() => {
-      // 데이터 페칭 완료시
-      setFetchDataToggle(false);
-      setMapMovedToggle(false);
-    }, 1000);
+  // Base64 데이터 Fetching
+  const fetchData = (parameterKey: string) => {
+    const params: any = searchParams.get(parameterKey);
+    const decodedData = isNil(params) ? '' : base64ArrayDecoder(params);
+    return decodedData;
   };
   // 데이터 저장
-  const saveData = (pos: any, content: any) => {
+  const saveData = (position: any, content: any) => {
+    // 데이터 관련은 모두 Data~로 명명함
     // - [ ] 위치를 URL에 저장하기 / 삭제하기 / 조회하기 (조회는 처음 마운트 될때)
     // ?data={UUID(id): { ... }, UUID: { ... }](base64)
-    // [{ id, ..., position: { lat: ..., lng: ... }, content: ... }, ... ]
-    const params: any = searchParams.get('data');
-    const decodedData = isNil(params) ? '' : base64ArrayDecoder(params);
-
-    const dataId = generateUUID();
-    const data = {
-      [dataId]: {
+    const fetchedData: any = fetchData('data'); // {id: {  ..., position: { lat: ..., lng: ... }, content: ... }, id: { ... }, ... ]
+    const addData = {
+      [generateUUID()]: {
         position: {
-          lat: pos.lat,
-          lng: pos.lng,
+          lat: position.lat,
+          lng: position.lng,
         },
         content: content || '',
       },
     };
-    console.log(data);
+    const data = { ...fetchedData, ...addData };
     // decodedData[decodedData.length] = saveData;
     // const encodedData = base64ArrayEncoder(decodedData);
     // 데이터 url에 반영하기
@@ -403,66 +395,66 @@ export default function Home() {
         <Drawer.Root
           shouldScaleBackground
           open={addDataToggle}
-          onClose={closeAddPlaceBottomSheet}
+          onClose={closeAddDataBottomSheet}
         >
           <Drawer.Portal>
-            <DrawerOverlay onClick={closeAddPlaceBottomSheet} />
+            <DrawerOverlay onClick={closeAddDataBottomSheet} />
             <DrawerContent
               onOpenAutoFocus={e => {
                 e.preventDefault(); // safari focused 막기
               }}
             >
               <DrawerHeader>
-                <DrawerHandlebarWrapper onClick={closeAddPlaceBottomSheet}>
+                <DrawerHandlebarWrapper onClick={closeAddDataBottomSheet}>
                   <DrawerHandlebar></DrawerHandlebar>
                 </DrawerHandlebarWrapper>
               </DrawerHeader>
-              <AddPlaceDrawerModal
+              <AddDataDrawerModal
                 onClick={() => {
-                  if (addPlaceTextareaRef.current !== null) {
-                    // addPlaceTextareaRef.current.disabled = false;
-                    addPlaceTextareaRef.current.focus();
+                  if (addDataTextareaRef.current !== null) {
+                    // addDataTextareaRef.current.disabled = false;
+                    addDataTextareaRef.current.focus();
                   }
                 }}
               >
-                <AddPlaceDrawerContents>
+                <AddDataDrawerContents>
                   <DrawerTitle />
                   <DrawerDescription />
-                  <AddPlaceTextareaWrapper
+                  <AddDataTextareaWrapper
                     onClick={event => {
                       // focus 이벤트 적용하지 않기
                       event.stopPropagation();
                     }}
                   >
-                    <AddPlaceTextarea
-                      ref={addPlaceTextareaRef}
+                    <AddDataTextarea
+                      ref={addDataTextareaRef}
                       autoFocus
                       maxLength={150}
                       rows={6}
                       defaultValue=""
-                      value={addPlaceMemo}
-                      onChange={event => setAddPlaceMemo(event.target.value)} // - [ ] 개선하기
+                      value={contentData}
+                      onChange={event => setContentData(event.target.value)} // - [ ] 개선하기
                       placeholder="저장할 장소에 메모를 추가하세요."
                     />
-                  </AddPlaceTextareaWrapper>
-                  <AddPlaceFooter>
-                    <AddPlaceFooterGradient></AddPlaceFooterGradient>
-                    <AddPlaceFooterWrapper
+                  </AddDataTextareaWrapper>
+                  <AddDataFooter>
+                    <AddDataFooterGradient></AddDataFooterGradient>
+                    <AddDataFooterWrapper
                       onClick={event => {
                         event.stopPropagation();
                       }}
                     >
-                      <AddPlaceFooterBtn
+                      <AddDataFooterBtn
                         onClick={() => {
-                          saveData(addDataPos, addPlaceMemo);
+                          saveData(addDataPos, contentData);
                         }}
                       >
                         장소 저장하기
-                      </AddPlaceFooterBtn>
-                    </AddPlaceFooterWrapper>
-                  </AddPlaceFooter>
-                </AddPlaceDrawerContents>
-              </AddPlaceDrawerModal>
+                      </AddDataFooterBtn>
+                    </AddDataFooterWrapper>
+                  </AddDataFooter>
+                </AddDataDrawerContents>
+              </AddDataDrawerModal>
             </DrawerContent>
           </Drawer.Portal>
         </Drawer.Root>
@@ -472,7 +464,13 @@ export default function Home() {
         <DataFetcherBtnWrapper>
           <DataFetcherBtn
             onClick={() => {
-              fetchPlace();
+              setFetchDataToggle(true);
+              // test code //
+              setTimeout(() => {
+                // 데이터 페칭 완료시
+                setFetchDataToggle(false);
+                setMapMovedToggle(false);
+              }, 1000);
             }}
           >
             {fetchDataToggle ? '읽어들이는 중...' : '이 지역 검색'}
