@@ -67,6 +67,7 @@ export const DrawerContents = styled.div`
   height: 100%;
   margin-left: auto;
   margin-right: auto;
+  white-space: pre-wrap; // 이거 해야지 \n이 개행됨
 `;
 
 export const DrawerTitle = styled(Drawer.Title)``;

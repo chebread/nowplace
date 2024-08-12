@@ -47,6 +47,9 @@
 // 기본적으로 제공하는 prompt toggle(yes or no)도 고려해보기
 /* 장소 검색 */
 // 도로명 주소, (지명 이름), 메모에 기반해서 데이터를 찾고, 검색 결과는 리스트 형태로 도로명 주소를 뜨면서 제공함
+// 데이터 관련은 모두 Data~로 명명함
+// - [ ] 위치를 URL에 저장하기 / 삭제하기 / 조회하기 (조회는 처음 마운트 될때)
+// - [ ] fetchedData에서 특정 id 객체를 삭제하는 코드 작성하기
 
 'use client';
 
@@ -108,6 +111,8 @@ import { base64ArrayEncoder } from '@/utils/base64ArrayEncoder';
 import { useRouter } from 'next/navigation';
 import generateUUID from '@/lib/generateUUID';
 import { isNil } from 'es-toolkit/predicate';
+import { omit } from 'es-toolkit';
+import { encode, decode } from 'he';
 
 export default function Home() {
   const copyright = `© ${new Date().getFullYear()} Cha Haneum`;
@@ -145,66 +150,7 @@ export default function Home() {
     setDataToAddPos(undefined);
   };
   /* 데이터 */
-  const createQueryString = useCallback(
-    (key: string, value: string) => {
-      const params = new URLSearchParams(searchParams.toString());
-      params.set(key, value);
-
-      return params.toString();
-    },
-    [searchParams]
-  );
-
-  const deleteQueryString = useCallback(
-    (key: string) => {
-      const params = new URLSearchParams(searchParams.toString());
-      params.delete(key); // 이제 쿼리 문자열이 'bar=2'
-
-      return params.toString();
-    },
-    [searchParams]
-  );
-  // Base64 데이터 Fetching
-  const fetchDataFromUrl = (key: string) => {
-    const params: any = searchParams.get(key); // key is parameter key
-    const fetchedData = isNil(params) ? '' : base64ArrayDecoder(params); // decode
-    return fetchedData;
-  };
-  const saveDataToUrl = (key: string, value: string) => {
-    router.push(pathname + '?' + createQueryString(key, value));
-  };
-  // 데이터 저장
-  const saveData = (position: any, content: any) => {
-    // 데이터 관련은 모두 Data~로 명명함
-    // - [ ] 위치를 URL에 저장하기 / 삭제하기 / 조회하기 (조회는 처음 마운트 될때)
-    // ?data={UUID(id): { ... }, UUID: { ... }](base64)
-    const fetchedData: any = fetchDataFromUrl('data'); // {id: {  ..., position: { lat: ..., lng: ... }, content: ... }, id: { ... }, ... ]
-    console.log(fetchedData);
-    // const fetchedData = {
-    //   // temporay
-    //   '2e79a0eb23844800ba8a229a092228ff': {
-    //     content: '',
-    //     position: { lat: 36.36376506307412, lng: 127.44778680277417 },
-    //   },
-    // };
-    const data = {
-      [generateUUID()]: {
-        position: {
-          lat: position.lat,
-          lng: position.lng,
-        },
-        content: content || '',
-      },
-    };
-    const mergedData: any = { ...fetchedData, ...data }; // fetchData와 병합
-    const dataToSave = base64ArrayEncoder(mergedData); // encode
-    // saveDataToUrl('data', dataToSave); // 데이터 url에 저장하기
-    // 데이터 url에 반영하기
-  };
-  const addDataToAdd = (pos: any) => {
-    setDataToAddToggle(true);
-    setDataToAddPos(pos);
-  };
+  // 특정 지역 내에서만 데이터 불러오기
   // const [visibleMarkers, setVisibleMarkers] = useState([]);
   // const markers = [
   //   { position: { lat: 33.450701, lng: 126.570667 }, content: 'Marker 1' },
@@ -222,6 +168,81 @@ export default function Home() {
   //   });
   //   setVisibleMarkers(visible);
   // };
+  // QueryString 추가
+  const createQueryString = useCallback(
+    // querystring 라는 것을 추가하여 문자열로 반환하는 코드임
+    (key: string, value: string) => {
+      const params = new URLSearchParams(searchParams.toString());
+      params.set(key, value);
+
+      return params.toString();
+    },
+    [searchParams]
+  );
+  // 특정 QueryString 제거
+  // 다른 말로는 모든 data값 초기화
+  // - [ ] 모든 데이터 초기화하는 기능 만들기
+  const deleteQueryString = useCallback(
+    // ?data= 라는 것을 전체를 삭제한 값을 문자열로 반환하는 코드임
+    (key: string) => {
+      const params = new URLSearchParams(searchParams.toString());
+      params.delete(key); // 이제 쿼리 문자열이 'bar=2'
+
+      return params.toString();
+    },
+    [searchParams]
+  );
+  // Base64 데이터 가져오기
+  const fetchDataFromUrl = (key: string) => {
+    const params: any = searchParams.get(key); // key is parameter key
+    const fetchedData = isNil(params) ? '' : base64ArrayDecoder(params); // decode
+    return fetchedData;
+  };
+  // URL에 Base64 데이터 저장하기
+  const saveDataToUrl = (key: string, value: string) => {
+    // key는 QueryString key
+    // value는 QueryString value
+    router.push(pathname + '?' + createQueryString(key, value));
+  };
+  // URL에 특정 데이터 제거
+  const removeDataToUrl = (data: any, key: string[]) => {
+    // data는 지울 데이터
+    // key = ['ksjfslfjfjlsjfkl', 'sdfjsflsjldfjslk', ...]
+    const removedData: any = omit(data, key); // 지울 key가 없으면 원본 반환
+    // - [ ] 원본 반환시는 saveDataToUrl 함수를 실행 안하도록 해야하나?
+    const dataToSave: any = base64ArrayEncoder(removedData); // 재저장
+    saveDataToUrl('data', dataToSave);
+  };
+  // 마커 데이터 저장
+  const saveData = (position: any, content: any) => {
+    // ?data={UUID(id): { ... }, UUID: { ... }](base64)
+    const fetchedData: any = fetchDataFromUrl('data'); // {id: {  ..., position: { lat: ..., lng: ... }, content: ... }, id: { ... }, ... ]
+    // console.log(fetchedData);
+    const data = {
+      [generateUUID()]: {
+        position: {
+          lat: position.lat,
+          lng: position.lng,
+        },
+        content: content || '',
+      },
+    };
+    const mergedData: any = { ...fetchedData, ...data }; // fetchData와 병합
+    const dataToSave = base64ArrayEncoder(mergedData); // encode
+    saveDataToUrl('data', dataToSave); // 데이터 url에 저장하기
+    console.log(base64ArrayDecoder(dataToSave));
+  };
+  // 마커 데이터 삭제
+  // - [ ] 마커 누르면 삭제 기능도 만들기 (모달로 하여금)
+  const removeData = (ids: string[]) => {
+    // 여러 id도 가능
+    const fetchedData: any = fetchDataFromUrl('data');
+    removeDataToUrl(fetchedData, ['2e79a0eb23844800ba8a229a092228ff']);
+  };
+  const addDataToAdd = (pos: any) => {
+    setDataToAddToggle(true);
+    setDataToAddPos(pos);
+  };
   /* 현재 위치 */
   const updateCenterPos = (map: kakao.maps.Map) => {
     setMapMovedToggle(true);
@@ -446,9 +467,12 @@ export default function Home() {
                       rows={6}
                       defaultValue=""
                       value={contentData}
-                      onChange={(event: any) =>
-                        setContentData(event.target.value)
-                      } // - [ ] 개선하기
+                      onChange={(event: any) => {
+                        const {
+                          target: { value },
+                        } = event;
+                        setContentData(event.target.value); // 굳이 html로 바꿔서 저장안해도 됨. jsx는 string만 출력을 허용함. \n도 자동적으로 인식하는 듯?
+                      }} // - [ ] 개선하기
                       placeholder="저장할 장소에 메모를 추가하세요."
                     />
                   </DataToAddTextareaWrapper>
@@ -461,7 +485,7 @@ export default function Home() {
                     >
                       <DataToAddFooterBtn
                         onClick={() => {
-                          saveData(dataToAddPos, contentData);
+                          // saveData(dataToAddPos, contentData);
                         }}
                       >
                         장소 저장하기
@@ -521,6 +545,7 @@ export default function Home() {
                 </DrawerHeader>
                 <DrawerModal>
                   <DrawerContents>
+                    {contentData}
                     {/* <ul>
                       <li>차한음 @chahaneum</li>
                       <li>프로필 수정</li>
