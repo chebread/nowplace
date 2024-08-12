@@ -18,6 +18,7 @@ export default function KakaoMap(props: any) {
     <>
       <StyledMap
         ref={mapRef}
+        onCreate={props?.onCreate || undefined}
         isPanto // 이동시 부드럽게
         /* 장소 추가 */
         disableDoubleClickZoom // double click 막기
