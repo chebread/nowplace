@@ -59,6 +59,7 @@
 //   const fetchedData: any = fetchDataFromUrl('data');
 // 이 코드 때문에 그럼 그러므로 saveData 하고 바로 밑에 handle그거 하자!!
 // 로드 된 이후에 주소창에서 데이터 삭제해도 일단은 새로고침 이전까지는 남아있다
+// - [ ] 심각한 문제: querystring의 값이 즉각적으로 반영이 안되고 있다.
 
 'use client';
 
@@ -155,6 +156,8 @@ export default function Home() {
   const [isTracking, setIsTracking] = useState(false);
   const [geoPermission, setGeoPermission] = useState(''); // 모든 지도의 권한을 설정함
 
+  console.log('***', searchParams);
+
   /* 데이터 */
   const closeDataToAddBottomSheet = () => {
     setDataToAddToggle(false);
@@ -193,6 +196,7 @@ export default function Home() {
   // Base64 데이터 가져오기
   // 손상된 데이터(빈 값도 포함)가 발생시 null 반환함
   const fetchDataFromUrl = (key: string) => {
+    console.log('***', searchParams); // 이게 useState같은 거라서 바로 반영이 안됨. 렌더링 한다음에 반영해야함.
     let returnValue = null;
     console.log(10000);
     const params: any = searchParams.get(key); // key is parameter key
@@ -248,10 +252,6 @@ export default function Home() {
     saveDataToUrl('data', dataToSave); // 데이터 url에 저장하기 // 바로 즉각 반영이 느림
     console.log('저장을 완료했습니다');
     handleBoundsChanged(); // - [ ] 데이터 없을때 저장시에 이게 실행이 안됨
-    setTimeout(() => {
-      const params: any = searchParams.get('data');
-      console.log('**', params);
-    }, 3000);
   };
   // 마커 데이터 삭제
   // - [ ] 마커 누르면 삭제 기능도 만들기 (모달로 하여금)
