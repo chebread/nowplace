@@ -252,7 +252,20 @@ export default function Home() {
     const dataToSave = base64ArrayEncoder(mergedData); // encode
     saveDataToUrl('data', dataToSave); // 데이터 url에 저장하기 // 바로 즉각 반영이 느림
     console.log('저장을 완료했습니다');
-    handleBoundsChanged(); // - [ ] 데이터 없을때 저장시에 이게 실행이 안됨
+    // handleBoundsChanged(); // - [ ] 데이터 없을때 저장시에 이게 실행이 안됨
+    /* 임시 코드 */ // - [ ] get querystring이 한 번 늦게 반영되는 문제.
+    // 아니 근데, 늦게 반영되던 말던, saveData에서는 handleBoundsChanged() 함수는 너무 비효율적임. 임시코드가 더 효율적임.
+    const fetchedMarkers = transformObjectToArray(mergedData);
+    const map: kakao.maps.Map = mapRef.current;
+    const bounds = map.getBounds();
+    const visible: any = fetchedMarkers.filter((marker: any) => {
+      const position = new kakao.maps.LatLng(
+        marker.position.lat,
+        marker.position.lng
+      );
+      return bounds.contain(position);
+    });
+    setVisibleMarkers(visible);
   };
   // 마커 데이터 삭제
   // - [ ] 마커 누르면 삭제 기능도 만들기 (모달로 하여금)
