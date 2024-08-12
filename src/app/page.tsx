@@ -51,6 +51,13 @@
 // - [ ] 위치를 URL에 저장하기 / 삭제하기 / 조회하기 (조회는 처음 마운트 될때)
 // - [ ] fetchedData에서 특정 id 객체를 삭제하는 코드 작성하기
 // 그리고 데이터 로딩은 항상 Url에 반영시키는 것임. url이 그냥 state고 storage임. 모든 것은 url storage를 사용함
+// - [ ] 버그. 만약 Url이 손상되어 버리면 데이터 로드가 절대 안됨 => 그냥 오류 나면 ''로 처리하자!!
+// - [ ] 장소를 추가하면 다시 handle... 그거 마커 로드 하는 코드 실행하기
+// - [ ] 장소 추가하면 왜 handle... 그거 왜 실행됨?
+// const saveData = (position: any, content: any) => {
+//   // ?data={UUID(id): { ... }, UUID: { ... }](base64)
+//   const fetchedData: any = fetchDataFromUrl('data');
+// 이 코드 때문에 그럼 그러므로 saveData 하고 바로 밑에 handle그거 하자!!
 
 'use client';
 
@@ -156,6 +163,7 @@ export default function Home() {
   const addDataToAdd = (pos: any) => {
     setDataToAddToggle(true);
     setDataToAddPos(pos);
+    console.log('add pos!!!!!');
   };
   // QueryString 추가
   const createQueryString = useCallback(
@@ -182,10 +190,25 @@ export default function Home() {
     [searchParams]
   );
   // Base64 데이터 가져오기
+  // 손상된 데이터(빈 값도 포함)가 발생시 null 반환함
   const fetchDataFromUrl = (key: string) => {
+    let returnValue;
+    console.log(10000);
     const params: any = searchParams.get(key); // key is parameter key
-    const fetchedData = isNil(params) ? '' : base64ArrayDecoder(params); // decode
-    return fetchedData;
+    console.log(20000);
+    try {
+      console.log(30000);
+      const fetchedData: any =
+        isNil(params) || params === '' // null or undefined or '' (선언안됨) 이면 null로 처리함
+          ? null
+          : base64ArrayDecoder(params); // decode
+      returnValue = fetchedData;
+    } catch (error) {
+      console.log(40000);
+      returnValue = null;
+    }
+    console.log(50000);
+    return returnValue;
   };
   // URL에 Base64 데이터 저장하기
   const saveDataToUrl = (key: string, value: string) => {
@@ -203,11 +226,12 @@ export default function Home() {
     saveDataToUrl('data', dataToSave);
   };
   // 마커 데이터 저장
-  // - [ ] 에러 판단해야함
+  // - [ ] 에러 판단해야함 => fetch... 거기서 데이터 손상 확인
   const saveData = (position: any, content: any) => {
     // ?data={UUID(id): { ... }, UUID: { ... }](base64)
     const fetchedData: any = fetchDataFromUrl('data'); // {id: {  ..., position: { lat: ..., lng: ... }, content: ... }, id: { ... }, ... ]
     // console.log(fetchedData);
+    // 이거는 isNil 처리 안해도 됨. { ...fetchedData } = { } 로 처리됨
     const data = {
       [generateUUID()]: {
         position: {
@@ -219,15 +243,18 @@ export default function Home() {
     };
     const mergedData: any = { ...fetchedData, ...data }; // fetchData와 병합
     const dataToSave = base64ArrayEncoder(mergedData); // encode
-    saveDataToUrl('data', dataToSave); // 데이터 url에 저장하기
-    console.log(base64ArrayDecoder(dataToSave));
+    saveDataToUrl('data', dataToSave); // 데이터 url에 저장하기 // 바로 즉각 반영이 느림
+    console.log('저장을 완료했습니다');
+
+    handleBoundsChanged(); // - [ ] 초기 저장시에 이게 실행이 안됨
   };
   // 마커 데이터 삭제
   // - [ ] 마커 누르면 삭제 기능도 만들기 (모달로 하여금)
   const removeData = (ids: string[]) => {
     // 여러 id도 가능
     const fetchedData: any = fetchDataFromUrl('data');
-    removeDataToUrl(fetchedData, ['2e79a0eb23844800ba8a229a092228ff']);
+    if (isNil(fetchedData)) return; // 데이터 손상시 함수 종료
+    removeDataToUrl(fetchedData, ids);
   };
   /* useEffect */
   // 특정 지역 내에서만 데이터 불러오기
@@ -243,6 +270,14 @@ export default function Home() {
   const handleBoundsChanged = () => {
     console.log(2);
     const fetchedData: any = fetchDataFromUrl('data');
+    console.log(fetchedData);
+
+    if (isNil(fetchedData)) {
+      console.log('오류 발생이거나, 데이터에 아무런 값이 없습니다');
+      setFetchDataToggle(false); // 읽어들이는 중... 그거 없엠
+      setMapMovedToggle(false);
+      return;
+    }
     const fetchedMarkers = transformObjectToArray(fetchedData);
     const map: kakao.maps.Map = mapRef.current;
     const bounds = map.getBounds();
@@ -260,27 +295,12 @@ export default function Home() {
     setMapMovedToggle(false); // - [ ] 이거 초기에 실행하는데 문제 없겠지?
     console.log(3);
   };
-  /* 현재 위치의 데이터 불러오기 */
+  /* 처음 로드시 현재 위치의 데이터 불러오기 */
   useEffect(() => {
     console.log(1);
     if (mapRef.current) {
-      // - [ ] 이거 불러오기 전까지는 map을 보여주면 안되요!!!
-      // - [ ] isDataLoading 쓰기
-      // 로딩 페이지는 map을 렌더링 한 상태에서 그 위에 위치 해야함 (z-index: 10000) 으로!!!
-      // const fetchedData: any = fetchDataFromUrl('data');
-      // const fetchedMarkers = transformObjectToArray(fetchedData);
-      // const map: kakao.maps.Map = mapRef.current;
-      // const bounds = map.getBounds();
-      // const visible: any = fetchedMarkers.filter((marker: any) => {
-      //   const position = new kakao.maps.LatLng(
-      //     marker.position.lat,
-      //     marker.position.lng
-      //   );
-      //   return bounds.contain(position);
-      // });
-      // setVisibleMarkers(visible);
-      handleBoundsChanged();
-      console.log(4);
+      console.log(3);
+      handleBoundsChanged(); // - [ ] 아 근데, footer가 4rem 차지해서, 그 부분에 마커가 있으면 로드가 되긴 함. 어쩔 수 없음.
       setIsDataLoading(false);
     }
     // - [ ] 근데 mapRef.current로 추적하는게 맞나? => 맞나봄
@@ -445,7 +465,6 @@ export default function Home() {
                 lng: latlng.getLng(),
               });
             }}
-            // onBoundsChanged={handleBoundsChanged}
             /* 현재 위치 */
             center={centerPos}
             onDragEnd={updateCenterPos}
@@ -454,13 +473,6 @@ export default function Home() {
             onDragStart={handleMotionDetected}
           >
             {/* 장소 마커 */}
-            {/* {visibleMarkers.map((marker: any, index: any) => (
-            <MapMarker key={index} position={marker.position}>
-              <div style={{ padding: '5px', color: '#000' }}>
-                {marker.content}
-              </div>
-            </MapMarker>
-          ))} */}
             {visibleMarkers.map((marker: any) => (
               <MapMarker
                 key={marker.id}
@@ -563,12 +575,6 @@ export default function Home() {
               onClick={() => {
                 setFetchDataToggle(true); // - [ ] mapMovedToggle랑 fetchDataToggle랑 똑같은 기능 아님? => 아님. click하면 fetchingDataToggle이 true가 됨 (읽어들이는 중)
                 handleBoundsChanged();
-                // // test code //
-                // setTimeout(() => {
-                //   // 데이터 페칭 완료시
-                //   setFetchDataToggle(false);
-                //   setMapMovedToggle(false);
-                // }, 1000);
               }}
             >
               {fetchDataToggle ? '읽어들이는 중...' : '이 지역 검색'}
