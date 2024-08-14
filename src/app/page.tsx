@@ -59,13 +59,19 @@
 //   const fetchedData: any = fetchDataFromUrl('data');
 // 이 코드 때문에 그럼 그러므로 saveData 하고 바로 밑에 handle그거 하자!!
 // 로드 된 이후에 주소창에서 데이터 삭제해도 일단은 새로고침 이전까지는 남아있다
-// - [ ] 심각한 문제: querystring의 값이 즉각적으로 반영이 안되고 있다.
-// - [ ] 마커 클릭시 content, delete 모달 만들기
+// - [v] 심각한 문제: querystring의 값이 즉각적으로 반영이 안되고 있다. => 임시 방편으로 해결 완료
+// - [v] 마커 클릭시 content, delete 모달 만들기
 // - [ ] 더보기 꾸미기
-// - [ ] Loading 창 안 곂치는 거 수정하기 => o
+// - [v] Loading 창 안 곂치는 거 수정하기
 // - [ ] 현재 위치 저장시 도로명 주소도 함께 저장하기
-// - [ ] 마커 꾸미기
-// - [ * ] 모바일에서 이거 때문에 계속 close... 함수 실행됨. 아니 근데 왜 Drawer.Root이게 화면상에서 없어지지 아니하는가? */
+// - [v] 마커 꾸미기
+// - [ ] mobile 100vh 안되는 거 수정하기
+// - [v] 모든 데이터 삭제 기능
+// - [v] 모바일에서 이거 때문에 계속 close... 함수 실행됨. 아니 근데 왜 Drawer.Root이게 화면상에서 없어지지 아니하는가? */ => 일시적 오류 였나봄
+// - [ ] 서비스 약관 관련은 nested 쓰기 또는 notion 연결하기
+// - [ ] 특정 마커 클릭시 장소 공유 기능 => url 공유 인데, 그냥 그 장소만을 내포하는 url임
+// - [ ] 저장한 모든 장소 공유하기 => 지금 현재 url을 복사함
+// - [ ] 거부 했다가 다시 승인하면 이게 바로 반영이 안되는 이슈가 있지만, 이 지역 검색은 잘 뜨기는 함. 일단 보류 해놓기
 
 'use client';
 
@@ -129,15 +135,20 @@ import { useRouter } from 'next/navigation';
 import generateUUID from '@/lib/generateUUID';
 import { isNil } from 'es-toolkit/predicate';
 import { omit } from 'es-toolkit';
-import { encode, decode } from 'he';
+import Link from 'next/link';
+import CopyToClipboard from 'react-copy-to-clipboard';
+import getAllUrl from '@/utils/getAllUrls';
 
 export default function Home() {
+  const allUrl = getAllUrl();
   const copyright = `© ${new Date().getFullYear()} Cha Haneum`;
   /* toggle */
   const [mapMovedToggle, setMapMovedToggle] = useState(false); // 움직임 발생시
   const [fetchDataToggle, setFetchDataToggle] = useState(false);
   const [dataToAddToggle, setDataToAddToggle] = useState(false); // 장소 추가시 바텀시트 작동 Toggle
   /* 데이터 */
+  const [selectedMarkerToggle, setSelectedMarkerToggle] = useState(false);
+  const [selectedMarkerData, setSelectedMarkerData] = useState<any>(); // clickedMarker
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -274,10 +285,29 @@ export default function Home() {
   // 마커 데이터 삭제
   // - [ ] 마커 누르면 삭제 기능도 만들기 (모달로 하여금)
   const removeData = (ids: string[]) => {
+    // - [ ] removeDataUrl이 안되는 듯 함. JTdCJTdE 이런거 남음 뭐인가? JTdCJTdE = {} 임.
     // 여러 id도 가능
     const fetchedData: any = fetchDataFromUrl('data');
     if (isNil(fetchedData)) return; // 데이터 손상시 함수 종료
-    removeDataToUrl(fetchedData, ids);
+    // removeDataToUrl(fetchedData, ids); // 새로고침 때문에 이거 안쓰는게 더 나을듯.
+    const removedData: any = omit(fetchedData, ids); // 지울 key가 없으면 원본 반환
+    // - [x] 원본 반환시는 saveDataToUrl 함수를 실행 안하도록 해야하나? => 아니 removeData는 원본 반환을 가질 수가 없다.
+    const dataToSave: any = base64ArrayEncoder(removedData); // 재저장
+    saveDataToUrl('data', dataToSave);
+    // 새로고침
+    // handleBoundsChanged();
+    /* 임시 코드 */
+    const fetchedMarkers = transformObjectToArray(removedData);
+    const map: kakao.maps.Map = mapRef.current;
+    const bounds = map.getBounds();
+    const visible: any = fetchedMarkers.filter((marker: any) => {
+      const position = new kakao.maps.LatLng(
+        marker.position.lat,
+        marker.position.lng
+      );
+      return bounds.contain(position);
+    });
+    setVisibleMarkers(visible);
   };
   /* useEffect */
   // 특정 지역 내에서만 데이터 불러오기
@@ -321,12 +351,14 @@ export default function Home() {
   /* 처음 로드시 현재 위치의 데이터 불러오기 */
   useEffect(() => {
     console.log(1);
+    // mapref 로드 전까지는 이 함수가 실행될 수 없다 => 즉 위치를 선택받기 전까지는 이 함수가 실행이 불가하다 => 이건 내가 생각하지 못했던 효과이다
     if (mapRef.current) {
       console.log(3);
       handleBoundsChanged(); // - [ ] 아 근데, footer가 4rem 차지해서, 그 부분에 마커가 있으면 로드가 되긴 함. 어쩔 수 없음.
       setIsDataLoading(false);
     }
     // - [ ] 근데 mapRef.current로 추적하는게 맞나? => 맞나봄
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [mapRef.current]);
 
   /* 현재 위치 */
@@ -406,7 +438,7 @@ export default function Home() {
       startWatchingPosition();
     }
     if (state === 'prompt') {
-      // setGeoPermission('prompt'); // 필요하지는 않음 undefined = prompt
+      // setGeoPermission('prompt'); // 필요하지는 않음 prompt한 상태는 로딩 상태에서 이미 받을 것임. geoPermission의 상태는 거부와 승인 이 두개만 존재함.
       // console.log('위치 액세스 권한을 요청할 수 있습니다.');
       navigator.geolocation.getCurrentPosition(
         position => {
@@ -499,7 +531,15 @@ export default function Home() {
             {/* 장소 마커 */}
             {visibleMarkers.map((marker: any) => (
               <CustomOverlayMap key={marker.id} position={marker.position}>
-                <PlaceMarker onClick={() => console.log(marker.id)}>
+                <PlaceMarker
+                  onClick={() => {
+                    const { position, content, id } = marker;
+                    setCenterPos(position);
+                    setIsTracking(false);
+                    setSelectedMarkerToggle(true);
+                    setSelectedMarkerData(marker);
+                  }}
+                >
                   <SvgPlacePin />
                 </PlaceMarker>
               </CustomOverlayMap>
@@ -517,8 +557,63 @@ export default function Home() {
               </>
             )}
           </KakaoMap>
-          {/* 장소 추가 바텀 시트 */}
+          {/* 장소 마커 바텀 시트 */}
+          {/* closed될때 focused 되는 이유는? */}
+          <Drawer.Root
+            shouldScaleBackground
+            open={selectedMarkerToggle}
+            onClose={() => {
+              setSelectedMarkerToggle(false);
+              setSelectedMarkerData(undefined);
+            }}
+          >
+            <Drawer.Portal>
+              <DrawerOverlay
+                onClick={() => {
+                  setSelectedMarkerToggle(false);
+                  setSelectedMarkerData(undefined);
+                }}
+              />
 
+              <DrawerContent
+                onOpenAutoFocus={e => {
+                  e.preventDefault();
+                }}
+              >
+                <DrawerHeader>
+                  <DrawerHandlebarWrapper
+                    onClick={() => {
+                      setSelectedMarkerToggle(false);
+                      setSelectedMarkerData(undefined);
+                    }}
+                  >
+                    <DrawerHandlebar></DrawerHandlebar>
+                  </DrawerHandlebarWrapper>
+                </DrawerHeader>
+                <DrawerModal>
+                  <DrawerTitle />
+                  <DrawerDescription />
+                  {selectedMarkerToggle && (
+                    <DrawerContents>
+                      <h1>도로명 주소</h1>
+                      <p>{selectedMarkerData.content}</p>
+                      <button
+                        onClick={() => {
+                          removeData([selectedMarkerData.id]); // - [ ] 바로 반영이 안됨
+                          setSelectedMarkerToggle(false);
+                          setSelectedMarkerData(undefined);
+                        }}
+                      >
+                        장소 삭제하기
+                      </button>
+                    </DrawerContents>
+                  )}
+                </DrawerModal>
+              </DrawerContent>
+            </Drawer.Portal>
+          </Drawer.Root>
+
+          {/* 장소 추가 바텀 시트 */}
           <Drawer.Root
             shouldScaleBackground
             open={dataToAddToggle}
@@ -528,10 +623,10 @@ export default function Home() {
           >
             <Drawer.Portal>
               <DrawerOverlay
-              /* - [ ] 모바일에서 이거 때문에 계속 close... 함수 실행됨. 아니 근데 왜 Drawer.Root이게 화면상에서 없어지지 아니하는가? */
-              // onClick={() => {
-              //   closeDataToAddBottomSheet();
-              // }}
+                /* - [ ] 모바일에서 이거 때문에 계속 close... 함수 실행됨. 아니 근데 왜 Drawer.Root이게 화면상에서 없어지지 아니하는가? */
+                onClick={() => {
+                  closeDataToAddBottomSheet();
+                }}
               />
 
               <DrawerContent
@@ -591,7 +686,6 @@ export default function Home() {
                         <DataToAddFooterBtn
                           onClick={() => {
                             saveData(dataToAddPos, contentData);
-
                             closeDataToAddBottomSheet();
                           }}
                         >
@@ -648,28 +742,69 @@ export default function Home() {
                   </DrawerHeader>
                   <DrawerModal>
                     <DrawerContents>
-                      <h1>더보기</h1>
-                      {/* <ul>
-                      <li>차한음 @chahaneum</li>
-                      <li>프로필 수정</li>
-                      <></>
-                      <h2>서비스 설정</h2>
-                      <li>저장한 장소 모두 삭제</li>
-                      <li>위치 권한 상태: {geoPermission}</li>
-                      <li>로그아웃</li>
-                      <li>계정 삭제</li>
-                      <></>
-                      <h2>이용 안내</h2>
-                      <li>사용법</li>
-                      <li>문의하기: fromhaneum@gmail.com</li>
-                      <></>
-                      <h2>서비스 안내</h2>
-                      nested 쓰기 또는 notion 연결하기
-                      <li>서비스 이용약관</li>
-                      <li>개인정보 취급 방침</li>
-                      <></>
-                      <li>앱 버전 확인: v1.0.0</li>
-                    </ul> */}
+                      <DrawerTitle />
+                      <DrawerDescription />
+
+                      <ul>
+                        <h2>서비스 설정</h2>
+                        <li>
+                          <CopyToClipboard
+                            text={allUrl}
+                            onCopy={() => alert('장소가 모두 저장되었습니다')}
+                          >
+                            <button>장소 모두 저장하기</button>
+                          </CopyToClipboard>
+                        </li>
+                        <li>
+                          <button
+                            onClick={() => {
+                              if (
+                                window.confirm('장소를 모두 삭제하시겠습니까?')
+                              ) {
+                                router.push(
+                                  pathname + '?' + deleteQueryString('data')
+                                );
+                                // 새로고침
+                                // handleBoundsChanged(); // - [ ] 아니 왜 안되는가?
+                                /* 임시 코드 */
+                                setVisibleMarkers([]);
+                                // quit bottom sheet
+                              }
+                            }}
+                          >
+                            장소 모두 삭제하기
+                          </button>
+                        </li>
+                        <li>
+                          위치 권한 상태:
+                          {(() => {
+                            switch (geoPermission) {
+                              case 'granted':
+                                return '승인됨';
+                              case 'prompt':
+                                return '요청중';
+                              case 'denied':
+                                return '거부됨';
+                              default:
+                                return '';
+                            }
+                          })()}
+                        </li>
+                        <></>
+                        <h2>이용 안내</h2>
+                        <li>
+                          <Link href="usage-guide">사용법</Link>
+                        </li>
+                        <li>
+                          <Link href="mailto:fromhaneum">
+                            문의하기: fromhaneum@gmail.com
+                          </Link>
+                        </li>
+                        <></>
+                        <h2>서비스 안내</h2>
+                        <li>서비스 이용 약관</li>
+                        <li>개인정보 취급 방침</li>
+                      </ul>
                     </DrawerContents>
                   </DrawerModal>
                 </DrawerContent>
@@ -698,6 +833,8 @@ export default function Home() {
                       </DrawerHeader>
                       <DrawerModal>
                         <DrawerContents>
+                          <DrawerTitle />
+                          <DrawerDescription />
                           <h1>검색</h1>
                         </DrawerContents>
                       </DrawerModal>

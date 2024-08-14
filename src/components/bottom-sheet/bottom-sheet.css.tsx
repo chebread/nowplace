@@ -73,9 +73,13 @@ export const DrawerContents = styled.div`
   white-space: pre-wrap; // 이거 해야지 \n이 개행됨
 `;
 
-export const DrawerTitle = styled(Drawer.Title)``;
+export const DrawerTitle = styled(Drawer.Title)`
+  display: none;
+`;
 
-export const DrawerDescription = styled(Drawer.Description)``;
+export const DrawerDescription = styled(Drawer.Description)`
+  display: none;
+`;
 
 export const DrawerCopyright = () => {
   const copyright = `© ${new Date().getFullYear()} Cha Haneum`;

@@ -28,7 +28,7 @@ export default function Loading() {
     <StyledMain>
       <StyledItem></StyledItem>
       <StyledCenterItem>
-        <StyledImage src={SvgAppIcon} alt="NowPlace 앱 아이콘" />
+        <StyledImage src={SvgAppIcon} alt="NowPlace 앱 아이콘" priority />
       </StyledCenterItem>
       <StyledBottomItem>{copyright}</StyledBottomItem>
     </StyledMain>
