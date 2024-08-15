@@ -11,8 +11,7 @@ export const DrawerOverlay = styled(Drawer.Overlay)`
 `;
 
 export const DrawerContent = styled(Drawer.Content)`
-  --tw-bg-opacity: 1;
-  background-color: rgb(255 255 255 / var(--tw-bg-opacity)) /* #ffffff */;
+  background-color: #ffffff;
   display: flex;
   flex-direction: column;
   position: fixed;
@@ -25,7 +24,7 @@ export const DrawerContent = styled(Drawer.Content)`
 `;
 
 export const DrawerHeader = styled.header`
-  background-color: #ffffff;
+  background-color: transparent;
   width: 100%;
   height: auto;
   display: flex;

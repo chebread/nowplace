@@ -108,7 +108,7 @@ const GlobalStyle = createGlobalStyle`
     font: inherit;
     cursor: pointer;
     outline: inherit;
-    
+
     -webkit-tap-highlight-color: transparent;
     -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
     
@@ -120,8 +120,12 @@ const GlobalStyle = createGlobalStyle`
     -ms-user-select: none;
   }
 
-  textarea {
-    
+  li,
+  ul li {
+    margin: 0;
+    padding: 0;
+    text-indent: 0;
+    list-style-type: none;
   }
 
   .toaster {
