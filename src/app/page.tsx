@@ -161,8 +161,8 @@ export default function Home() {
   const [markers, setMarkers] = useState([]);
   const [visibleMarkers, setVisibleMarkers] = useState([]);
   /* 위치 */
-  const [mapRefState, setMapRefState] = useState<any>();
-  const mapRef = useRef<any>();
+  const [mapRef, setMapRef] = useState<any>();
+  // const mapRef = useRef<any>();
   let watchId: any = null;
   const defaultCenter = { lat: 37.575857, lng: 126.976805 };
   const geolocationOptions = {
@@ -293,7 +293,9 @@ export default function Home() {
         /* 임시 코드 */ // - [ ] get querystring이 한 번 늦게 반영되는 문제.
         // 아니 근데, 늦게 반영되던 말던, saveData에서는 handleBoundsChanged() 함수는 너무 비효율적임. 임시코드가 더 효율적임.
         const fetchedMarkers = transformObjectToArray(mergedData);
-        const map: kakao.maps.Map = mapRef.current;
+        const map: kakao.maps.Map = mapRef;
+        console.log('mapRefState 테스트', mapRef);
+
         const bounds = map.getBounds();
         const visible: any = fetchedMarkers.filter((marker: any) => {
           const position = new kakao.maps.LatLng(
@@ -322,7 +324,8 @@ export default function Home() {
     // handleBoundsChanged();
     /* 임시 코드 */
     const fetchedMarkers = transformObjectToArray(removedData);
-    const map: kakao.maps.Map = mapRef.current;
+    const map: kakao.maps.Map = mapRef;
+    console.log('mapRefState 테스트', mapRef);
     const bounds = map.getBounds();
     const visible: any = fetchedMarkers.filter((marker: any) => {
       const position = new kakao.maps.LatLng(
@@ -356,7 +359,8 @@ export default function Home() {
       return;
     }
     const fetchedMarkers = transformObjectToArray(fetchedData);
-    const map: kakao.maps.Map = mapRef.current;
+    const map: kakao.maps.Map = mapRef;
+    console.log('mapRefState 테스트', mapRef);
     const bounds = map.getBounds();
     const visible: any = fetchedMarkers.filter((marker: any) => {
       const position = new kakao.maps.LatLng(
@@ -381,14 +385,15 @@ export default function Home() {
 
   useEffect(() => {
     // 지도가 로드된 후 이 코드가 실행됩니다
-    if (mapRef.current) {
+    if (mapRef) {
+      console.log('mapRefState 테스트', mapRef);
       //  kakao.maps.Map 사용 가능 지역
       handleBoundsChanged(); // - [ ] 아 근데, footer가 4rem 차지해서, 그 부분에 마커가 있으면 로드가 되긴 함. 어쩔 수 없음.
       setIsDataLoading(false);
     }
     // - [ ] 근데 mapRef.current로 추적하는게 맞나? => 맞나봄
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [mapRefState]); // - [ ] mapRef는 setMapRefState(map)이라는 코드가 onCreate에 존재시 동작함, window.kakao도 되기는 함. 그냥 useEffect의 의존성에는 ref값을 넣지 말자.
+  }, [mapRef]); // - [ ] mapRef는 setMapRefState(map)이라는 코드가 onCreate에 존재시 동작함, window.kakao도 되기는 함. 그냥 useEffect의 의존성에는 ref값을 넣지 말자.
   // 행정동 주소 변경
   const updateAdminDongAddr = (position: any) => {
     const geocoder = new kakao.maps.services.Geocoder();
@@ -400,7 +405,6 @@ export default function Home() {
             const adminDongAddr: any = result[i].address_name;
             console.log('행정동', adminDongAddr);
             setCurAdminDongAddr(adminDongAddr);
-
             break;
           }
         }
@@ -409,11 +413,12 @@ export default function Home() {
   };
   // 초기 행정동 불러오기
   useEffect(() => {
-    if (mapRefState) {
+    if (mapRef) {
+      console.log('mapRefState 테스트', mapRef);
       // centerPos가 불러와지면 centerPos로 행정동 불러옴. 그렇지 않으면 defaultCenter의 행정동 불러옴
       updateAdminDongAddr(isNil(centerPos) ? defaultCenter : centerPos);
     }
-  }, [mapRefState, centerPos]);
+  }, [mapRef, centerPos]);
 
   /* 현재 위치 */
   const updateCenterPos = (map: kakao.maps.Map) => {
@@ -582,8 +587,8 @@ export default function Home() {
         <StyledMap>
           <KakaoMap
             onCreate={(map: any) => {
-              mapRef.current = map;
-              setMapRefState(map);
+              // mapRef.current = map;
+              setMapRef(map);
             }}
             level={5}
             /* 장소 추가 */
