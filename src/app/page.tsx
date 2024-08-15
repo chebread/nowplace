@@ -55,6 +55,13 @@ import {
   DrawerHandlebar,
   DrawerTitle,
   DrawerDescription,
+  DrawerNestedOverlay,
+  DrawerNestedContent,
+  DrawerNestedModal,
+  DrawerNestedContents,
+  DrawerNestedHeader,
+  DrawerNestedHandlebarWrapper,
+  DrawerNestedHandlebar,
 } from '@/components/bottom-sheet/bottom-sheet.css';
 import {
   StyledCopyright,
@@ -821,14 +828,18 @@ export default function Home() {
                     <Drawer.Portal>
                       <DrawerNestedOverlay />
                       <DrawerNestedContent>
-                        <div>
-                          <div />
-                          <div>
+                        <DrawerNestedHeader>
+                          <DrawerNestedHandlebarWrapper>
+                            <DrawerNestedHandlebar></DrawerNestedHandlebar>
+                          </DrawerNestedHandlebarWrapper>
+                        </DrawerNestedHeader>
+                        <DrawerNestedModal>
+                          <DrawerNestedContents>
                             <DrawerTitle />
                             <DrawerDescription />
                             <h1> This drawer is nested.</h1>
-                          </div>
-                        </div>
+                          </DrawerNestedContents>
+                        </DrawerNestedModal>
                       </DrawerNestedContent>
                     </Drawer.Portal>
                   </Drawer.NestedRoot>
