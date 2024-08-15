@@ -72,6 +72,7 @@
 // - [ ] 특정 마커 클릭시 장소 공유 기능 => url 공유 인데, 그냥 그 장소만을 내포하는 url임
 // - [ ] 저장한 모든 장소 공유하기 => 지금 현재 url을 복사함
 // - [ ] 거부 했다가 다시 승인하면 이게 바로 반영이 안되는 이슈가 있지만, 이 지역 검색은 잘 뜨기는 함. 일단 보류 해놓기
+// - [ ] 지금이 어디 위치인지 표시하는 기능 일단은 보류하기. 일단은 "이 지역 검색하기" 라는 말만 "{현재 행정동} 검색하기"로 변경하기
 
 'use client';
 
@@ -294,7 +295,6 @@ export default function Home() {
         // 아니 근데, 늦게 반영되던 말던, saveData에서는 handleBoundsChanged() 함수는 너무 비효율적임. 임시코드가 더 효율적임.
         const fetchedMarkers = transformObjectToArray(mergedData);
         const map: kakao.maps.Map = mapRef;
-        console.log('mapRefState 테스트', mapRef);
 
         const bounds = map.getBounds();
         const visible: any = fetchedMarkers.filter((marker: any) => {
@@ -325,7 +325,6 @@ export default function Home() {
     /* 임시 코드 */
     const fetchedMarkers = transformObjectToArray(removedData);
     const map: kakao.maps.Map = mapRef;
-    console.log('mapRefState 테스트', mapRef);
     const bounds = map.getBounds();
     const visible: any = fetchedMarkers.filter((marker: any) => {
       const position = new kakao.maps.LatLng(
@@ -360,7 +359,6 @@ export default function Home() {
     }
     const fetchedMarkers = transformObjectToArray(fetchedData);
     const map: kakao.maps.Map = mapRef;
-    console.log('mapRefState 테스트', mapRef);
     const bounds = map.getBounds();
     const visible: any = fetchedMarkers.filter((marker: any) => {
       const position = new kakao.maps.LatLng(
@@ -384,9 +382,9 @@ export default function Home() {
   // 일단 mapRef가 kakao.map
 
   useEffect(() => {
-    // 지도가 로드된 후 이 코드가 실행됩니다
+    // 지도가 처음 로드된 후 이 코드가 실행됩니다
+    // 지도가 로드된 처음만 실행되므로 if절 내의 코드는 한번만 실행됩니다
     if (mapRef) {
-      console.log('mapRefState 테스트', mapRef);
       //  kakao.maps.Map 사용 가능 지역
       handleBoundsChanged(); // - [ ] 아 근데, footer가 4rem 차지해서, 그 부분에 마커가 있으면 로드가 되긴 함. 어쩔 수 없음.
       setIsDataLoading(false);
@@ -405,16 +403,16 @@ export default function Home() {
             const adminDongAddr: any = result[i].address_name;
             console.log('행정동', adminDongAddr);
             setCurAdminDongAddr(adminDongAddr);
+
             break;
           }
         }
       }
     });
   };
-  // 초기 행정동 불러오기
+  // 초기 행정동 불러오기 및 위치 변동 사항 확인시 행정동 다시 불러옴
   useEffect(() => {
     if (mapRef) {
-      console.log('mapRefState 테스트', mapRef);
       // centerPos가 불러와지면 centerPos로 행정동 불러옴. 그렇지 않으면 defaultCenter의 행정동 불러옴
       updateAdminDongAddr(isNil(centerPos) ? defaultCenter : centerPos);
     }
@@ -428,10 +426,11 @@ export default function Home() {
       lng: map.getCenter().getLng(),
     });
     /* 행정동 주소 검색 */
-    updateAdminDongAddr({
-      lat: map.getCenter().getLat(),
-      lng: map.getCenter().getLng(),
-    });
+    // 그냥 useEffect로 모두 처리함
+    // updateAdminDongAddr({
+    //   lat: map.getCenter().getLat(),
+    //   lng: map.getCenter().getLng(),
+    // });
   };
   const handleMotionDetected = () => {
     setIsTracking(false);
@@ -443,10 +442,10 @@ export default function Home() {
       setIsTracking(true);
       setMapMovedToggle(true); // 이동됨을 알림
       /* 행정동 주소 검색 */
-      updateAdminDongAddr({
-        lat: curPos.lat,
-        lng: curPos.lng,
-      });
+      // updateAdminDongAddr({
+      //   lat: curPos.lat,
+      //   lng: curPos.lng,
+      // });
     }
   };
   const handleGeoError = (error: any) => {
@@ -510,6 +509,7 @@ export default function Home() {
       startWatchingPosition();
     }
     if (state === 'prompt') {
+      setGeoPermission('prompt');
       // setGeoPermission('prompt'); // 필요하지는 않음 prompt한 상태는 로딩 상태에서 이미 받을 것임. geoPermission의 상태는 거부와 승인 이 두개만 존재함.
       // console.log('위치 액세스 권한을 요청할 수 있습니다.');
       navigator.geolocation.getCurrentPosition(
@@ -787,7 +787,9 @@ export default function Home() {
                 handleBoundsChanged();
               }}
             >
-              {fetchDataToggle ? '읽어들이는 중...' : '이 지역 검색'}
+              {fetchDataToggle
+                ? '읽어들이는 중...'
+                : `${curAdminDongAddr} 검색`}
             </DataFetcherBtn>
           </DataFetcherBtnWrapper>
         )}
