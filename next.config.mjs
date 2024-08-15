@@ -28,6 +28,9 @@ const nextConfig = {
 
     return config;
   },
+  compiler: {
+    styledComponents: true,
+  },
 };
 
 export default nextConfig;
