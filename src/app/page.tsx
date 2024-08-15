@@ -133,7 +133,7 @@ import { base64ArrayDecoder } from '@/utils/base64ArrayDecoder';
 import { base64ArrayEncoder } from '@/utils/base64ArrayEncoder';
 import { useRouter } from 'next/navigation';
 import generateUUID from '@/lib/generateUUID';
-import { isNil } from 'es-toolkit/predicate';
+import { isNil, isNotNil } from 'es-toolkit/predicate';
 import { omit } from 'es-toolkit';
 import Link from 'next/link';
 import CopyToClipboard from 'react-copy-to-clipboard';
@@ -147,6 +147,7 @@ export default function Home() {
   const [fetchDataToggle, setFetchDataToggle] = useState(false);
   const [dataToAddToggle, setDataToAddToggle] = useState(false); // 장소 추가시 바텀시트 작동 Toggle
   /* 데이터 */
+  const [curAdminDongAddr, setCurAdminDongAddr] = useState(); // 현재 행정동 위치를 담는 값
   const [selectedMarkerToggle, setSelectedMarkerToggle] = useState(false);
   const [selectedMarkerData, setSelectedMarkerData] = useState<any>(); // clickedMarker
   const router = useRouter();
@@ -160,6 +161,7 @@ export default function Home() {
   const [markers, setMarkers] = useState([]);
   const [visibleMarkers, setVisibleMarkers] = useState([]);
   /* 위치 */
+  const [mapRefState, setMapRefState] = useState<any>();
   const mapRef = useRef<any>();
   let watchId: any = null;
   const defaultCenter = { lat: 37.575857, lng: 126.976805 };
@@ -254,7 +256,7 @@ export default function Home() {
     let lotAddr: any; // 지번 주소
     let roadAddr: any; // 도로명 주소
     // if (mapRef.current)는 할필요가 없음. 이미 mapRef.current가 불러오고 home page가 렌더링되기 때문임
-    var geocoder = new kakao.maps.services.Geocoder();
+    const geocoder = new kakao.maps.services.Geocoder();
     geocoder.coord2Address(
       position.lng,
       position.lat,
@@ -269,6 +271,7 @@ export default function Home() {
         const fetchedData: any = fetchDataFromUrl('data'); // {id: {  ..., position: { lat: ..., lng: ... }, content: ... }, id: { ... }, ... ]
         // 이거는 isNil 처리 안해도 됨. { ...fetchedData } = { } 로 처리됨
         const data = {
+          // data는 축약값 표현 사용하지 않음
           [generateUUID()]: {
             position: {
               lat: position.lat,
@@ -369,18 +372,48 @@ export default function Home() {
     setMapMovedToggle(false); // - [ ] 이거 초기에 실행하는데 문제 없겠지?
     console.log(3);
   };
+
   /* 처음 로드시 현재 위치의 데이터 불러오기 */
+  // - [*] 심각한 버그. prompt에서 denined이면 잘 표시가 됨. 그러나 태초부터 denied이면 아예 실행이 안됨. 계속 로딩 페이지에 머물러 있음.
+  // - [*] 이유는 mapRef의 값이 변경이 즉각 되지 않아서임. 근데 이게 왜 그런지는 모름. 그래서 그냥 이 코드는 onCreate 내부에 위치했음
+  // - [*] onCreate 내부 위치도 그렇지 좋지는 않음. 값이 계속 바뀌기 때문에.
+  // 일단 mapRef가 kakao.map
+
   useEffect(() => {
-    // mapref 로드 전까지는 이 함수가 실행될 수 없다 => 즉 위치를 선택받기 전까지는 이 함수가 실행이 불가하다 => 이건 내가 생각하지 못했던 효과이다
+    // 지도가 로드된 후 이 코드가 실행됩니다
     if (mapRef.current) {
       //  kakao.maps.Map 사용 가능 지역
       handleBoundsChanged(); // - [ ] 아 근데, footer가 4rem 차지해서, 그 부분에 마커가 있으면 로드가 되긴 함. 어쩔 수 없음.
       setIsDataLoading(false);
-      /*  */
     }
     // - [ ] 근데 mapRef.current로 추적하는게 맞나? => 맞나봄
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [mapRef.current]);
+  }, [mapRefState]); // mapRef는 안됨. 이유는 모름. window.kakao도 됨.
+  // 행정동 주소 변경
+  const updateAdminDongAddr = (position: any) => {
+    const geocoder = new kakao.maps.services.Geocoder();
+    geocoder.coord2RegionCode(position.lng, position.lat, (result, status) => {
+      if (status === kakao.maps.services.Status.OK) {
+        for (let i = 0; i < result.length; i++) {
+          // - [ ] 행정동의 region_type 값은 'H' 이므로
+          if (result[i].region_type === 'H') {
+            const adminDongAddr: any = result[i].address_name;
+            console.log('행정동', adminDongAddr);
+            setCurAdminDongAddr(adminDongAddr);
+
+            break;
+          }
+        }
+      }
+    });
+  };
+  // 초기 행정동 불러오기
+  useEffect(() => {
+    if (mapRef.current) {
+      // centerPos가 불러와지면 centerPos로 행정동 불러옴. 그렇지 않으면 defaultCenter의 행정동 불러옴
+      updateAdminDongAddr(isNil(centerPos) ? defaultCenter : centerPos);
+    }
+  }, [mapRef.current, centerPos]);
 
   /* 현재 위치 */
   const updateCenterPos = (map: kakao.maps.Map) => {
@@ -389,14 +422,27 @@ export default function Home() {
       lat: map.getCenter().getLat(),
       lng: map.getCenter().getLng(),
     });
+    /* 행정동 주소 검색 */
+    updateAdminDongAddr({
+      lat: map.getCenter().getLat(),
+      lng: map.getCenter().getLng(),
+    });
   };
   const handleMotionDetected = () => {
     setIsTracking(false);
   };
   const onCurPosTracking = () => {
-    setCenterPos(curPos);
-    setIsTracking(true);
-    setMapMovedToggle(true); // 이동됨을 알림
+    // 중복 처리 방지
+    if (!isTracking) {
+      setCenterPos(curPos);
+      setIsTracking(true);
+      setMapMovedToggle(true); // 이동됨을 알림
+      /* 행정동 주소 검색 */
+      updateAdminDongAddr({
+        lat: curPos.lat,
+        lng: curPos.lng,
+      });
+    }
   };
   const handleGeoError = (error: any) => {
     switch (error.code) {
@@ -471,6 +517,9 @@ export default function Home() {
           setGeoPermission('denied');
           // console.log('위치 액세스가 거부되었습니다.');
           stopWatchingPosition();
+          console.log('denied됨v1');
+          // 만약에 여기서 updateAdminAddr을 하게 되면 거부로 변경시 주소도 defaultCenter의 주소를 가져오게 된다.
+          // 그냥 useEffect를 사용하는게 가장 효율적일 듯 하긴 하다.
         }
       );
     }
@@ -478,6 +527,7 @@ export default function Home() {
       setGeoPermission('denied');
       // console.log('위치 액세스가 거부되었습니다.');
       stopWatchingPosition();
+      console.log('denied됨v2');
     }
   };
   const checkGeoPermission = () => {
@@ -507,7 +557,7 @@ export default function Home() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
   useEffect(() => {
-    /* curPos 값 변동시 */
+    /* 위치 추적 기능 */
     if (curPos && isCurPosFetched && isTracking) {
       // 현재 위치 불러온 후에 tracking 모드일때는 현재 위치를 따라가게됨
       setCenterPos(curPos);
@@ -524,15 +574,16 @@ export default function Home() {
 
   return (
     <>
+      {isDataLoading && (
+        /* 로딩 */
+        <Loading />
+      )}
       <StyledMain>
-        {isDataLoading && (
-          /* 로딩 */
-          <Loading />
-        )}
         <StyledMap>
           <KakaoMap
             onCreate={(map: any) => {
               mapRef.current = map;
+              setMapRefState(map);
             }}
             level={5}
             /* 장소 추가 */
