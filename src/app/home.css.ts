@@ -11,6 +11,7 @@ export const StyledMain = styled.main`
   width: 100vw;
   display: flex;
   justify-content: center;
+  background-color: var(--bg);
 `;
 
 export const StyledMap = styled.div`

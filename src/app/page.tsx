@@ -12,7 +12,7 @@
 // - [ ] PWA 만들기
 // - [ ] 검색 기능 만들기 => 1. 저장한 장소 검색 기능: 저장한 장소의 메모와 도로명 주소, 지번 주소에 기반해서 검색이 됨. 찾은 장소 클릭시 바로 장소 더보기가 실행됨
 // 2. 장소 찾기 기능: 맛집 같은 것을 검색할 수 있음. 카카오맵에서 제공하는 검색 기능과 흡사. 찾은 장소를 클릭시 바로 지도의 마커가 생기게 됨.
-// - [ ] 첫 방문자 기능 만들기
+// - [ ] 첫 방문자 기능 만들기 (hasVisited)
 // - [ ] isTracking 시에는 zoom 하면 center 좌표를 중심으로 zoom 되기 기능 만들기
 // - [*] permission 에서 prompt => granted 될때 기존의 데이터가 바로 안보이게 되는 오류가 있다.
 
@@ -29,10 +29,11 @@ import CopyToClipboard from 'react-copy-to-clipboard';
 /* utils */
 import { isNil, isNotNil } from 'es-toolkit/predicate';
 import { omit } from 'es-toolkit';
-import { base64ArrayDecoder } from '@/utils/base64ArrayDecoder';
-import { base64ArrayEncoder } from '@/utils/base64ArrayEncoder';
-import getAllUrl from '@/utils/getAllUrls';
-import generateUUID from '@/utils/generateUUID';
+import { base64ArrayDecoder } from '@/utils/base64-array-decoder';
+import { base64ArrayEncoder } from '@/utils/base64-array-encoder';
+import getAllUrl from '@/utils/get-all-url';
+import generateUUID from '@/utils/generate-UUID';
+import transformNestedObjectToArray from '@/utils/transform-nested-object-to-array';
 /* svgs */
 import Loading from '@/components/loading';
 import SvgLogo from '@/assets/icons/logo.svg';
@@ -80,13 +81,14 @@ import {
   DataFetcherBtnWrapper,
   PlaceMarker,
 } from './home.css';
-import transformNestedObjectToArray from '@/utils/transformNestedObjectToArray';
 
 export default function Home() {
   const copyright = `© ${new Date().getFullYear()} Cha Haneum`;
   const [permissionReqToggle, setPermissionReqToggle] = useState(false);
   const [showMoreToggle, setShowMoreToggle] = useState(false);
   const [searchToggle, setSearchToggle] = useState(false);
+  /* search */
+  const [searchValue, setSearchValue] = useState<string>();
   /* data */
   const [fetchDataToggle, setFetchDataToggle] = useState(false);
   const [dataToAddToggle, setDataToAddToggle] = useState(false); // 장소 추가시 바텀시트 작동 Toggle
@@ -118,6 +120,8 @@ export default function Home() {
   const [isCurPosFetched, setIsCurPosFetched] = useState(false);
   const [isTracking, setIsTracking] = useState(false);
   const [geoPermission, setGeoPermission] = useState(''); // 모든 지도의 권한을 설정함
+
+  /* search */
 
   /* data */
   // 데이터 추가 바텀 시트 최소화
@@ -713,7 +717,7 @@ export default function Home() {
                       } = event;
                       setContentData(value);
                     }}
-                    placeholder="저장할 장소에 메모를 추가하세요."
+                    placeholder="저장할 장소에 메모를 추가하세요"
                   />
                 </DataToAddTextareaWrapper>
                 <DataToAddFooter>
@@ -810,7 +814,24 @@ export default function Home() {
                 </li>
                 <h2>이용 안내</h2>
                 <li>
-                  <Link href="usage-guide">사용법</Link>
+                  <Drawer.NestedRoot>
+                    <Drawer.Trigger>
+                      <button>사용법</button>
+                    </Drawer.Trigger>
+                    <Drawer.Portal>
+                      <DrawerNestedOverlay />
+                      <DrawerNestedContent>
+                        <div>
+                          <div />
+                          <div>
+                            <DrawerTitle />
+                            <DrawerDescription />
+                            <h1> This drawer is nested.</h1>
+                          </div>
+                        </div>
+                      </DrawerNestedContent>
+                    </Drawer.Portal>
+                  </Drawer.NestedRoot>
                 </li>
                 <li>
                   <Link href="mailto:fromhaneum">
@@ -859,6 +880,17 @@ export default function Home() {
                 <DrawerTitle />
                 <DrawerDescription />
                 <h1>검색</h1>
+                <input
+                  value={searchValue}
+                  onChange={(event: any) => {
+                    const {
+                      target: { value },
+                    } = event;
+                    setSearchValue(value);
+                  }}
+                  placeholder="저장한 장소를 검색하세요"
+                />
+                <div></div>
               </DrawerContents>
             </DrawerModal>
           </DrawerContent>
