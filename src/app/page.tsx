@@ -250,37 +250,58 @@ export default function Home() {
   // 마커 데이터 저장
   // - [ ] 에러 판단해야함 => fetch... 거기서 데이터 손상 확인
   const saveData = (position: any, content: any) => {
-    // ?data={UUID(id): { ... }, UUID: { ... }](base64)
-    const fetchedData: any = fetchDataFromUrl('data'); // {id: {  ..., position: { lat: ..., lng: ... }, content: ... }, id: { ... }, ... ]
-    // console.log(fetchedData);
-    // 이거는 isNil 처리 안해도 됨. { ...fetchedData } = { } 로 처리됨
-    const data = {
-      [generateUUID()]: {
-        position: {
-          lat: position.lat,
-          lng: position.lng,
-        },
-        content: content || '',
-      },
-    };
-    const mergedData: any = { ...fetchedData, ...data }; // fetchData와 병합
-    const dataToSave = base64ArrayEncoder(mergedData); // encode
-    saveDataToUrl('data', dataToSave); // 데이터 url에 저장하기 // 바로 즉각 반영이 느림
-    console.log('저장을 완료했습니다');
-    // handleBoundsChanged(); // - [ ] 데이터 없을때 저장시에 이게 실행이 안됨
-    /* 임시 코드 */ // - [ ] get querystring이 한 번 늦게 반영되는 문제.
-    // 아니 근데, 늦게 반영되던 말던, saveData에서는 handleBoundsChanged() 함수는 너무 비효율적임. 임시코드가 더 효율적임.
-    const fetchedMarkers = transformObjectToArray(mergedData);
-    const map: kakao.maps.Map = mapRef.current;
-    const bounds = map.getBounds();
-    const visible: any = fetchedMarkers.filter((marker: any) => {
-      const position = new kakao.maps.LatLng(
-        marker.position.lat,
-        marker.position.lng
-      );
-      return bounds.contain(position);
-    });
-    setVisibleMarkers(visible);
+    /* 도로명 주소 저장 */
+    let lotAddr: any; // 지번 주소
+    let roadAddr: any; // 도로명 주소
+    // if (mapRef.current)는 할필요가 없음. 이미 mapRef.current가 불러오고 home page가 렌더링되기 때문임
+    var geocoder = new kakao.maps.services.Geocoder();
+    geocoder.coord2Address(
+      position.lng,
+      position.lat,
+      (result: any, status: any) => {
+        if (status === kakao.maps.services.Status.OK) {
+          console.log('지번 주소: ' + result[0]?.address?.address_name);
+          console.log('도로명 주소: ' + result[0]?.road_address?.address_name);
+          lotAddr = result[0]?.address?.address_name; // 지번 주소
+          roadAddr = result[0]?.road_address?.address_name; // 도로명 주소
+        }
+        // 순차적으로 실행되기 위하여 callback 내부에 작성함
+        const fetchedData: any = fetchDataFromUrl('data'); // {id: {  ..., position: { lat: ..., lng: ... }, content: ... }, id: { ... }, ... ]
+        // 이거는 isNil 처리 안해도 됨. { ...fetchedData } = { } 로 처리됨
+        const data = {
+          [generateUUID()]: {
+            position: {
+              lat: position.lat,
+              lng: position.lng,
+            },
+            content: content || '',
+            address: {
+              landLotAddress: isNil(lotAddr) ? null : lotAddr,
+              roadNameAddress: isNil(roadAddr) ? null : roadAddr,
+            },
+          },
+        };
+        console.log(data);
+        const mergedData: any = { ...fetchedData, ...data }; // fetchData와 병합
+        const dataToSave = base64ArrayEncoder(mergedData); // encode
+        saveDataToUrl('data', dataToSave); // 데이터 url에 저장하기 // 바로 즉각 반영이 느림
+        console.log('저장을 완료했습니다');
+        // handleBoundsChanged(); // - [ ] 데이터 없을때 저장시에 이게 실행이 안됨
+        /* 임시 코드 */ // - [ ] get querystring이 한 번 늦게 반영되는 문제.
+        // 아니 근데, 늦게 반영되던 말던, saveData에서는 handleBoundsChanged() 함수는 너무 비효율적임. 임시코드가 더 효율적임.
+        const fetchedMarkers = transformObjectToArray(mergedData);
+        const map: kakao.maps.Map = mapRef.current;
+        const bounds = map.getBounds();
+        const visible: any = fetchedMarkers.filter((marker: any) => {
+          const position = new kakao.maps.LatLng(
+            marker.position.lat,
+            marker.position.lng
+          );
+          return bounds.contain(position);
+        });
+        setVisibleMarkers(visible);
+      }
+    );
   };
   // 마커 데이터 삭제
   // - [ ] 마커 누르면 삭제 기능도 만들기 (모달로 하여금)
@@ -350,12 +371,12 @@ export default function Home() {
   };
   /* 처음 로드시 현재 위치의 데이터 불러오기 */
   useEffect(() => {
-    console.log(1);
     // mapref 로드 전까지는 이 함수가 실행될 수 없다 => 즉 위치를 선택받기 전까지는 이 함수가 실행이 불가하다 => 이건 내가 생각하지 못했던 효과이다
     if (mapRef.current) {
-      console.log(3);
+      //  kakao.maps.Map 사용 가능 지역
       handleBoundsChanged(); // - [ ] 아 근데, footer가 4rem 차지해서, 그 부분에 마커가 있으면 로드가 되긴 함. 어쩔 수 없음.
       setIsDataLoading(false);
+      /*  */
     }
     // - [ ] 근데 mapRef.current로 추적하는게 맞나? => 맞나봄
     // eslint-disable-next-line react-hooks/exhaustive-deps
