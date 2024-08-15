@@ -114,6 +114,7 @@ export default function Home() {
   const [isDataLoading, setIsDataLoading] = useState(true); // data loading // default value = true
   const [visibleMarkers, setVisibleMarkers] = useState([]);
   /* geolocation */
+  const mapUseRef = useRef<any>();
   const [mapRef, setMapRef] = useState<any>(); // 값이 즉각 반영은 안되지만 useEffect가 추적할 수 있음
   const [mapMovedToggle, setMapMovedToggle] = useState(false); // 움직임 발생시
   let watchId: any = null;
@@ -128,6 +129,7 @@ export default function Home() {
   const [isCurPosFetched, setIsCurPosFetched] = useState(false);
   const [isTracking, setIsTracking] = useState(false);
   const [geoPermission, setGeoPermission] = useState(''); // 모든 지도의 권한을 설정함
+  const [geoFetched, setGeoFetched] = useState(false); // 처음으로 지도 정보 가져옴을 저장함 granted, denied
 
   /* search */
 
@@ -391,7 +393,7 @@ export default function Home() {
           setGeoPermission('granted');
           // console.log('위치 액세스가 허용되었습니다.');
           startWatchingPosition();
-          setMapMovedToggle(true); // - [ ] "위치 권한이 prompt => granted 될때 데이터 불러오기" 에러의 임시방편 처리
+          // setMapMovedToggle(true); // - [ ] "위치 권한이 prompt => granted 될때 데이터 불러오기" 에러의 임시방편 처리 => 아래 코드 참조
         },
         error => {
           setGeoPermission('denied');
@@ -418,21 +420,46 @@ export default function Home() {
 
   /* useEffect data */
   // 처음 로드시 현재 위치의 데이터 불러오기
-  // - [ ] 위치 권한이 prompt => granted 될때 데이터 불러오기 => 임시방편으로 처리함
+  // - [v] 위치 권한이 prompt => granted 될때 데이터 불러오기 => 임시방편으로 처리함 => 아래 코드 참조
+  // - [v] 현재 위치 로딩이 길어지면 이게 반영이 안됨 => 그냥 이렇게 전역으로 설정하는게 아니라. 어떤게 끝나면 그냥 새로고침 하기 그렇게 할까? => 아래 코드 참조
+  // useEffect(() => {
+  // - [*] 심각한 버그. prompt에서 denined이면 잘 표시가 됨. 그러나 태초부터 denied이면 아예 실행이 안됨. 계속 로딩 페이지에 머물러 있음.
+  // - [*] 이유는 mapRef의 값이 변경이 즉각 되지 않아서임. 근데 이게 왜 그런지는 모름. 그래서 그냥 이 코드는 onCreate 내부에 위치했음
+  // - [*] onCreate 내부 위치도 그렇지 좋지는 않음. 값이 계속 바뀌기 때문에.
+  // - [*] mapRef는 setMapRefState(map)이라는 코드가 onCreate에 존재시 동작함, window.kakao도 되기는 함. 그냥 useEffect의 의존성에는 ref값을 넣지 말자.
+  // - [*] 일단 mapRef가 kakao.map => 일단 임시로 useRef가 아니라 useState를 사용하자.
+  // 지도가 처음 로드된 후 이 코드가 실행됩니다 / 지도가 로드된 처음만 실행되므로 if절 내의 코드는 한번만 실행됩니다
+  // if (mapRef) {
+  // handleBoundsChanged(); // 근데 footer가 4rem 차지해서, 그 부분에 마커가 있으면 로드가 되긴 함. 어쩔 수 없음.
+  // setIsDataLoading(false);
+  // }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  // }, [mapRef]);
+
+  // 초기 데이터 가져오기 / 처음 로드시 데이터를 불러오는 방식은 안좋음. 권한이 재정립되고, 현재위치나 거부까지 완전히 받아올때 데이터를 로드함
   useEffect(() => {
-    // - [*] 심각한 버그. prompt에서 denined이면 잘 표시가 됨. 그러나 태초부터 denied이면 아예 실행이 안됨. 계속 로딩 페이지에 머물러 있음.
-    // - [*] 이유는 mapRef의 값이 변경이 즉각 되지 않아서임. 근데 이게 왜 그런지는 모름. 그래서 그냥 이 코드는 onCreate 내부에 위치했음
-    // - [*] onCreate 내부 위치도 그렇지 좋지는 않음. 값이 계속 바뀌기 때문에.
-    // - [*] mapRef는 setMapRefState(map)이라는 코드가 onCreate에 존재시 동작함, window.kakao도 되기는 함. 그냥 useEffect의 의존성에는 ref값을 넣지 말자.
-    // - [*] 일단 mapRef가 kakao.map => 일단 임시로 useRef가 아니라 useState를 사용하자.
-    // 지도가 처음 로드된 후 이 코드가 실행됩니다 / 지도가 로드된 처음만 실행되므로 if절 내의 코드는 한번만 실행됩니다
     if (mapRef) {
-      //  kakao.maps.Map 사용 가능 지역
-      handleBoundsChanged(); // 근데 footer가 4rem 차지해서, 그 부분에 마커가 있으면 로드가 되긴 함. 어쩔 수 없음.
-      setIsDataLoading(false);
+      // 지도 불러올시 (mapRef 접근 가능할시)
+      // ***prompt 선택 전까지 로딩 화면을 출력함
+      if (geoPermission === 'granted') {
+        // 현재 위치 권한 승락시
+        // 거부에서 승락으로 가도 이것이 적용
+        // 그리고 현 위치 데이터를 일단 안받아도 지도를 출력함
+        setIsDataLoading(false); // 로딩 화면은 없엠
+        if (isCurPosFetched) {
+          console.log('gratned load');
+          // 현재 위치를 불러오면 데이터를 불러옴
+          handleBoundsChanged();
+        }
+      }
+      if (geoPermission === 'denied') {
+        // 현재 위치 권한 비승락시는 그냥 바로 지도와 데이터를 불러옴
+        console.log('denied load');
+        setIsDataLoading(false);
+        handleBoundsChanged();
+      }
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [mapRef]);
+  }, [geoPermission, isCurPosFetched, mapRef]);
 
   // 초기 행정동 불러오기 및
   // 위치 변동 사항 확인시 행정동 다시 불러옴
@@ -486,6 +513,7 @@ export default function Home() {
           <KakaoMap
             onCreate={(map: kakao.maps.Map) => {
               setMapRef(map);
+              mapUseRef.current = map;
             }}
             level={5}
             center={centerPos}
@@ -658,6 +686,7 @@ export default function Home() {
                   >
                     장소 삭제하기
                   </button>
+                  <button>장소 공유하기</button>
                 </DrawerContents>
               )}
             </DrawerModal>
@@ -822,28 +851,7 @@ export default function Home() {
                 </li>
                 <h2>이용 안내</h2>
                 <li>
-                  <Drawer.NestedRoot>
-                    <Drawer.Trigger>
-                      <button>사용법</button>
-                    </Drawer.Trigger>
-                    <Drawer.Portal>
-                      <DrawerNestedOverlay />
-                      <DrawerNestedContent>
-                        <DrawerNestedHeader>
-                          <DrawerNestedHandlebarWrapper>
-                            <DrawerNestedHandlebar></DrawerNestedHandlebar>
-                          </DrawerNestedHandlebarWrapper>
-                        </DrawerNestedHeader>
-                        <DrawerNestedModal>
-                          <DrawerNestedContents>
-                            <DrawerTitle />
-                            <DrawerDescription />
-                            <h2>This drawer is nested.</h2>
-                          </DrawerNestedContents>
-                        </DrawerNestedModal>
-                      </DrawerNestedContent>
-                    </Drawer.Portal>
-                  </Drawer.NestedRoot>
+                  <button>사용법</button>
                 </li>
                 <li>
                   <Link href="mailto:fromhaneum">
@@ -851,8 +859,12 @@ export default function Home() {
                   </Link>
                 </li>
                 <h2>서비스 안내</h2>
-                <li>서비스 이용 약관</li>
-                <li>개인정보 취급 방침</li>
+                <li>
+                  <button>서비스 이용 약관</button>
+                </li>
+                <li>
+                  <button>개인정보 취급 방침</button>
+                </li>
               </DrawerContents>
             </DrawerModal>
           </DrawerContent>
