@@ -14,6 +14,7 @@
 // 2. 장소 찾기 기능: 맛집 같은 것을 검색할 수 있음. 카카오맵에서 제공하는 검색 기능과 흡사. 찾은 장소를 클릭시 바로 지도의 마커가 생기게 됨.
 // - [ ] 첫 방문자 기능 만들기
 // - [ ] isTracking 시에는 zoom 하면 center 좌표를 중심으로 zoom 되기 기능 만들기
+// - [*] permission 에서 prompt => granted 될때 기존의 데이터가 바로 안보이게 되는 오류가 있다.
 
 'use client';
 
@@ -22,7 +23,6 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { useRouter, usePathname, useSearchParams } from 'next/navigation';
 import { Drawer } from 'vaul';
-import { toast } from 'sonner';
 import KakaoMap from '@/components/kakao-map';
 import { CustomOverlayMap } from 'react-kakao-maps-sdk';
 import CopyToClipboard from 'react-copy-to-clipboard';
@@ -87,7 +87,6 @@ export default function Home() {
   const [permissionReqToggle, setPermissionReqToggle] = useState(false);
   const [showMoreToggle, setShowMoreToggle] = useState(false);
   const [searchToggle, setSearchToggle] = useState(false);
-
   /* data */
   const [fetchDataToggle, setFetchDataToggle] = useState(false);
   const [dataToAddToggle, setDataToAddToggle] = useState(false); // 장소 추가시 바텀시트 작동 Toggle
@@ -105,8 +104,8 @@ export default function Home() {
   const [isDataLoading, setIsDataLoading] = useState(true); // data loading // default value = true
   const [visibleMarkers, setVisibleMarkers] = useState([]);
   /* geolocation */
+  const [mapRef, setMapRef] = useState<any>(); // 값이 즉각 반영은 안되지만 useEffect가 추적할 수 있음
   const [mapMovedToggle, setMapMovedToggle] = useState(false); // 움직임 발생시
-  const [mapRef, setMapRef] = useState<any>();
   let watchId: any = null;
   const defaultCenter = { lat: 37.575857, lng: 126.976805 };
   const geolocationOptions = {
@@ -120,18 +119,6 @@ export default function Home() {
   const [isTracking, setIsTracking] = useState(false);
   const [geoPermission, setGeoPermission] = useState(''); // 모든 지도의 권한을 설정함
 
-  /* permission request */
-  const closePermissionReqBottomSheet = () => {
-    setPermissionReqToggle(false);
-  };
-  /* show more */
-  const closeShowMoreBottomSheet = () => {
-    setShowMoreToggle(false);
-  };
-  /* search */
-  const closeSearchBottomSheet = () => {
-    setSearchToggle(false);
-  };
   /* data */
   // 데이터 추가 바텀 시트 최소화
   const closeDataToAddBottomSheet = () => {
@@ -392,6 +379,7 @@ export default function Home() {
           setGeoPermission('granted');
           // console.log('위치 액세스가 허용되었습니다.');
           startWatchingPosition();
+          setMapMovedToggle(true); // - [ ] "위치 권한이 prompt => granted 될때 데이터 불러오기" 에러의 임시방편 처리
         },
         error => {
           setGeoPermission('denied');
@@ -418,6 +406,7 @@ export default function Home() {
 
   /* useEffect data */
   // 처음 로드시 현재 위치의 데이터 불러오기
+  // - [ ] 위치 권한이 prompt => granted 될때 데이터 불러오기 => 임시방편으로 처리함
   useEffect(() => {
     // - [*] 심각한 버그. prompt에서 denined이면 잘 표시가 됨. 그러나 태초부터 denied이면 아예 실행이 안됨. 계속 로딩 페이지에 머물러 있음.
     // - [*] 이유는 mapRef의 값이 변경이 즉각 되지 않아서임. 근데 이게 왜 그런지는 모름. 그래서 그냥 이 코드는 onCreate 내부에 위치했음
@@ -432,6 +421,7 @@ export default function Home() {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [mapRef]);
+
   // 초기 행정동 불러오기 및
   // 위치 변동 사항 확인시 행정동 다시 불러옴
   useEffect(() => {
@@ -525,153 +515,8 @@ export default function Home() {
               </CustomOverlayMap>
             ))}
           </KakaoMap>
-          {/* 장소 마커 바텀 시트 */}
-          <Drawer.Root
-            shouldScaleBackground
-            open={selectedMarkerToggle}
-            onClose={() => {
-              setSelectedMarkerToggle(false);
-              setSelectedMarkerData(undefined);
-            }}
-          >
-            <Drawer.Portal>
-              <DrawerOverlay
-                onClick={() => {
-                  setSelectedMarkerToggle(false);
-                  setSelectedMarkerData(undefined);
-                }}
-              />
-
-              <DrawerContent
-                onOpenAutoFocus={e => {
-                  e.preventDefault();
-                }}
-              >
-                <DrawerHeader>
-                  <DrawerHandlebarWrapper
-                    onClick={() => {
-                      setSelectedMarkerToggle(false);
-                      setSelectedMarkerData(undefined);
-                    }}
-                  >
-                    <DrawerHandlebar></DrawerHandlebar>
-                  </DrawerHandlebarWrapper>
-                </DrawerHeader>
-                <DrawerModal>
-                  <DrawerTitle />
-                  <DrawerDescription />
-                  {selectedMarkerToggle && (
-                    <DrawerContents>
-                      <h1>
-                        {isNotNil(selectedMarkerData.address.roadNameAddress)
-                          ? `도로명 주소: ${selectedMarkerData.address.roadNameAddress}`
-                          : isNotNil(selectedMarkerData.address.landLotAddress)
-                          ? `지번 주소: ${selectedMarkerData.address.landLotAddress}`
-                          : `해당 장소는 주소명이 부여되지 않았습니다`}
-                      </h1>
-                      {/* 도로명 주소가 없으면 지번 주소가 표시됨. 우선은 일단 도로명 주소만 표시. 없으면 지번 주소 표시. 둘 다 같이 표시하지는 않음. 그리고 둘다 null인 경우는 해당 장소는 주소명이 없습니다 표시. */}
-                      <p>{selectedMarkerData.content}</p>
-                      <button
-                        onClick={() => {
-                          removeData([selectedMarkerData.id]); // - [ ] 바로 반영이 안됨
-                          setSelectedMarkerToggle(false);
-                          setSelectedMarkerData(undefined);
-                        }}
-                      >
-                        장소 삭제하기
-                      </button>
-                    </DrawerContents>
-                  )}
-                </DrawerModal>
-              </DrawerContent>
-            </Drawer.Portal>
-          </Drawer.Root>
-          {/* 장소 추가 바텀 시트 */}
-          <Drawer.Root
-            shouldScaleBackground
-            open={dataToAddToggle}
-            onClose={() => {
-              closeDataToAddBottomSheet();
-            }}
-          >
-            <Drawer.Portal>
-              <DrawerOverlay
-                /* - [ ] 모바일에서 이거 때문에 계속 close... 함수 실행됨. 아니 근데 왜 Drawer.Root이게 화면상에서 없어지지 아니하는가? */
-                onClick={() => {
-                  closeDataToAddBottomSheet();
-                }}
-              />
-
-              <DrawerContent
-                onOpenAutoFocus={e => {
-                  e.preventDefault(); // safari focused 막기
-                }}
-              >
-                <DrawerHeader>
-                  <DrawerHandlebarWrapper
-                    onClick={() => {
-                      closeDataToAddBottomSheet();
-                    }}
-                  >
-                    <DrawerHandlebar></DrawerHandlebar>
-                  </DrawerHandlebarWrapper>
-                </DrawerHeader>
-                <DataToAddDrawerModal
-                  onClick={() => {
-                    if (dataToAddTextareaRef.current !== null) {
-                      // dataToAddTextareaRef.current.disabled = false;
-                      dataToAddTextareaRef.current.focus();
-                    }
-                  }}
-                >
-                  <DataToAddDrawerContents>
-                    <DrawerTitle />
-                    <DrawerDescription />
-                    <DataToAddTextareaWrapper
-                      onClick={event => {
-                        // focus 이벤트 적용하지 않기
-                        event.stopPropagation();
-                      }}
-                    >
-                      <DataToAddTextarea
-                        ref={dataToAddTextareaRef}
-                        autoFocus
-                        maxLength={150}
-                        rows={6}
-                        defaultValue=""
-                        value={contentData}
-                        onChange={(event: any) => {
-                          const {
-                            target: { value },
-                          } = event;
-                          setContentData(value);
-                        }}
-                        placeholder="저장할 장소에 메모를 추가하세요."
-                      />
-                    </DataToAddTextareaWrapper>
-                    <DataToAddFooter>
-                      <DataToAddFooterGradient></DataToAddFooterGradient>
-                      <DataToAddFooterWrapper
-                        onClick={(event: any) => {
-                          event.stopPropagation();
-                        }}
-                      >
-                        <DataToAddFooterBtn
-                          onClick={() => {
-                            saveData(dataToAddPos, contentData);
-                            closeDataToAddBottomSheet();
-                          }}
-                        >
-                          장소 저장하기
-                        </DataToAddFooterBtn>
-                      </DataToAddFooterWrapper>
-                    </DataToAddFooter>
-                  </DataToAddDrawerContents>
-                </DataToAddDrawerModal>
-              </DrawerContent>
-            </Drawer.Portal>
-          </Drawer.Root>
         </StyledMap>
+
         {/* 마커 로드 버튼 */}
         {mapMovedToggle && (
           <DataFetcherBtnWrapper>
@@ -703,96 +548,6 @@ export default function Home() {
                 <StyledCopyright>{copyright}</StyledCopyright>
               </StyledShowMoreBtn>
             </StyledFooterItem>
-            {/* 더보기 바텀 시트 */}
-            <Drawer.Root
-              shouldScaleBackground
-              open={showMoreToggle}
-              onClose={() => {
-                closeShowMoreBottomSheet();
-              }}
-            >
-              <Drawer.Portal>
-                <DrawerOverlay
-                  onClick={() => {
-                    closeShowMoreBottomSheet();
-                  }}
-                />
-                <DrawerContent
-                  onOpenAutoFocus={e => {
-                    e.preventDefault();
-                  }}
-                >
-                  <DrawerHeader>
-                    <DrawerHandlebarWrapper
-                      onClick={() => {
-                        closeShowMoreBottomSheet();
-                      }}
-                    >
-                      <DrawerHandlebar></DrawerHandlebar>
-                    </DrawerHandlebarWrapper>
-                  </DrawerHeader>
-                  <DrawerModal>
-                    <DrawerContents>
-                      <DrawerTitle />
-                      <DrawerDescription />
-                      <h2>서비스 설정</h2>
-                      <li>
-                        <CopyToClipboard
-                          text={allUrl}
-                          onCopy={() => alert('장소가 모두 저장되었습니다')}
-                        >
-                          <button>장소 모두 저장하기</button>
-                        </CopyToClipboard>
-                      </li>
-                      <li>
-                        <button
-                          onClick={() => {
-                            if (
-                              window.confirm('장소를 모두 삭제하시겠습니까?')
-                            ) {
-                              router.push(
-                                pathname + '?' + deleteQueryString('data')
-                              );
-                              /* 새로고침 임시 코드 */
-                              setVisibleMarkers([]);
-                            }
-                          }}
-                        >
-                          장소 모두 삭제하기
-                        </button>
-                      </li>
-                      <li>
-                        위치 권한 상태:
-                        {(() => {
-                          switch (geoPermission) {
-                            case 'granted':
-                              return '승인됨';
-                            case 'prompt':
-                              return '요청중';
-                            case 'denied':
-                              return '거부됨';
-                            default:
-                              return '알 수 없음';
-                          }
-                        })()}
-                      </li>
-                      <h2>이용 안내</h2>
-                      <li>
-                        <Link href="usage-guide">사용법</Link>
-                      </li>
-                      <li>
-                        <Link href="mailto:fromhaneum">
-                          문의하기: fromhaneum@gmail.com
-                        </Link>
-                      </li>
-                      <h2>서비스 안내</h2>
-                      <li>서비스 이용 약관</li>
-                      <li>개인정보 취급 방침</li>
-                    </DrawerContents>
-                  </DrawerModal>
-                </DrawerContent>
-              </Drawer.Portal>
-            </Drawer.Root>
             <StyledFooterItem>
               <StyledFooterBtnWrapper>
                 {/* 검색 버튼 */}
@@ -803,44 +558,7 @@ export default function Home() {
                 >
                   <SvgSearch />
                 </StyledFooterBtn>
-                {/* 검색 바텀 시트 */}
-                <Drawer.Root
-                  shouldScaleBackground
-                  open={searchToggle}
-                  onClose={() => {
-                    closeSearchBottomSheet();
-                  }}
-                >
-                  <Drawer.Portal>
-                    <DrawerOverlay
-                      onClick={() => {
-                        closeSearchBottomSheet();
-                      }}
-                    />
-                    <DrawerContent
-                      onOpenAutoFocus={e => {
-                        e.preventDefault();
-                      }}
-                    >
-                      <DrawerHeader>
-                        <DrawerHandlebarWrapper
-                          onClick={() => {
-                            closeSearchBottomSheet();
-                          }}
-                        >
-                          <DrawerHandlebar></DrawerHandlebar>
-                        </DrawerHandlebarWrapper>
-                      </DrawerHeader>
-                      <DrawerModal>
-                        <DrawerContents>
-                          <DrawerTitle />
-                          <DrawerDescription />
-                          <h1>검색</h1>
-                        </DrawerContents>
-                      </DrawerModal>
-                    </DrawerContent>
-                  </Drawer.Portal>
-                </Drawer.Root>
+
                 {/* 현재 위치 버튼 */}
                 {isCurPosFetched ? (
                   <StyledFooterBtn
@@ -853,48 +571,13 @@ export default function Home() {
                 ) : geoPermission === 'denied' ? (
                   <>
                     {/*  위치 권한 요청 버튼 */}
-                    <StyledFooterBtn>
-                      <SvgReject />
-                    </StyledFooterBtn>
-
-                    {/* 위치 권한 요청 바텀 시트 */}
-                    <Drawer.Root
-                      shouldScaleBackground
-                      open={permissionReqToggle}
-                      onClose={() => {
-                        closePermissionReqBottomSheet();
+                    <StyledFooterBtn
+                      onClick={() => {
+                        setPermissionReqToggle(true);
                       }}
                     >
-                      <Drawer.Portal>
-                        <DrawerOverlay
-                          onClick={() => {
-                            closePermissionReqBottomSheet();
-                          }}
-                        />
-                        <DrawerContent
-                          onOpenAutoFocus={e => {
-                            e.preventDefault();
-                          }}
-                        >
-                          <DrawerHeader>
-                            <DrawerHandlebarWrapper
-                              onClick={() => {
-                                closePermissionReqBottomSheet();
-                              }}
-                            >
-                              <DrawerHandlebar></DrawerHandlebar>
-                            </DrawerHandlebarWrapper>
-                          </DrawerHeader>
-                          <DrawerModal>
-                            <DrawerContents>
-                              <DrawerTitle />
-                              <DrawerDescription />
-                              <h1>위치 권한이 거부되었습니다</h1>
-                            </DrawerContents>
-                          </DrawerModal>
-                        </DrawerContent>
-                      </Drawer.Portal>
-                    </Drawer.Root>
+                      <SvgReject />
+                    </StyledFooterBtn>
                   </>
                 ) : (
                   <StyledFooterLoadingSpinnerButton>
@@ -906,6 +589,320 @@ export default function Home() {
           </StyledFooter>
         </StyledFooterLayout>
       </StyledMain>
+
+      {/* 바텀 시트 */}
+
+      {/* 장소 더보기 바텀 시트 */}
+      <Drawer.Root
+        shouldScaleBackground
+        open={selectedMarkerToggle}
+        onClose={() => {
+          setSelectedMarkerToggle(false);
+          setSelectedMarkerData(undefined);
+        }}
+      >
+        <Drawer.Portal>
+          <DrawerOverlay
+            onClick={() => {
+              setSelectedMarkerToggle(false);
+              setSelectedMarkerData(undefined);
+            }}
+          />
+          <DrawerContent
+            onOpenAutoFocus={e => {
+              e.preventDefault();
+            }}
+          >
+            <DrawerHeader>
+              <DrawerHandlebarWrapper
+                onClick={() => {
+                  setSelectedMarkerToggle(false);
+                  setSelectedMarkerData(undefined);
+                }}
+              >
+                <DrawerHandlebar></DrawerHandlebar>
+              </DrawerHandlebarWrapper>
+            </DrawerHeader>
+            <DrawerModal>
+              <DrawerTitle />
+              <DrawerDescription />
+              {selectedMarkerToggle && (
+                <DrawerContents>
+                  <h1>
+                    {isNotNil(selectedMarkerData.address.roadNameAddress)
+                      ? `도로명 주소: ${selectedMarkerData.address.roadNameAddress}`
+                      : isNotNil(selectedMarkerData.address.landLotAddress)
+                      ? `지번 주소: ${selectedMarkerData.address.landLotAddress}`
+                      : `해당 장소는 주소명이 부여되지 않았습니다`}
+                  </h1>
+                  {/* 도로명 주소가 없으면 지번 주소가 표시됨. 우선은 일단 도로명 주소만 표시. 없으면 지번 주소 표시. 둘 다 같이 표시하지는 않음. 그리고 둘다 null인 경우는 해당 장소는 주소명이 없습니다 표시. */}
+                  <p>{selectedMarkerData.content}</p>
+                  <button
+                    onClick={() => {
+                      removeData([selectedMarkerData.id]); // - [ ] 바로 반영이 안됨
+                      setSelectedMarkerToggle(false);
+                      setSelectedMarkerData(undefined);
+                    }}
+                  >
+                    장소 삭제하기
+                  </button>
+                </DrawerContents>
+              )}
+            </DrawerModal>
+          </DrawerContent>
+        </Drawer.Portal>
+      </Drawer.Root>
+
+      {/* 장소 추가 바텀 시트 */}
+      <Drawer.Root
+        shouldScaleBackground
+        open={dataToAddToggle}
+        onClose={() => {
+          closeDataToAddBottomSheet();
+        }}
+      >
+        <Drawer.Portal>
+          <DrawerOverlay
+            /* - [ ] 모바일에서 이거 때문에 계속 close... 함수 실행됨. 아니 근데 왜 Drawer.Root이게 화면상에서 없어지지 아니하는가? */
+            onClick={() => {
+              closeDataToAddBottomSheet();
+            }}
+          />
+
+          <DrawerContent
+            onOpenAutoFocus={e => {
+              e.preventDefault(); // safari focused 막기
+            }}
+          >
+            <DrawerHeader>
+              <DrawerHandlebarWrapper
+                onClick={() => {
+                  closeDataToAddBottomSheet();
+                }}
+              >
+                <DrawerHandlebar></DrawerHandlebar>
+              </DrawerHandlebarWrapper>
+            </DrawerHeader>
+            <DataToAddDrawerModal
+              onClick={() => {
+                if (dataToAddTextareaRef.current !== null) {
+                  // dataToAddTextareaRef.current.disabled = false;
+                  dataToAddTextareaRef.current.focus();
+                }
+              }}
+            >
+              <DataToAddDrawerContents>
+                <DrawerTitle />
+                <DrawerDescription />
+                <DataToAddTextareaWrapper
+                  onClick={event => {
+                    // focus 이벤트 적용하지 않기
+                    event.stopPropagation();
+                  }}
+                >
+                  <DataToAddTextarea
+                    ref={dataToAddTextareaRef}
+                    autoFocus
+                    maxLength={150}
+                    rows={6}
+                    defaultValue=""
+                    value={contentData}
+                    onChange={(event: any) => {
+                      const {
+                        target: { value },
+                      } = event;
+                      setContentData(value);
+                    }}
+                    placeholder="저장할 장소에 메모를 추가하세요."
+                  />
+                </DataToAddTextareaWrapper>
+                <DataToAddFooter>
+                  <DataToAddFooterGradient></DataToAddFooterGradient>
+                  <DataToAddFooterWrapper
+                    onClick={(event: any) => {
+                      event.stopPropagation();
+                    }}
+                  >
+                    <DataToAddFooterBtn
+                      onClick={() => {
+                        saveData(dataToAddPos, contentData);
+                        closeDataToAddBottomSheet();
+                      }}
+                    >
+                      장소 저장하기
+                    </DataToAddFooterBtn>
+                  </DataToAddFooterWrapper>
+                </DataToAddFooter>
+              </DataToAddDrawerContents>
+            </DataToAddDrawerModal>
+          </DrawerContent>
+        </Drawer.Portal>
+      </Drawer.Root>
+
+      {/* 더보기 바텀 시트 */}
+      <Drawer.Root
+        shouldScaleBackground
+        open={showMoreToggle}
+        onClose={() => {
+          setShowMoreToggle(false);
+        }}
+      >
+        <Drawer.Portal>
+          <DrawerOverlay
+            onClick={() => {
+              setShowMoreToggle(false);
+            }}
+          />
+          <DrawerContent
+            onOpenAutoFocus={e => {
+              e.preventDefault();
+            }}
+          >
+            <DrawerHeader>
+              <DrawerHandlebarWrapper
+                onClick={() => {
+                  setShowMoreToggle(false);
+                }}
+              >
+                <DrawerHandlebar></DrawerHandlebar>
+              </DrawerHandlebarWrapper>
+            </DrawerHeader>
+            <DrawerModal>
+              <DrawerContents>
+                <DrawerTitle />
+                <DrawerDescription />
+                <h2>서비스 설정</h2>
+                <li>
+                  <CopyToClipboard
+                    text={allUrl}
+                    onCopy={() => alert('장소가 모두 저장되었습니다')}
+                  >
+                    <button>장소 모두 저장하기</button>
+                  </CopyToClipboard>
+                </li>
+                <li>
+                  <button
+                    onClick={() => {
+                      if (window.confirm('장소를 모두 삭제하시겠습니까?')) {
+                        router.push(pathname + '?' + deleteQueryString('data'));
+                        /* 새로고침 임시 코드 */
+                        setVisibleMarkers([]);
+                      }
+                    }}
+                  >
+                    장소 모두 삭제하기
+                  </button>
+                </li>
+                <li>
+                  위치 권한 상태:
+                  {(() => {
+                    switch (geoPermission) {
+                      case 'granted':
+                        return '승인됨';
+                      case 'prompt':
+                        return '요청중';
+                      case 'denied':
+                        return '거부됨';
+                      default:
+                        return '알 수 없음';
+                    }
+                  })()}
+                </li>
+                <h2>이용 안내</h2>
+                <li>
+                  <Link href="usage-guide">사용법</Link>
+                </li>
+                <li>
+                  <Link href="mailto:fromhaneum">
+                    문의하기: fromhaneum@gmail.com
+                  </Link>
+                </li>
+                <h2>서비스 안내</h2>
+                <li>서비스 이용 약관</li>
+                <li>개인정보 취급 방침</li>
+              </DrawerContents>
+            </DrawerModal>
+          </DrawerContent>
+        </Drawer.Portal>
+      </Drawer.Root>
+
+      {/* 검색 바텀 시트 */}
+      <Drawer.Root
+        shouldScaleBackground
+        open={searchToggle}
+        onClose={() => {
+          setSearchToggle(false);
+        }}
+      >
+        <Drawer.Portal>
+          <DrawerOverlay
+            onClick={() => {
+              setSearchToggle(false);
+            }}
+          />
+          <DrawerContent
+            onOpenAutoFocus={e => {
+              e.preventDefault();
+            }}
+          >
+            <DrawerHeader>
+              <DrawerHandlebarWrapper
+                onClick={() => {
+                  setSearchToggle(false);
+                }}
+              >
+                <DrawerHandlebar></DrawerHandlebar>
+              </DrawerHandlebarWrapper>
+            </DrawerHeader>
+            <DrawerModal>
+              <DrawerContents>
+                <DrawerTitle />
+                <DrawerDescription />
+                <h1>검색</h1>
+              </DrawerContents>
+            </DrawerModal>
+          </DrawerContent>
+        </Drawer.Portal>
+      </Drawer.Root>
+
+      {/* 위치 권한 요청 바텀 시트 */}
+      <Drawer.Root
+        shouldScaleBackground
+        open={permissionReqToggle}
+        onClose={() => {
+          setPermissionReqToggle(false);
+        }}
+      >
+        <Drawer.Portal>
+          <DrawerOverlay
+            onClick={() => {
+              setPermissionReqToggle(false);
+            }}
+          />
+          <DrawerContent
+            onOpenAutoFocus={e => {
+              e.preventDefault();
+            }}
+          >
+            <DrawerHeader>
+              <DrawerHandlebarWrapper
+                onClick={() => {
+                  setPermissionReqToggle(false);
+                }}
+              >
+                <DrawerHandlebar></DrawerHandlebar>
+              </DrawerHandlebarWrapper>
+            </DrawerHeader>
+            <DrawerModal>
+              <DrawerContents>
+                <DrawerTitle />
+                <DrawerDescription />
+                <h1>위치 권한이 거부되었습니다</h1>
+              </DrawerContents>
+            </DrawerModal>
+          </DrawerContent>
+        </Drawer.Portal>
+      </Drawer.Root>
     </>
   );
 }
