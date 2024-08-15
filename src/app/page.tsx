@@ -1,10 +1,10 @@
-// - [ ] 거부 했다가 다시 승인하면 이게 바로 반영이 안되는 이슈가 있지만, 이 지역 검색은 잘 뜨기는 함. 일단 보류 해놓기
+// - [v] 거부 했다가 다시 승인하면 이게 바로 반영이 안되는 이슈가 있지만, 이 지역 검색은 잘 뜨기는 함. 일단 보류 해놓기
 // - [ ] 지금이 어디 위치인지 표시하는 기능 일단은 보류하기. 일단은 "이 지역 검색하기" 라는 말만 "{현재 행정동} 검색하기"로 변경하기
 // - [ ] 임시 코드 언젠간 handleBounds...로 변경하기
 // - [ ] 더보기 꾸미기
 // - [ ] 모든 바텀 시트 밑에는 copyright 배출하기
 // - [ ] mobile 100vh 안되는 거 수정하기
-// - [ ] 서비스 약관 관련은 nested 쓰기 또는 notion 연결하기
+// - [v] 서비스 약관 관련은 nested 쓰기 또는 notion 연결하기
 // - [ ] 특정 마커 클릭시 장소 공유 기능 => url 공유 인데, 그냥 그 장소만을 내포하는 url임
 // - [ ] svgr url-loader 사용하기
 // - [ ] toast 내가 만들거나 sonner 꾸미기
@@ -12,21 +12,23 @@
 // - [ ] PWA 만들기
 // - [ ] 검색 기능 만들기 => 1. 저장한 장소 검색 기능: 저장한 장소의 메모와 도로명 주소, 지번 주소에 기반해서 검색이 됨. 찾은 장소 클릭시 바로 장소 더보기가 실행됨
 // 2. 장소 찾기 기능: 맛집 같은 것을 검색할 수 있음. 카카오맵에서 제공하는 검색 기능과 흡사. 찾은 장소를 클릭시 바로 지도의 마커가 생기게 됨.
-// - [ ] 첫 방문자 기능 만들기 (hasVisited)
+// - [ ] 첫 방문자 바텀 시트 만들기 (hasVisited) => localstorage를 사용. hasVisited, hasvisitedbottomsheet
 // - [ ] isTracking 시에는 zoom 하면 center 좌표를 중심으로 zoom 되기 기능 만들기
-// - [*] permission 에서 prompt => granted 될때 기존의 데이터가 바로 안보이게 되는 오류가 있다.
+// - [v] permission 에서 prompt => granted 될때 기존의 데이터가 바로 안보이게 되는 오류가 있다.
 // - [ ] nested root에서는 open={...}을 사용하면 그 축소시에 부모 root가 축소가 안된다. 클릭해줘야 축소가 된다.
+// - [ ] http 상에서 복사하는 기능 만들기
+// - [ ] contentData 수정 기능 만들기
+// - [ ] 공유한 장소는 ?share= 로 저장하고, 그 장소만 포커싱하기 => 맞을까..
 
 'use client';
 
-/* components */
 import { useCallback, useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { useRouter, usePathname, useSearchParams } from 'next/navigation';
 import { Drawer } from 'vaul';
 import KakaoMap from '@/components/kakao-map';
 import { CustomOverlayMap } from 'react-kakao-maps-sdk';
-import CopyToClipboard from 'react-copy-to-clipboard';
+import Fuse from 'fuse.js';
 /* utils */
 import { isNil, isNotNil } from 'es-toolkit/predicate';
 import { omit } from 'es-toolkit';
@@ -89,6 +91,8 @@ import {
   DataFetcherBtnWrapper,
   PlaceMarker,
 } from './home.css';
+import transformToNestedObject from '@/utils/transform-to-nested-object';
+import copyToClipboard from '@/utils/copy-to-clipboard';
 
 export default function Home() {
   const copyright = `© ${new Date().getFullYear()} Cha Haneum`;
@@ -100,7 +104,6 @@ export default function Home() {
   /* data */
   const [fetchDataToggle, setFetchDataToggle] = useState(false);
   const [dataToAddToggle, setDataToAddToggle] = useState(false); // 장소 추가시 바텀시트 작동 Toggle
-  const [allUrl, setAllUrl] = useState('');
   const [curAdminDongAddr, setCurAdminDongAddr] = useState(); // 현재 행정동 위치를 담는 값
   const [selectedMarkerToggle, setSelectedMarkerToggle] = useState(false);
   const [selectedMarkerData, setSelectedMarkerData] = useState<any>(); // clickedMarker
@@ -110,7 +113,6 @@ export default function Home() {
   const [contentData, setContentData] = useState<string>();
   const dataToAddTextareaRef = useRef<any>(null);
   const [dataToAddPos, setDataToAddPos] = useState<any>();
-  const [hasVisited, setHasVisited] = useState(false); // 첫 방문자면 도움말 뜨기 // localStorage 사용
   const [isDataLoading, setIsDataLoading] = useState(true); // data loading // default value = true
   const [visibleMarkers, setVisibleMarkers] = useState([]);
   /* geolocation */
@@ -130,8 +132,6 @@ export default function Home() {
   const [isTracking, setIsTracking] = useState(false);
   const [geoPermission, setGeoPermission] = useState(''); // 모든 지도의 권한을 설정함
   const [geoFetched, setGeoFetched] = useState(false); // 처음으로 지도 정보 가져옴을 저장함 granted, denied
-
-  /* search */
 
   /* data */
   // 데이터 추가 바텀 시트 최소화
@@ -474,7 +474,6 @@ export default function Home() {
   // 처음 앱 접근시 위치 가져옴
   useEffect(() => {
     // - [ ] 왜 초기에 2번 코드가 실행되는지 모르겠음
-    setAllUrl(getAllUrl());
     if ('geolocation' in navigator && 'permissions' in navigator) {
       checkGeoPermission();
     } else {
@@ -505,7 +504,6 @@ export default function Home() {
   }, [curPos]);
 
   return (
-    /* hasVisited ? :  */
     <>
       <StyledMain>
         {isDataLoading && <Loading />}
@@ -670,13 +668,39 @@ export default function Home() {
                 <DrawerContents>
                   <h1>
                     {isNotNil(selectedMarkerData.address.roadNameAddress)
-                      ? `도로명 주소: ${selectedMarkerData.address.roadNameAddress}`
+                      ? `${selectedMarkerData.address.roadNameAddress}` // 도로명 주소
                       : isNotNil(selectedMarkerData.address.landLotAddress)
-                      ? `지번 주소: ${selectedMarkerData.address.landLotAddress}`
+                      ? `${selectedMarkerData.address.landLotAddress}` // 지번 주소
                       : `해당 장소는 주소명이 부여되지 않았습니다`}
                   </h1>
                   {/* 도로명 주소가 없으면 지번 주소가 표시됨. 우선은 일단 도로명 주소만 표시. 없으면 지번 주소 표시. 둘 다 같이 표시하지는 않음. 그리고 둘다 null인 경우는 해당 장소는 주소명이 없습니다 표시. */}
                   <p>{selectedMarkerData.content}</p>
+                  <button
+                    onClick={() => {
+                      // selectedMarkerData를 기반으로 새로운 url 생성
+                      // selectedMarkerData = { id: ..., position: ..., content: ..., address: ...} => { id: { position: ..., content: ..., address: ... }}
+                      const data: any =
+                        transformToNestedObject(selectedMarkerData);
+                      const dataToSave = base64ArrayEncoder(data);
+                      const urlToShare =
+                        window.location.origin +
+                        pathname +
+                        '?' +
+                        createQueryString('data', dataToSave);
+                      copyToClipboard(
+                        urlToShare,
+                        () => {
+                          alert('URL이 클립보드에 저장되었습니다');
+                        },
+                        () => {
+                          alert('클립보드에 저장중 에러가 발생했습니다');
+                        }
+                      );
+                    }}
+                  >
+                    장소 공유하기
+                  </button>
+
                   <button
                     onClick={() => {
                       removeData([selectedMarkerData.id]); // - [ ] 바로 반영이 안됨
@@ -686,7 +710,6 @@ export default function Home() {
                   >
                     장소 삭제하기
                   </button>
-                  <button>장소 공유하기</button>
                 </DrawerContents>
               )}
             </DrawerModal>
@@ -814,12 +837,22 @@ export default function Home() {
                 <DrawerDescription />
                 <h2>서비스 설정</h2>
                 <li>
-                  <CopyToClipboard
-                    text={allUrl}
-                    onCopy={() => alert('장소가 모두 저장되었습니다')}
+                  <button
+                    onClick={() => {
+                      const allUrl = getAllUrl();
+                      copyToClipboard(
+                        allUrl,
+                        () => {
+                          alert('URL이 클립보드에 저장되었습니다');
+                        },
+                        () => {
+                          alert('클립보드에 저장중 에러가 발생했습니다');
+                        }
+                      );
+                    }}
                   >
-                    <button>장소 모두 저장하기</button>
-                  </CopyToClipboard>
+                    장소 모두 저장하기
+                  </button>
                 </li>
                 <li>
                   <button
@@ -851,7 +884,9 @@ export default function Home() {
                 </li>
                 <h2>이용 안내</h2>
                 <li>
-                  <button>사용법</button>
+                  <Link href="https://haneum.notion.site/5eeb4157e5674225a385b0f242b8109d?pvs=4">
+                    사용 방법
+                  </Link>
                 </li>
                 <li>
                   <Link href="mailto:fromhaneum">
@@ -860,10 +895,14 @@ export default function Home() {
                 </li>
                 <h2>서비스 안내</h2>
                 <li>
-                  <button>서비스 이용 약관</button>
+                  <Link href="https://haneum.notion.site/2dfa69d6a9c84af3bf2ccaff2aab2ab9?pvs=4">
+                    서비스 이용 약관
+                  </Link>
                 </li>
                 <li>
-                  <button>개인정보 취급 방침</button>
+                  <Link href="https://haneum.notion.site/3abb28d6b73b4b2d96e7c1450f4637fc?pvs=4">
+                    개인정보 처리 방침
+                  </Link>
                 </li>
               </DrawerContents>
             </DrawerModal>
@@ -905,12 +944,19 @@ export default function Home() {
                 <DrawerDescription />
                 <h1>검색</h1>
                 <input
-                  value={searchValue}
                   onChange={(event: any) => {
                     const {
                       target: { value },
                     } = event;
                     setSearchValue(value);
+
+                    const fuse = new Fuse(friends, {
+                      keys: ['name', 'email', 'age'],
+                    });
+
+                    const results = fuse.search(value);
+                    const items = results.map(result => result.item);
+                    setInput(items);
                   }}
                   placeholder="저장한 장소를 검색하세요"
                 />
