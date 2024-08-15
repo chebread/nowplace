@@ -837,7 +837,7 @@ export default function Home() {
                           <DrawerNestedContents>
                             <DrawerTitle />
                             <DrawerDescription />
-                            <h1> This drawer is nested.</h1>
+                            <h2>This drawer is nested.</h2>
                           </DrawerNestedContents>
                         </DrawerNestedModal>
                       </DrawerNestedContent>

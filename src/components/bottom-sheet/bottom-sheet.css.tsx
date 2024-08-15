@@ -72,20 +72,6 @@ export const DrawerContents = styled.div`
   white-space: pre-wrap; // 이거 해야지 \n이 개행됨
 `;
 
-export const DrawerTitle = styled(Drawer.Title)`
-  display: none;
-`;
-
-export const DrawerDescription = styled(Drawer.Description)`
-  display: none;
-`;
-
-export const DrawerCopyright = () => {
-  const copyright = `© ${new Date().getFullYear()} Cha Haneum`;
-
-  return <>{copyright}</>;
-};
-
 /* nested */
 
 export const DrawerNestedOverlay = styled(Drawer.Overlay)`
@@ -95,8 +81,7 @@ export const DrawerNestedOverlay = styled(Drawer.Overlay)`
 `;
 
 export const DrawerNestedContent = styled(Drawer.Content)`
-  --tw-bg-opacity: 1;
-  background-color: rgb(243 244 246 / var(--tw-bg-opacity)) /* #f3f4f6 */;
+  background-color: #ffffff;
   display: flex;
   flex-direction: column;
   border-top-left-radius: 10px;
@@ -138,16 +123,39 @@ export const DrawerNestedHandlebar = styled.div`
 `;
 
 export const DrawerNestedModal = styled.div`
-  padding: 1rem /* 16px */;
-  --tw-bg-opacity: 1;
-  background-color: rgb(255 255 255 / var(--tw-bg-opacity)) /* #ffffff */;
-  border-top-left-radius: 10px;
-  border-top-right-radius: 10px;
-  flex: 1 1 0%;
+  height: auto; // default value
+  width: 100%;
+  margin-left: auto;
+  margin-right: auto;
+  display: flex;
+  flex-direction: column;
+  overflow: auto;
+  padding: 0 1rem 0 1rem; // 1rem left, right 띄움
+  box-sizing: border-box;
 `;
 
 export const DrawerNestedContents = styled.div`
-  max-width: 28rem /* 448px */;
+  position: relative;
+  max-width: 40rem;
+  width: 100%;
+  height: 100%;
   margin-left: auto;
   margin-right: auto;
+  white-space: pre-wrap; // 이거 해야지 \n이 개행됨
 `;
+
+/* additional */
+
+export const DrawerTitle = styled(Drawer.Title)`
+  display: none;
+`;
+
+export const DrawerDescription = styled(Drawer.Description)`
+  display: none;
+`;
+
+export const DrawerCopyright = () => {
+  const copyright = `© ${new Date().getFullYear()} Cha Haneum`;
+
+  return <>{copyright}</>;
+};
