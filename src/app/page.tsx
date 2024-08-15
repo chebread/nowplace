@@ -1,87 +1,38 @@
-// - [ ] 위치 실패시 또는 위치 거부시 ip로 현재 위치 가져오기 => default 값 사용하기
-// - [ ] data loading 추가하기
-// - [ ] 모든 bottomsheet 아래에는 copyright 표시하기
-// - [ ] bottomsheet 정형화하기
-// - [ ] in mobile bottom sheet의 주소창 까지 검정되는거 막기
-// modal시 ?edit=true 이런 사이트도 존재.
-// 모바일에서 실행하기 위해서는 https 필수 (ios safari)
-// - [ ] 장소 추가 버튼 클릭시 add place 모달 with map 이 뜸
-// - [ ] 모달에서 스크롤 가능하게 하기 (vaul github 참고하기)
-// - [ ] 장소 추가 모달에서 스크롤 막고, 상단부만 클릭시 스크롤 되게 하기
-// - [ ] 첫 feed에서는 장소만 불러오기
-// 거부는 언제든지 일어날 수 있음
-// (저장한 장소에는 도로명 주소가 뜸)
-// (feed 상단에 검색창 만들기) => 저장한 장소의 메모에 기반하여 검색 가능! => 그 저장한 장소의 검색 결과는 bottomsheet 위의 지도에 띄워짐
-// 일단은 모달 먼저하자 그리고 나서 위치 추가 모달 만들고, 위치 추가 해보자 (정 안되면 더블 클릭으로 하기)
-// 걍, long press 로 하지말고, double click 으로 하자
-// 한번에 다 로드하지 말고, 그냥 인스타 처럼, spothouse 처럼 그렇게 구성할 까?
-// => 그러면 도대체 어떤 기준에 있어서 장소를 로드 해야 하지?
-// 지금 보여지는 특정 구역내의 위치만을 가져오는 방법이 무엇이지?
-// => bound 쓰면 돼!
-// - [ ] svgr url-loader 사용하기
-// - [ ] 마커는 url에 저장함 ([ { lat: ..., lng: ..., memo: .... }, { ... } ]) => 이거를 url로 저장
-// 주의, 한글도 저장가능하게 하기.
-// 현재 위치는 다만 저장하지 않음
-// 아니면 idb로 저장하기
-// 이미 불러온 마커는 나두기.
-// 그리고 spothouse 처럼 버튼 누르면 마커 로드 하기
-// 그리고 로드를 다시 새로고침 하면 기존에 불러온 마커는 지움 (아니면 기존에 불러온 마커는 내비두기)
-// 일단 현재 위치 기준으로 마커 불러오기
-// default 기준으로 마커 불러오기 (로딩중일때는 불러오지 않고, denied 상태이면 default 기준으로 마커 불러오기)
-// - [ ] 만약 아예 권한조차 허락받지 않은 사용자라면 버튼으로하여금 허락을 요청하기 => 메뉴얼
-// - [ ] 길게 누르면 장소 추가 기능 만들기
-// - [ ] 장소 클릭시 bottomsheet에서 메모 뜸
-// - [ ] 위치 추가는 더블 클릭으로 가능.
-// - [ ] + 누르면 현재 위치 추가
-// - [ ] 아니면 + 누르면 위치 추가할 수 있는 핑 나오기?
-// undefined 말고 null로 모두 전환하기 like setDoubleClickedPos(undefined);
-// - [ ] 100vh 오류 해결하기
-/* show more */
-// 1. 데이터 지우기 => Url 다 지우면 됨
-// 2. 위치 권한 상태: 거부됨 / 승인됨 / undefined (prompt) => 변경법 알려주는 모달 첨부 (블링크 참조: 도움말)
-// 3. 다크모드 변경
-// 4. 버전
-// 5. 개인정보...
-// 6. 문의 => fromhaneum@gmail.com
-// - [ ] 모든 바텀 시트 밑에는 copyright 배출하기
-// 기본적으로 제공하는 prompt toggle(yes or no)도 고려해보기
-/* 장소 검색 */
-// 도로명 주소, (지명 이름), 메모에 기반해서 데이터를 찾고, 검색 결과는 리스트 형태로 도로명 주소를 뜨면서 제공함
-// 데이터 관련은 모두 Data~로 명명함
-// - [ ] 위치를 URL에 저장하기 / 삭제하기 / 조회하기 (조회는 처음 마운트 될때)
-// - [ ] fetchedData에서 특정 id 객체를 삭제하는 코드 작성하기
-// 그리고 데이터 로딩은 항상 Url에 반영시키는 것임. url이 그냥 state고 storage임. 모든 것은 url storage를 사용함
-// - [ ] 버그. 만약 Url이 손상되어 버리면 데이터 로드가 절대 안됨 => 그냥 오류 나면 ''로 처리하자!!
-// - [ ] 장소를 추가하면 다시 handle... 그거 마커 로드 하는 코드 실행하기
-// - [ ] 장소 추가하면 왜 handle... 그거 왜 실행됨?
-// const saveData = (position: any, content: any) => {
-//   // ?data={UUID(id): { ... }, UUID: { ... }](base64)
-//   const fetchedData: any = fetchDataFromUrl('data');
-// 이 코드 때문에 그럼 그러므로 saveData 하고 바로 밑에 handle그거 하자!!
-// 로드 된 이후에 주소창에서 데이터 삭제해도 일단은 새로고침 이전까지는 남아있다
-// - [v] 심각한 문제: querystring의 값이 즉각적으로 반영이 안되고 있다. => 임시 방편으로 해결 완료
-// - [v] 마커 클릭시 content, delete 모달 만들기
-// - [ ] 더보기 꾸미기
-// - [v] Loading 창 안 곂치는 거 수정하기
-// - [ ] 현재 위치 저장시 도로명 주소도 함께 저장하기
-// - [v] 마커 꾸미기
-// - [ ] mobile 100vh 안되는 거 수정하기
-// - [v] 모든 데이터 삭제 기능
-// - [v] 모바일에서 이거 때문에 계속 close... 함수 실행됨. 아니 근데 왜 Drawer.Root이게 화면상에서 없어지지 아니하는가? */ => 일시적 오류 였나봄
-// - [ ] 서비스 약관 관련은 nested 쓰기 또는 notion 연결하기
-// - [ ] 특정 마커 클릭시 장소 공유 기능 => url 공유 인데, 그냥 그 장소만을 내포하는 url임
-// - [ ] 저장한 모든 장소 공유하기 => 지금 현재 url을 복사함
 // - [ ] 거부 했다가 다시 승인하면 이게 바로 반영이 안되는 이슈가 있지만, 이 지역 검색은 잘 뜨기는 함. 일단 보류 해놓기
 // - [ ] 지금이 어디 위치인지 표시하는 기능 일단은 보류하기. 일단은 "이 지역 검색하기" 라는 말만 "{현재 행정동} 검색하기"로 변경하기
+// - [ ] 임시 코드 언젠간 handleBounds...로 변경하기
+// - [ ] 더보기 꾸미기
+// - [ ] 모든 바텀 시트 밑에는 copyright 배출하기
+// - [ ] mobile 100vh 안되는 거 수정하기
+// - [ ] 서비스 약관 관련은 nested 쓰기 또는 notion 연결하기
+// - [ ] 특정 마커 클릭시 장소 공유 기능 => url 공유 인데, 그냥 그 장소만을 내포하는 url임
+// - [ ] svgr url-loader 사용하기
+// - [ ] toast 내가 만들거나 sonner 꾸미기
+// - [ ] manual page 만들기
+// - [ ] PWA 만들기
+// - [ ] 검색 기능 만들기 => 1. 저장한 장소 검색 기능: 저장한 장소의 메모와 도로명 주소, 지번 주소에 기반해서 검색이 됨. 찾은 장소 클릭시 바로 장소 더보기가 실행됨
+// 2. 장소 찾기 기능: 맛집 같은 것을 검색할 수 있음. 카카오맵에서 제공하는 검색 기능과 흡사. 찾은 장소를 클릭시 바로 지도의 마커가 생기게 됨.
+// - [ ] 첫 방문자 기능 만들기
 
 'use client';
 
+/* components */
 import { useCallback, useEffect, useRef, useState } from 'react';
+import Link from 'next/link';
+import { useRouter, usePathname, useSearchParams } from 'next/navigation';
 import { Drawer } from 'vaul';
 import { toast } from 'sonner';
 import KakaoMap from '@/components/kakao-map';
-import { CustomOverlayMap, Map, MapMarker } from 'react-kakao-maps-sdk';
-// svgs
+import { CustomOverlayMap } from 'react-kakao-maps-sdk';
+import CopyToClipboard from 'react-copy-to-clipboard';
+/* utils */
+import { isNil, isNotNil } from 'es-toolkit/predicate';
+import { omit } from 'es-toolkit';
+import { base64ArrayDecoder } from '@/utils/base64ArrayDecoder';
+import { base64ArrayEncoder } from '@/utils/base64ArrayEncoder';
+import getAllUrl from '@/utils/getAllUrls';
+import generateUUID from '@/utils/generateUUID';
+/* svgs */
 import Loading from '@/components/loading';
 import SvgLogo from '@/assets/icons/logo.svg';
 import SvgTracking from '@/assets/icons/tracking.svg';
@@ -91,7 +42,18 @@ import SvgSpin from '@/assets/icons/spin.svg';
 import SvgCurrentPin from '@/assets/icons/current-pin.svg';
 import SvgSearch from '@/assets/icons/search.svg';
 import SvgPlacePin from '@/assets/icons/place-pin.svg';
-// css
+/* css */
+import {
+  DrawerContent,
+  DrawerContents,
+  DrawerModal,
+  DrawerOverlay,
+  DrawerHeader,
+  DrawerHandlebarWrapper,
+  DrawerHandlebar,
+  DrawerTitle,
+  DrawerDescription,
+} from '@/components/bottom-sheet/bottom-sheet.css';
 import {
   StyledCopyright,
   StyledFooter,
@@ -118,36 +80,12 @@ import {
   PlaceMarker,
 } from './home.css';
 
-import {
-  DrawerContent,
-  DrawerContents,
-  DrawerModal,
-  DrawerOverlay,
-  DrawerHeader,
-  DrawerHandlebarWrapper,
-  DrawerHandlebar,
-  DrawerTitle,
-  DrawerDescription,
-} from '@/components/bottom-sheet/bottom-sheet.css';
-import { usePathname, useSearchParams } from 'next/navigation';
-import { base64ArrayDecoder } from '@/utils/base64ArrayDecoder';
-import { base64ArrayEncoder } from '@/utils/base64ArrayEncoder';
-import { useRouter } from 'next/navigation';
-import generateUUID from '@/lib/generateUUID';
-import { isNil, isNotNil } from 'es-toolkit/predicate';
-import { omit } from 'es-toolkit';
-import Link from 'next/link';
-import CopyToClipboard from 'react-copy-to-clipboard';
-import getAllUrl from '@/utils/getAllUrls';
-
 export default function Home() {
-  const [allUrl, setAllUrl] = useState('');
   const copyright = `© ${new Date().getFullYear()} Cha Haneum`;
-  /* toggle */
-  const [mapMovedToggle, setMapMovedToggle] = useState(false); // 움직임 발생시
+  /* data */
   const [fetchDataToggle, setFetchDataToggle] = useState(false);
   const [dataToAddToggle, setDataToAddToggle] = useState(false); // 장소 추가시 바텀시트 작동 Toggle
-  /* 데이터 */
+  const [allUrl, setAllUrl] = useState('');
   const [curAdminDongAddr, setCurAdminDongAddr] = useState(); // 현재 행정동 위치를 담는 값
   const [selectedMarkerToggle, setSelectedMarkerToggle] = useState(false);
   const [selectedMarkerData, setSelectedMarkerData] = useState<any>(); // clickedMarker
@@ -157,13 +95,12 @@ export default function Home() {
   const [contentData, setContentData] = useState<string>();
   const dataToAddTextareaRef = useRef<any>(null);
   const [dataToAddPos, setDataToAddPos] = useState<any>();
-  // const [hasVisited, setHasVisited] = useState(false); // 첫 방문자면 도움말 뜨기 // localStorage 사용
+  const [hasVisited, setHasVisited] = useState(false); // 첫 방문자면 도움말 뜨기 // localStorage 사용
   const [isDataLoading, setIsDataLoading] = useState(true); // data loading // default value = true
-  // const [markers, setMarkers] = useState([]);
   const [visibleMarkers, setVisibleMarkers] = useState([]);
-  /* 위치 */
+  /* places */
+  const [mapMovedToggle, setMapMovedToggle] = useState(false); // 움직임 발생시
   const [mapRef, setMapRef] = useState<any>();
-  // const mapRef = useRef<any>();
   let watchId: any = null;
   const defaultCenter = { lat: 37.575857, lng: 126.976805 };
   const geolocationOptions = {
@@ -177,12 +114,14 @@ export default function Home() {
   const [isTracking, setIsTracking] = useState(false);
   const [geoPermission, setGeoPermission] = useState(''); // 모든 지도의 권한을 설정함
 
-  /* 데이터 */
+  /* data */
+  // 데이터 추가 바텀 시트 최소화
   const closeDataToAddBottomSheet = () => {
     setDataToAddToggle(false);
     setDataToAddPos(undefined);
     setContentData(undefined);
   };
+  // 데이터 추가
   const addDataToAdd = (pos: any) => {
     setDataToAddPos(pos);
     setDataToAddToggle(true);
@@ -198,9 +137,7 @@ export default function Home() {
     },
     [searchParams]
   );
-  // 특정 QueryString 제거
-  // 다른 말로는 모든 data값 초기화
-  // - [ ] 모든 데이터 초기화하는 기능 만들기
+  // 특정 QueryString 제거 / 다른 말로는 모든 data값 초기화
   const deleteQueryString = useCallback(
     // ?data= 라는 것을 전체를 삭제한 값을 문자열로 반환하는 코드임
     (key: string) => {
@@ -211,8 +148,7 @@ export default function Home() {
     },
     [searchParams]
   );
-  // Base64 데이터 가져오기
-  // 손상된 데이터(빈 값도 포함)가 발생시 null 반환함
+  // Base64 데이터 가져오기 / 손상된 데이터(빈 값도 포함)가 발생시 null 반환함
   const fetchDataFromUrl = (key: string) => {
     // - [ ] 지금 오류는 saveData에서만 일어남. 일단 임시로 fetchDataFromUrl을 saveData에서 handleBounds할때 쓰는게 아니고, 일단 saveData에서 생성한 데이터를 가지고 handBoudns에서 사용하도록 함
     // const searchParams = new URLSearchParams(window.location.search);
@@ -242,14 +178,14 @@ export default function Home() {
     router.push(pathname + '?' + createQueryString(key, value));
   };
   // URL에 특정 데이터 제거
-  const removeDataToUrl = (data: any, key: string[]) => {
-    // data는 지울 데이터
-    // key = ['ksjfslfjfjlsjfkl', 'sdfjsflsjldfjslk', ...]
-    const removedData: any = omit(data, key); // 지울 key가 없으면 원본 반환
-    // - [ ] 원본 반환시는 saveDataToUrl 함수를 실행 안하도록 해야하나?
-    const dataToSave: any = base64ArrayEncoder(removedData); // 재저장
-    saveDataToUrl('data', dataToSave);
-  };
+  // const removeDataToUrl = (data: any, key: string[]) => {
+  //   // data는 지울 데이터
+  //   // key = ['ksjfslfjfjlsjfkl', 'sdfjsflsjldfjslk', ...]
+  //   const removedData: any = omit(data, key); // 지울 key가 없으면 원본 반환
+  //   // - [ ] 원본 반환시는 saveDataToUrl 함수를 실행 안하도록 해야하나?
+  //   const dataToSave: any = base64ArrayEncoder(removedData); // 재저장
+  //   saveDataToUrl('data', dataToSave);
+  // };
   // 마커 데이터 저장
   // - [ ] 에러 판단해야함 => fetch... 거기서 데이터 손상 확인
   const saveData = (position: any, content: any) => {
@@ -309,9 +245,9 @@ export default function Home() {
     );
   };
   // 마커 데이터 삭제
-  // - [ ] 마커 누르면 삭제 기능도 만들기 (모달로 하여금)
+  // - [v] 마커 누르면 삭제 기능도 만들기 (모달로 하여금)
   const removeData = (ids: string[]) => {
-    // - [ ] removeDataUrl이 안되는 듯 함. JTdCJTdE 이런거 남음 뭐인가? JTdCJTdE = {} 임.
+    // - [v] removeDataUrl이 안되는 듯 함. JTdCJTdE 이런거 남음 뭐인가? JTdCJTdE = {} 임.
     // 여러 id도 가능
     const fetchedData: any = fetchDataFromUrl('data');
     if (isNil(fetchedData)) return; // 데이터 손상시 함수 종료
@@ -832,66 +768,63 @@ export default function Home() {
                       <DrawerTitle />
                       <DrawerDescription />
 
-                      <ul>
-                        <h2>서비스 설정</h2>
-                        <li>
-                          <CopyToClipboard
-                            text={allUrl}
-                            onCopy={() => alert('장소가 모두 저장되었습니다')}
-                          >
-                            <button>장소 모두 저장하기</button>
-                          </CopyToClipboard>
-                        </li>
-                        <li>
-                          <button
-                            onClick={() => {
-                              if (
-                                window.confirm('장소를 모두 삭제하시겠습니까?')
-                              ) {
-                                router.push(
-                                  pathname + '?' + deleteQueryString('data')
-                                );
-                                // 새로고침
-                                // handleBoundsChanged(); // - [ ] 아니 왜 안되는가?
-                                /* 임시 코드 */
-                                setVisibleMarkers([]);
-                                // quit bottom sheet
-                              }
-                            }}
-                          >
-                            장소 모두 삭제하기
-                          </button>
-                        </li>
-                        <li>
-                          위치 권한 상태:
-                          {(() => {
-                            switch (geoPermission) {
-                              case 'granted':
-                                return '승인됨';
-                              case 'prompt':
-                                return '요청중';
-                              case 'denied':
-                                return '거부됨';
-                              default:
-                                return '';
+                      <h2>서비스 설정</h2>
+                      <li>
+                        <CopyToClipboard
+                          text={allUrl}
+                          onCopy={() => alert('장소가 모두 저장되었습니다')}
+                        >
+                          <button>장소 모두 저장하기</button>
+                        </CopyToClipboard>
+                      </li>
+                      <li>
+                        <button
+                          onClick={() => {
+                            if (
+                              window.confirm('장소를 모두 삭제하시겠습니까?')
+                            ) {
+                              router.push(
+                                pathname + '?' + deleteQueryString('data')
+                              );
+                              // 새로고침
+                              // handleBoundsChanged(); // - [ ] 아니 왜 안되는가?
+                              /* 임시 코드 */
+                              setVisibleMarkers([]);
                             }
-                          })()}
-                        </li>
-                        <></>
-                        <h2>이용 안내</h2>
-                        <li>
-                          <Link href="usage-guide">사용법</Link>
-                        </li>
-                        <li>
-                          <Link href="mailto:fromhaneum">
-                            문의하기: fromhaneum@gmail.com
-                          </Link>
-                        </li>
-                        <></>
-                        <h2>서비스 안내</h2>
-                        <li>서비스 이용 약관</li>
-                        <li>개인정보 취급 방침</li>
-                      </ul>
+                          }}
+                        >
+                          장소 모두 삭제하기
+                        </button>
+                      </li>
+                      <li>
+                        위치 권한 상태:
+                        {(() => {
+                          switch (geoPermission) {
+                            case 'granted':
+                              return '승인됨';
+                            case 'prompt':
+                              return '요청중';
+                            case 'denied':
+                              return '거부됨';
+                            default:
+                              return '알 수 없음';
+                          }
+                        })()}
+                      </li>
+
+                      <h2>이용 안내</h2>
+                      <li>
+                        <Link href="usage-guide">사용법</Link>
+                      </li>
+                      <li>
+                        <Link href="mailto:fromhaneum">
+                          문의하기: fromhaneum@gmail.com
+                        </Link>
+                      </li>
+
+                      <h2>서비스 안내</h2>
+                      <li>서비스 이용 약관</li>
+                      <li>개인정보 취급 방침</li>
                     </DrawerContents>
                   </DrawerModal>
                 </DrawerContent>
