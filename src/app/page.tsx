@@ -79,6 +79,7 @@ import {
   DataFetcherBtnWrapper,
   PlaceMarker,
 } from './home.css';
+import transformNestedObjectToArray from '@/utils/transformNestedObjectToArray';
 
 export default function Home() {
   const copyright = `© ${new Date().getFullYear()} Cha Haneum`;
@@ -154,58 +155,39 @@ export default function Home() {
     // const searchParams = new URLSearchParams(window.location.search);
     // console.log('xxx', searchParams); // - [ ] 이게 useState같은 거라서 바로 반영이 안됨. 렌더링 한다음에 반영해야함.
     let returnValue = null;
-    // console.log(10000);
     const params: any = searchParams.get(key); // key is parameter key
-    // console.log(20000);
     try {
-      // console.log(30000);
       const fetchedData: any =
         isNil(params) || params === '' // null or undefined or '' (선언안됨) 이면 null로 처리함
           ? null
           : base64ArrayDecoder(params); // decode
       returnValue = fetchedData;
     } catch (error) {
-      // console.log(40000);
       returnValue = null;
     }
-    // console.log(50000);
     return returnValue;
   };
   // URL에 Base64 데이터 저장하기
   const saveDataToUrl = (key: string, value: string) => {
-    // key는 QueryString key
-    // value는 QueryString value
     router.push(pathname + '?' + createQueryString(key, value));
   };
-  // URL에 특정 데이터 제거
-  // const removeDataToUrl = (data: any, key: string[]) => {
-  //   // data는 지울 데이터
-  //   // key = ['ksjfslfjfjlsjfkl', 'sdfjsflsjldfjslk', ...]
-  //   const removedData: any = omit(data, key); // 지울 key가 없으면 원본 반환
-  //   // - [ ] 원본 반환시는 saveDataToUrl 함수를 실행 안하도록 해야하나?
-  //   const dataToSave: any = base64ArrayEncoder(removedData); // 재저장
-  //   saveDataToUrl('data', dataToSave);
-  // };
   // 마커 데이터 저장
-  // - [ ] 에러 판단해야함 => fetch... 거기서 데이터 손상 확인
   const saveData = (position: any, content: any) => {
-    /* 도로명 주소 저장 */
+    // 도로명 주소 저장
     let lotAddr: any; // 지번 주소
     let roadAddr: any; // 도로명 주소
-    // if (mapRef.current)는 할필요가 없음. 이미 mapRef.current가 불러오고 home page가 렌더링되기 때문임
+    // 이미 지도를 불러오고 이 모든 앱을 실행시키기 때문에 new kakao.maps는 자유롭게 사용해도 괜찮음
     const geocoder = new kakao.maps.services.Geocoder();
     geocoder.coord2Address(
       position.lng,
       position.lat,
       (result: any, status: any) => {
         if (status === kakao.maps.services.Status.OK) {
-          // console.log('지번 주소: ' + result[0]?.address?.address_name);
-          // console.log('도로명 주소: ' + result[0]?.road_address?.address_name);
           lotAddr = result[0]?.address?.address_name; // 지번 주소
           roadAddr = result[0]?.road_address?.address_name; // 도로명 주소
         }
         // 순차적으로 실행되기 위하여 callback 내부에 작성함
-        const fetchedData: any = fetchDataFromUrl('data'); // {id: {  ..., position: { lat: ..., lng: ... }, content: ... }, id: { ... }, ... ]
+        const fetchedData: any = fetchDataFromUrl('data');
         // 이거는 isNil 처리 안해도 됨. { ...fetchedData } = { } 로 처리됨
         const data = {
           // data는 축약값 표현 사용하지 않음
@@ -221,17 +203,14 @@ export default function Home() {
             },
           },
         };
-        // console.log(data);
         const mergedData: any = { ...fetchedData, ...data }; // fetchData와 병합
         const dataToSave = base64ArrayEncoder(mergedData); // encode
         saveDataToUrl('data', dataToSave); // 데이터 url에 저장하기 // 바로 즉각 반영이 느림
-        // console.log('저장을 완료했습니다');
         // handleBoundsChanged(); // - [ ] 데이터 없을때 저장시에 이게 실행이 안됨
         /* 임시 코드 */ // - [ ] get querystring이 한 번 늦게 반영되는 문제.
         // 아니 근데, 늦게 반영되던 말던, saveData에서는 handleBoundsChanged() 함수는 너무 비효율적임. 임시코드가 더 효율적임.
-        const fetchedMarkers = transformObjectToArray(mergedData);
+        const fetchedMarkers = transformNestedObjectToArray(mergedData);
         const map: kakao.maps.Map = mapRef;
-
         const bounds = map.getBounds();
         const visible: any = fetchedMarkers.filter((marker: any) => {
           const position = new kakao.maps.LatLng(
@@ -245,21 +224,20 @@ export default function Home() {
     );
   };
   // 마커 데이터 삭제
-  // - [v] 마커 누르면 삭제 기능도 만들기 (모달로 하여금)
   const removeData = (ids: string[]) => {
-    // - [v] removeDataUrl이 안되는 듯 함. JTdCJTdE 이런거 남음 뭐인가? JTdCJTdE = {} 임.
     // 여러 id도 가능
+    // 모든 장소를 삭제해도 남는 JTdCJTdE의 의미는 {}임.
     const fetchedData: any = fetchDataFromUrl('data');
     if (isNil(fetchedData)) return; // 데이터 손상시 함수 종료
     // removeDataToUrl(fetchedData, ids); // 새로고침 때문에 이거 안쓰는게 더 나을듯.
     const removedData: any = omit(fetchedData, ids); // 지울 key가 없으면 원본 반환
-    // - [x] 원본 반환시는 saveDataToUrl 함수를 실행 안하도록 해야하나? => 아니 removeData는 원본 반환을 가질 수가 없다.
     const dataToSave: any = base64ArrayEncoder(removedData); // 재저장
     saveDataToUrl('data', dataToSave);
+    // URL에 특정 데이터 제거
     // 새로고침
     // handleBoundsChanged();
     /* 임시 코드 */
-    const fetchedMarkers = transformObjectToArray(removedData);
+    const fetchedMarkers = transformNestedObjectToArray(removedData);
     const map: kakao.maps.Map = mapRef;
     const bounds = map.getBounds();
     const visible: any = fetchedMarkers.filter((marker: any) => {
@@ -271,63 +249,6 @@ export default function Home() {
     });
     setVisibleMarkers(visible);
   };
-  /* useEffect */
-  // 특정 지역 내에서만 데이터 불러오기
-  function transformObjectToArray(obj: any) {
-    return Object.entries(obj).map(([id, value]: [any, any]) => ({
-      id,
-      ...value,
-    }));
-  }
-  // bounds라는 것은 현재 지도의 영역이 바뀌면 동작되는 것임: 지도 영역이 변경되면 발생한다
-  // 그러므로 handle~~ 이 함수는 내가 "이 지역 검색" 클릭시에만 작동되면 아주 아주 좋게 될 듯
-  // 그리고 처음 로드시에는 handle... 이 함수 실행해야함
-  const handleBoundsChanged = () => {
-    // console.log(2);
-    const fetchedData: any = fetchDataFromUrl('data');
-    //console.log(fetchedData);
-
-    if (isNil(fetchedData)) {
-      // console.log('오류 발생이거나, 데이터에 아무런 값이 없습니다');
-      setFetchDataToggle(false); // 읽어들이는 중... 그거 없엠
-      setMapMovedToggle(false);
-      return;
-    }
-    const fetchedMarkers = transformObjectToArray(fetchedData);
-    const map: kakao.maps.Map = mapRef;
-    const bounds = map.getBounds();
-    const visible: any = fetchedMarkers.filter((marker: any) => {
-      const position = new kakao.maps.LatLng(
-        marker.position.lat,
-        marker.position.lng
-      );
-      return bounds.contain(position);
-    });
-    setVisibleMarkers(visible);
-    // - [ ] 지금 보이는 데이터는 다시 그 반영을 안하나? 그 렌더링?
-    // 근데 유의할 점은, 이미 로드한 데이터도, 현재 보이는 지역을 벗어나서 새로고침을 하면 다시 로드해야함 (약간 성능 부과될 수 있다...)
-    setFetchDataToggle(false); // 읽어들이는 중... 그거 없엠
-    setMapMovedToggle(false); // - [ ] 이거 초기에 실행하는데 문제 없겠지?
-    // console.log(3);
-  };
-
-  /* 처음 로드시 현재 위치의 데이터 불러오기 */
-  // - [*] 심각한 버그. prompt에서 denined이면 잘 표시가 됨. 그러나 태초부터 denied이면 아예 실행이 안됨. 계속 로딩 페이지에 머물러 있음.
-  // - [*] 이유는 mapRef의 값이 변경이 즉각 되지 않아서임. 근데 이게 왜 그런지는 모름. 그래서 그냥 이 코드는 onCreate 내부에 위치했음
-  // - [*] onCreate 내부 위치도 그렇지 좋지는 않음. 값이 계속 바뀌기 때문에.
-  // 일단 mapRef가 kakao.map
-
-  useEffect(() => {
-    // 지도가 처음 로드된 후 이 코드가 실행됩니다
-    // 지도가 로드된 처음만 실행되므로 if절 내의 코드는 한번만 실행됩니다
-    if (mapRef) {
-      //  kakao.maps.Map 사용 가능 지역
-      handleBoundsChanged(); // - [ ] 아 근데, footer가 4rem 차지해서, 그 부분에 마커가 있으면 로드가 되긴 함. 어쩔 수 없음.
-      setIsDataLoading(false);
-    }
-    // - [ ] 근데 mapRef.current로 추적하는게 맞나? => 맞나봄
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [mapRef]); // - [ ] mapRef는 setMapRefState(map)이라는 코드가 onCreate에 존재시 동작함, window.kakao도 되기는 함. 그냥 useEffect의 의존성에는 ref값을 넣지 말자.
   // 행정동 주소 변경
   const updateAdminDongAddr = (position: any) => {
     const geocoder = new kakao.maps.services.Geocoder();
@@ -345,6 +266,47 @@ export default function Home() {
       }
     });
   };
+  /* useEffect */
+  // 특정 지역 내에서만 데이터 불러오기
+  const handleBoundsChanged = () => {
+    const fetchedData: any = fetchDataFromUrl('data');
+    if (isNil(fetchedData)) {
+      // 손상되어 값을 읽을 수 없거나, 데이터에 아무런 값이 없음
+      setFetchDataToggle(false); // 읽어들이는 중... 그거 없엠
+      setMapMovedToggle(false);
+      return;
+    }
+    const fetchedMarkers = transformNestedObjectToArray(fetchedData);
+    const map: kakao.maps.Map = mapRef;
+    const bounds = map.getBounds();
+    const visible: any = fetchedMarkers.filter((marker: any) => {
+      const position = new kakao.maps.LatLng(
+        marker.position.lat,
+        marker.position.lng
+      );
+      return bounds.contain(position);
+    });
+    setVisibleMarkers(visible);
+    // - [ ] 지금 보이는 데이터는 다시 그 반영을 안하나? 그 렌더링?
+    // 근데 유의할 점은, 이미 로드한 데이터도, 현재 보이는 지역을 벗어나서 새로고침을 하면 다시 로드해야함 (약간 성능 부과될 수 있다...)
+    setFetchDataToggle(false);
+    setMapMovedToggle(false);
+  };
+  // 처음 로드시 현재 위치의 데이터 불러오기
+  useEffect(() => {
+    // - [*] 심각한 버그. prompt에서 denined이면 잘 표시가 됨. 그러나 태초부터 denied이면 아예 실행이 안됨. 계속 로딩 페이지에 머물러 있음.
+    // - [*] 이유는 mapRef의 값이 변경이 즉각 되지 않아서임. 근데 이게 왜 그런지는 모름. 그래서 그냥 이 코드는 onCreate 내부에 위치했음
+    // - [*] onCreate 내부 위치도 그렇지 좋지는 않음. 값이 계속 바뀌기 때문에.
+    // - [*] mapRef는 setMapRefState(map)이라는 코드가 onCreate에 존재시 동작함, window.kakao도 되기는 함. 그냥 useEffect의 의존성에는 ref값을 넣지 말자.
+    // 일단 mapRef가 kakao.map => 일단 임시로 useRef가 아니라 useState를 사용하자.
+    // 지도가 처음 로드된 후 이 코드가 실행됩니다 / 지도가 로드된 처음만 실행되므로 if절 내의 코드는 한번만 실행됩니다
+    if (mapRef) {
+      //  kakao.maps.Map 사용 가능 지역
+      handleBoundsChanged(); // 근데 footer가 4rem 차지해서, 그 부분에 마커가 있으면 로드가 되긴 함. 어쩔 수 없음.
+      setIsDataLoading(false);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [mapRef]);
   // 초기 행정동 불러오기 및
   // 위치 변동 사항 확인시 행정동 다시 불러옴
   useEffect(() => {
@@ -361,12 +323,6 @@ export default function Home() {
       lat: map.getCenter().getLat(),
       lng: map.getCenter().getLng(),
     });
-    /* 행정동 주소 검색 */
-    // 그냥 useEffect로 모두 처리함
-    // updateAdminDongAddr({
-    //   lat: map.getCenter().getLat(),
-    //   lng: map.getCenter().getLng(),
-    // });
   };
   const handleMotionDetected = () => {
     setIsTracking(false);
@@ -377,11 +333,6 @@ export default function Home() {
       setCenterPos(curPos);
       setIsTracking(true);
       setMapMovedToggle(true); // 이동됨을 알림
-      /* 행정동 주소 검색 */
-      // updateAdminDongAddr({
-      //   lat: curPos.lat,
-      //   lng: curPos.lng,
-      // });
     }
   };
   const handleGeoError = (error: any) => {
@@ -409,17 +360,15 @@ export default function Home() {
       navigator.geolocation.getCurrentPosition(
         ({ coords: { latitude, longitude } }) => {
           // console.log('get current pos');
-          // console.log('현재 위치:', latitude, longitude);
           setCurPos({ lat: latitude, lng: longitude });
           setCenterPos({ lat: latitude, lng: longitude });
         },
-        error => handleGeoError(error), // handleGeoError(error) 추가시 막 여러개로 toast 뜸
+        error => handleGeoError(error),
         geolocationOptions
       );
       watchId = navigator.geolocation.watchPosition(
         ({ coords: { latitude, longitude } }) => {
           // console.log('watch pos');
-          // console.log('현재 위치:', latitude, longitude);
           setCurPos({ lat: latitude, lng: longitude });
         },
         error => handleGeoError(error),
@@ -446,7 +395,6 @@ export default function Home() {
     }
     if (state === 'prompt') {
       setGeoPermission('prompt');
-      // setGeoPermission('prompt'); // 필요하지는 않음 prompt한 상태는 로딩 상태에서 이미 받을 것임. geoPermission의 상태는 거부와 승인 이 두개만 존재함.
       // console.log('위치 액세스 권한을 요청할 수 있습니다.');
       navigator.geolocation.getCurrentPosition(
         position => {
@@ -458,9 +406,6 @@ export default function Home() {
           setGeoPermission('denied');
           // console.log('위치 액세스가 거부되었습니다.');
           stopWatchingPosition();
-          // console.log('denied됨v1');
-          // 만약에 여기서 updateAdminAddr을 하게 되면 거부로 변경시 주소도 defaultCenter의 주소를 가져오게 된다.
-          // 그냥 useEffect를 사용하는게 가장 효율적일 듯 하긴 하다.
         }
       );
     }
@@ -468,7 +413,6 @@ export default function Home() {
       setGeoPermission('denied');
       // console.log('위치 액세스가 거부되었습니다.');
       stopWatchingPosition();
-      // console.log('denied됨v2');
     }
   };
   const checkGeoPermission = () => {
@@ -480,8 +424,10 @@ export default function Home() {
       };
     });
   };
+
+  /* useEffect */
+  // 처음 앱 접근시 위치 가져옴
   useEffect(() => {
-    /* 처음 앱 접근시 */
     // - [ ] 왜 초기에 2번 코드가 실행되는지 모르겠음
     setAllUrl(getAllUrl());
     if ('geolocation' in navigator && 'permissions' in navigator) {
@@ -497,8 +443,8 @@ export default function Home() {
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+  // 위치 추적 기능
   useEffect(() => {
-    /* 위치 추적 기능 */
     if (curPos && isCurPosFetched && isTracking) {
       // 현재 위치 불러온 후에 tracking 모드일때는 현재 위치를 따라가게됨
       setCenterPos(curPos);
