@@ -72,6 +72,10 @@ export const DrawerContents = styled.div`
   white-space: pre-wrap; // 이거 해야지 \n이 개행됨
 `;
 
+export const DrawerNestedOverlay = styled(Drawer.Overlay)``;
+
+export const DrawerNestedContent = styled(Drawer.Content);
+
 export const DrawerTitle = styled(Drawer.Title)`
   display: none;
 `;
