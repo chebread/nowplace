@@ -140,7 +140,7 @@ import CopyToClipboard from 'react-copy-to-clipboard';
 import getAllUrl from '@/utils/getAllUrls';
 
 export default function Home() {
-  const allUrl = getAllUrl();
+  const [allUrl, setAllUrl] = useState('');
   const copyright = `© ${new Date().getFullYear()} Cha Haneum`;
   /* toggle */
   const [mapMovedToggle, setMapMovedToggle] = useState(false); // 움직임 발생시
@@ -471,6 +471,7 @@ export default function Home() {
   useEffect(() => {
     /* 처음 앱 접근시 */
     // - [ ] 왜 초기에 2번 코드가 실행되는지 모르겠음
+    setAllUrl(getAllUrl());
     if ('geolocation' in navigator && 'permissions' in navigator) {
       checkGeoPermission();
     } else {
