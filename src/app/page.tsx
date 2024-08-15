@@ -15,6 +15,7 @@
 // - [ ] 첫 방문자 기능 만들기 (hasVisited)
 // - [ ] isTracking 시에는 zoom 하면 center 좌표를 중심으로 zoom 되기 기능 만들기
 // - [*] permission 에서 prompt => granted 될때 기존의 데이터가 바로 안보이게 되는 오류가 있다.
+// - [ ] nested root에서는 open={...}을 사용하면 그 축소시에 부모 root가 축소가 안된다. 클릭해줘야 축소가 된다.
 
 'use client';
 
