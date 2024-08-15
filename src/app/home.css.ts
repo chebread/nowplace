@@ -205,6 +205,16 @@ export const StyledFooterLoadingSpinnerButton = styled(StyledFooterBtn)`
 
 export const CurPosMarkerBtn = styled.button`
   display: flex;
+
+  -webkit-tap-highlight-color: transparent;
+  -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+
+  -webkit-touch-callout: none;
+  -khtml-user-select: none;
+  user-select: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
 `;
 
 export const CurPosMarker = styled.div`
@@ -218,6 +228,16 @@ export const CurPosMarker = styled.div`
 
 export const PlaceMarker = styled.div`
   display: flex;
+
+  -webkit-tap-highlight-color: transparent;
+  -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+
+  -webkit-touch-callout: none;
+  -khtml-user-select: none;
+  user-select: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
 `;
 
 export const DataToAddDrawerModal = styled(DrawerModal)`
