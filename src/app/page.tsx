@@ -388,7 +388,7 @@ export default function Home() {
     }
     // - [ ] 근데 mapRef.current로 추적하는게 맞나? => 맞나봄
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [mapRefState]); // mapRef는 안됨. 이유는 모름. window.kakao도 됨.
+  }, [mapRefState]); // - [ ] mapRef는 setMapRefState(map)이라는 코드가 onCreate에 존재시 동작함, window.kakao도 되기는 함. 그냥 useEffect의 의존성에는 ref값을 넣지 말자.
   // 행정동 주소 변경
   const updateAdminDongAddr = (position: any) => {
     const geocoder = new kakao.maps.services.Geocoder();
@@ -409,11 +409,11 @@ export default function Home() {
   };
   // 초기 행정동 불러오기
   useEffect(() => {
-    if (mapRef.current) {
+    if (mapRefState) {
       // centerPos가 불러와지면 centerPos로 행정동 불러옴. 그렇지 않으면 defaultCenter의 행정동 불러옴
       updateAdminDongAddr(isNil(centerPos) ? defaultCenter : centerPos);
     }
-  }, [mapRef.current, centerPos]);
+  }, [mapRefState, centerPos]);
 
   /* 현재 위치 */
   const updateCenterPos = (map: kakao.maps.Map) => {
