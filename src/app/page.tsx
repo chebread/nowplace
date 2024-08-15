@@ -159,7 +159,7 @@ export default function Home() {
   const [dataToAddPos, setDataToAddPos] = useState<any>();
   // const [hasVisited, setHasVisited] = useState(false); // 첫 방문자면 도움말 뜨기 // localStorage 사용
   const [isDataLoading, setIsDataLoading] = useState(true); // data loading // default value = true
-  const [markers, setMarkers] = useState([]);
+  // const [markers, setMarkers] = useState([]);
   const [visibleMarkers, setVisibleMarkers] = useState([]);
   /* 위치 */
   const [mapRef, setMapRef] = useState<any>();
@@ -218,21 +218,21 @@ export default function Home() {
     // const searchParams = new URLSearchParams(window.location.search);
     // console.log('xxx', searchParams); // - [ ] 이게 useState같은 거라서 바로 반영이 안됨. 렌더링 한다음에 반영해야함.
     let returnValue = null;
-    console.log(10000);
+    // console.log(10000);
     const params: any = searchParams.get(key); // key is parameter key
-    console.log(20000);
+    // console.log(20000);
     try {
-      console.log(30000);
+      // console.log(30000);
       const fetchedData: any =
         isNil(params) || params === '' // null or undefined or '' (선언안됨) 이면 null로 처리함
           ? null
           : base64ArrayDecoder(params); // decode
       returnValue = fetchedData;
     } catch (error) {
-      console.log(40000);
+      // console.log(40000);
       returnValue = null;
     }
-    console.log(50000);
+    // console.log(50000);
     return returnValue;
   };
   // URL에 Base64 데이터 저장하기
@@ -263,8 +263,8 @@ export default function Home() {
       position.lat,
       (result: any, status: any) => {
         if (status === kakao.maps.services.Status.OK) {
-          console.log('지번 주소: ' + result[0]?.address?.address_name);
-          console.log('도로명 주소: ' + result[0]?.road_address?.address_name);
+          // console.log('지번 주소: ' + result[0]?.address?.address_name);
+          // console.log('도로명 주소: ' + result[0]?.road_address?.address_name);
           lotAddr = result[0]?.address?.address_name; // 지번 주소
           roadAddr = result[0]?.road_address?.address_name; // 도로명 주소
         }
@@ -285,11 +285,11 @@ export default function Home() {
             },
           },
         };
-        console.log(data);
+        // console.log(data);
         const mergedData: any = { ...fetchedData, ...data }; // fetchData와 병합
         const dataToSave = base64ArrayEncoder(mergedData); // encode
         saveDataToUrl('data', dataToSave); // 데이터 url에 저장하기 // 바로 즉각 반영이 느림
-        console.log('저장을 완료했습니다');
+        // console.log('저장을 완료했습니다');
         // handleBoundsChanged(); // - [ ] 데이터 없을때 저장시에 이게 실행이 안됨
         /* 임시 코드 */ // - [ ] get querystring이 한 번 늦게 반영되는 문제.
         // 아니 근데, 늦게 반영되던 말던, saveData에서는 handleBoundsChanged() 함수는 너무 비효율적임. 임시코드가 더 효율적임.
@@ -347,12 +347,12 @@ export default function Home() {
   // 그러므로 handle~~ 이 함수는 내가 "이 지역 검색" 클릭시에만 작동되면 아주 아주 좋게 될 듯
   // 그리고 처음 로드시에는 handle... 이 함수 실행해야함
   const handleBoundsChanged = () => {
-    console.log(2);
+    // console.log(2);
     const fetchedData: any = fetchDataFromUrl('data');
     //console.log(fetchedData);
 
     if (isNil(fetchedData)) {
-      console.log('오류 발생이거나, 데이터에 아무런 값이 없습니다');
+      // console.log('오류 발생이거나, 데이터에 아무런 값이 없습니다');
       setFetchDataToggle(false); // 읽어들이는 중... 그거 없엠
       setMapMovedToggle(false);
       return;
@@ -372,7 +372,7 @@ export default function Home() {
     // 근데 유의할 점은, 이미 로드한 데이터도, 현재 보이는 지역을 벗어나서 새로고침을 하면 다시 로드해야함 (약간 성능 부과될 수 있다...)
     setFetchDataToggle(false); // 읽어들이는 중... 그거 없엠
     setMapMovedToggle(false); // - [ ] 이거 초기에 실행하는데 문제 없겠지?
-    console.log(3);
+    // console.log(3);
   };
 
   /* 처음 로드시 현재 위치의 데이터 불러오기 */
@@ -401,16 +401,16 @@ export default function Home() {
           // - [ ] 행정동의 region_type 값은 'H' 이므로
           if (result[i].region_type === 'H') {
             const adminDongAddr: any = result[i].address_name;
-            console.log('행정동', adminDongAddr);
+            // console.log('행정동', adminDongAddr);
             setCurAdminDongAddr(adminDongAddr);
-
             break;
           }
         }
       }
     });
   };
-  // 초기 행정동 불러오기 및 위치 변동 사항 확인시 행정동 다시 불러옴
+  // 초기 행정동 불러오기 및
+  // 위치 변동 사항 확인시 행정동 다시 불러옴
   useEffect(() => {
     if (mapRef) {
       // centerPos가 불러와지면 centerPos로 행정동 불러옴. 그렇지 않으면 defaultCenter의 행정동 불러옴
@@ -522,7 +522,7 @@ export default function Home() {
           setGeoPermission('denied');
           // console.log('위치 액세스가 거부되었습니다.');
           stopWatchingPosition();
-          console.log('denied됨v1');
+          // console.log('denied됨v1');
           // 만약에 여기서 updateAdminAddr을 하게 되면 거부로 변경시 주소도 defaultCenter의 주소를 가져오게 된다.
           // 그냥 useEffect를 사용하는게 가장 효율적일 듯 하긴 하다.
         }
@@ -532,7 +532,7 @@ export default function Home() {
       setGeoPermission('denied');
       // console.log('위치 액세스가 거부되었습니다.');
       stopWatchingPosition();
-      console.log('denied됨v2');
+      // console.log('denied됨v2');
     }
   };
   const checkGeoPermission = () => {
@@ -606,23 +606,6 @@ export default function Home() {
             onZoomStart={handleMotionDetected} // - [ *** ] isTracking 시에는 zoom 하면 center 좌표를 중심으로 zoom 되기 기능 만들기
             onDragStart={handleMotionDetected}
           >
-            {/* 장소 마커 */}
-            {visibleMarkers.map((marker: any) => (
-              <CustomOverlayMap key={marker.id} position={marker.position}>
-                <PlaceMarker
-                  onClick={() => {
-                    const { position, content, id } = marker;
-                    setCenterPos(position);
-                    setIsTracking(false);
-                    setSelectedMarkerToggle(true);
-                    setSelectedMarkerData(marker);
-                  }}
-                >
-                  <SvgPlacePin />
-                </PlaceMarker>
-              </CustomOverlayMap>
-            ))}
-
             {/* 현재 위치 마커 */}
             {curPos && (
               <>
@@ -634,9 +617,26 @@ export default function Home() {
                 </CustomOverlayMap>
               </>
             )}
+
+            {/* 장소 마커 */}
+            {visibleMarkers.map((marker: any) => (
+              <CustomOverlayMap key={marker.id} position={marker.position}>
+                <PlaceMarker
+                  onClick={() => {
+                    const { position, content, id } = marker;
+                    setCenterPos(position);
+                    setIsTracking(false);
+                    setSelectedMarkerToggle(true);
+                    setSelectedMarkerData(marker);
+                    setMapMovedToggle(true);
+                  }}
+                >
+                  <SvgPlacePin />
+                </PlaceMarker>
+              </CustomOverlayMap>
+            ))}
           </KakaoMap>
           {/* 장소 마커 바텀 시트 */}
-          {/* closed될때 focused 되는 이유는? */}
           <Drawer.Root
             shouldScaleBackground
             open={selectedMarkerToggle}
@@ -673,7 +673,14 @@ export default function Home() {
                   <DrawerDescription />
                   {selectedMarkerToggle && (
                     <DrawerContents>
-                      <h1>도로명 주소</h1>
+                      <h1>
+                        {isNotNil(selectedMarkerData.address.roadNameAddress)
+                          ? `도로명 주소: ${selectedMarkerData.address.roadNameAddress}`
+                          : isNotNil(selectedMarkerData.address.landLotAddress)
+                          ? `지번 주소: ${selectedMarkerData.address.landLotAddress}`
+                          : `해당 장소는 주소명이 부여되지 않았습니다`}
+                      </h1>
+                      {/* 도로명 주소가 없으면 지번 주소가 표시됨. 우선은 일단 도로명 주소만 표시. 없으면 지번 주소 표시. 둘 다 같이 표시하지는 않음. 그리고 둘다 null인 경우는 해당 장소는 주소명이 없습니다 표시. */}
                       <p>{selectedMarkerData.content}</p>
                       <button
                         onClick={() => {
@@ -953,6 +960,8 @@ export default function Home() {
                           </DrawerHeader>
                           <DrawerModal>
                             <DrawerContents>
+                              <DrawerTitle />
+                              <DrawerDescription />
                               <h1>위치 권한이 거부되었습니다</h1>
                             </DrawerContents>
                           </DrawerModal>
