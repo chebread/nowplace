@@ -187,6 +187,7 @@ export const DrawerFooterBtn = styled.button`
   height: 3rem;
   width: 100%;
   font-weight: 600;
+  line-height: 1;
   color: white;
   background-color: var(--app-icon-color-500);
   border-radius: 1rem;
