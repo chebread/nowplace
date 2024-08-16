@@ -270,41 +270,32 @@ export const DataToAddTextarea = styled(TextareaAutosize)`
 `;
 
 export const ShowMoreDrawerModal = styled(DrawerModal)`
-  height: 100%;
+  height: auto;
   width: 100%;
 `;
 
 export const ShowMoreDrawerContents = styled(DrawerContents)`
-  height: 100%;
+  height: auto;
+  width: 100%;
+`;
+
+export const ShowMoreDrawerList = styled.div`
+  height: auto;
   width: 100%;
   display: flex;
   flex-direction: column;
+  padding: 0 0 4rem 0;
 `;
 
 export const ShowMoreDrawerCategory = styled.div`
-  /* padding: 2rem 0 0.25rem 0;
-  color: var(--gray-600);
-  font-weight: 600;
-  font-size: 0.9rem;
-  line-height: 1.75; */
   padding: 2.35rem 0 0.5rem 0;
   color: var(--gray-600);
   font-weight: 600;
   font-size: 0.9rem;
-  line-height: 1; // 버튼이 text 형태면 line-height: 1로 해야함
+  line-height: 1;
 `;
 
-export const ShowMoreDrawerItem = styled.li`
-  /* padding: 0.5rem 0 0.5rem 0;
-  cursor: pointer;
-  font-weight: 600;
-  font-size: 1rem; */
-  /* padding: 0.75rem 0 0.75rem 0;
-  cursor: pointer;
-  font-weight: 600;
-  font-size: 1rem;
-  line-height: 1; */
-`;
+export const ShowMoreDrawerItem = styled.li``;
 
 export const ShowMoreDrawerBtn = styled.button`
   // - [ ] styled.button으로 하면 width가 inherit로 바뀜

@@ -113,6 +113,7 @@ import {
   SearchDrawerResultItem,
   SearchDrawerNoResultsFound,
   SearchDrawerResultList,
+  ShowMoreDrawerList,
 } from './home.css';
 import transformToNestedObject from '@/utils/transform-to-nested-object';
 import copyToClipboard from '@/utils/copy-to-clipboard';
@@ -985,53 +986,56 @@ export default function Home() {
               <ShowMoreDrawerContents>
                 <DrawerTitle />
                 <DrawerDescription />
-                <ShowMoreDrawerCategory>서비스 설정</ShowMoreDrawerCategory>
-                <ShowMoreDrawerItem>
-                  <ShowMoreDrawerDetailedBtn
-                    style={{
-                      cursor: 'default',
-                    }}
-                  >
-                    <p>위치 권한 상태</p>
-                    <ShowMoreDrawerGeoPermStatusInd>
-                      {getCurGeoPermission()}
-                    </ShowMoreDrawerGeoPermStatusInd>
-                  </ShowMoreDrawerDetailedBtn>
-                </ShowMoreDrawerItem>
-                <ShowMoreDrawerItem>
-                  <ShowMoreDrawerBtn onClick={saveAllData}>
-                    모든 장소 저장하기
-                  </ShowMoreDrawerBtn>
-                </ShowMoreDrawerItem>
-                <ShowMoreDrawerItem>
-                  <ShowMoreDrawerRemoveAllPlacesBtn onClick={removeAllData}>
-                    모든 장소 삭제하기
-                  </ShowMoreDrawerRemoveAllPlacesBtn>
-                </ShowMoreDrawerItem>
 
-                <ShowMoreDrawerCategory>이용 안내</ShowMoreDrawerCategory>
-                <ShowMoreDrawerItem>
-                  <ShowMoreDrawerLink href="https://haneum.notion.site/5eeb4157e5674225a385b0f242b8109d?pvs=4">
-                    사용 방법
-                  </ShowMoreDrawerLink>
-                </ShowMoreDrawerItem>
-                <ShowMoreDrawerItem>
-                  <ShowMoreDrawerLink href="https://haneum.notion.site/7f9e4f0160fa46f5a7b4ed6821c9dc1b?pvs=4">
-                    문의하기
-                  </ShowMoreDrawerLink>
-                </ShowMoreDrawerItem>
+                <ShowMoreDrawerList>
+                  <ShowMoreDrawerCategory>서비스 설정</ShowMoreDrawerCategory>
+                  <ShowMoreDrawerItem>
+                    <ShowMoreDrawerDetailedBtn
+                      style={{
+                        cursor: 'default',
+                      }}
+                    >
+                      <p>위치 권한 상태</p>
+                      <ShowMoreDrawerGeoPermStatusInd>
+                        {getCurGeoPermission()}
+                      </ShowMoreDrawerGeoPermStatusInd>
+                    </ShowMoreDrawerDetailedBtn>
+                  </ShowMoreDrawerItem>
+                  <ShowMoreDrawerItem>
+                    <ShowMoreDrawerBtn onClick={saveAllData}>
+                      모든 장소 저장하기
+                    </ShowMoreDrawerBtn>
+                  </ShowMoreDrawerItem>
+                  <ShowMoreDrawerItem>
+                    <ShowMoreDrawerRemoveAllPlacesBtn onClick={removeAllData}>
+                      모든 장소 삭제하기
+                    </ShowMoreDrawerRemoveAllPlacesBtn>
+                  </ShowMoreDrawerItem>
 
-                <ShowMoreDrawerCategory>서비스 안내</ShowMoreDrawerCategory>
-                <ShowMoreDrawerItem>
-                  <ShowMoreDrawerLink href="https://haneum.notion.site/2dfa69d6a9c84af3bf2ccaff2aab2ab9?pvs=4">
-                    서비스 이용 약관
-                  </ShowMoreDrawerLink>
-                </ShowMoreDrawerItem>
-                <ShowMoreDrawerItem>
-                  <ShowMoreDrawerLink href="https://haneum.notion.site/3abb28d6b73b4b2d96e7c1450f4637fc?pvs=4">
-                    개인정보 처리 방침
-                  </ShowMoreDrawerLink>
-                </ShowMoreDrawerItem>
+                  <ShowMoreDrawerCategory>이용 안내</ShowMoreDrawerCategory>
+                  <ShowMoreDrawerItem>
+                    <ShowMoreDrawerLink href="https://haneum.notion.site/5eeb4157e5674225a385b0f242b8109d?pvs=4">
+                      사용 방법
+                    </ShowMoreDrawerLink>
+                  </ShowMoreDrawerItem>
+                  <ShowMoreDrawerItem>
+                    <ShowMoreDrawerLink href="https://haneum.notion.site/7f9e4f0160fa46f5a7b4ed6821c9dc1b?pvs=4">
+                      문의하기
+                    </ShowMoreDrawerLink>
+                  </ShowMoreDrawerItem>
+
+                  <ShowMoreDrawerCategory>서비스 안내</ShowMoreDrawerCategory>
+                  <ShowMoreDrawerItem>
+                    <ShowMoreDrawerLink href="https://haneum.notion.site/2dfa69d6a9c84af3bf2ccaff2aab2ab9?pvs=4">
+                      서비스 이용 약관
+                    </ShowMoreDrawerLink>
+                  </ShowMoreDrawerItem>
+                  <ShowMoreDrawerItem>
+                    <ShowMoreDrawerLink href="https://haneum.notion.site/3abb28d6b73b4b2d96e7c1450f4637fc?pvs=4">
+                      개인정보 처리 방침
+                    </ShowMoreDrawerLink>
+                  </ShowMoreDrawerItem>
+                </ShowMoreDrawerList>
               </ShowMoreDrawerContents>
             </ShowMoreDrawerModal>
           </DrawerContent>
