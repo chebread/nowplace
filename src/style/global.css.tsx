@@ -130,6 +130,34 @@ const GlobalStyle = createGlobalStyle`
     list-style-type: none;
   }
 
+  a {
+    color: inherit;
+    text-decoration: none;
+    cursor: pointer;
+
+    -webkit-tap-highlight-color: transparent;
+    -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+    
+    -webkit-touch-callout: none;
+    -khtml-user-select: none;
+    user-select: none;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+
+    &:active,
+    &:hover,
+    &:focus {
+      background-color: transparent;
+      outline: none;
+    }
+  }
+
+  p {
+    margin: 0;
+    padding: 0;
+  }
+
   .toaster {
     font-family: var(--font-sans);
 
