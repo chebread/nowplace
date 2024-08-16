@@ -367,16 +367,6 @@ export const PermReqDrawerMessage = styled.div`
   font-weight: 400;
 `;
 
-export const SearchDrawerModal = styled(DrawerModal)`
-  height: 100%;
-  width: 100%;
-`;
-
-export const SearchDrawerContents = styled(DrawerContents)`
-  height: 100%;
-  width: 100%;
-`;
-
 export const PlaceMoreDrawerModal = styled(DrawerModal)`
   height: 100%;
   width: 100%;
@@ -424,4 +414,64 @@ export const PlaceMoreDrawerBtn = styled.button`
 
 export const PlaceMoreDrawerRemovePlaceBtn = styled(PlaceMoreDrawerBtn)`
   color: var(--red-600);
+`;
+
+export const SearchDrawerModal = styled(DrawerModal)`
+  height: 100%;
+  width: 100%;
+`;
+
+export const SearchDrawerContents = styled(DrawerContents)`
+  height: 100%;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+`;
+export const SearchDrawerInputBox = styled.div`
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  width: 100%;
+  height: 3.5rem;
+  border-radius: 1rem;
+  background-color: var(--gray-100);
+  margin: 0rem 0 2rem 0;
+  /* border: 0.5px solid rgba(0, 0, 0, 0.04);
+  box-shadow: 0 10.5px 21px 0 rgba(0, 0, 0, 0.08); */ // threads
+`;
+
+export const SearchDrawerInput = styled.input`
+  width: 100%;
+  box-sizing: border-box;
+  padding: 1rem;
+  font-size: 1rem;
+  line-height: 1rem;
+  font-weight: 500;
+  &:focus {
+  }
+  &::placeholder {
+    color: var(--gray-700);
+  }
+`;
+
+export const SearchDrawerResultList = styled.div``;
+
+export const SearchDrawerResultItem = styled.button`
+  padding: 0.75rem 0 0.75rem 0;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 1rem;
+  line-height: 1;
+  width: 100%;
+  text-align: left;
+`;
+
+export const SearchDrawerNoResultsFound = styled.div`
+  padding: 0.75rem 0 0.75rem 0;
+  cursor: default;
+  font-weight: 500;
+  font-size: 1rem;
+  line-height: 1;
+  width: 100%;
+  text-align: left;
 `;

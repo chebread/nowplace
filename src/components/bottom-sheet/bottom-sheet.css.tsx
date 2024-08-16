@@ -21,6 +21,10 @@ export const DrawerContent = styled(Drawer.Content)`
   height: 96%; // max-height: 96%
   border-top-left-radius: 10px;
   border-top-right-radius: 10px;
+  &:focus {
+    outline: none;
+    box-shadow: none;
+  }
 `;
 
 export const DrawerHeader = styled.header`
@@ -184,6 +188,7 @@ export const DrawerFooterWrapper = styled.div`
 `;
 
 export const DrawerFooterBtn = styled.button`
+  cursor: pointer;
   height: 3rem;
   width: 100%;
   font-weight: 600;
