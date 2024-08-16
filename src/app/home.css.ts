@@ -272,43 +272,6 @@ export const DataToAddTextarea = styled(TextareaAutosize)`
   width: 100%;
 `;
 
-export const DataToAddFooter = styled.footer`
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  max-width: 40rem;
-  margin: 0 auto;
-`;
-
-export const DataToAddFooterGradient = styled.div`
-  height: 2rem;
-  background: linear-gradient(
-    to top,
-    rgb(255, 255, 255),
-    rgba(255, 255, 255, 0)
-  );
-`;
-
-export const DataToAddFooterWrapper = styled.div`
-  padding: 1rem;
-  background-color: #ffffff;
-`;
-
-export const DataToAddFooterBtn = styled.button`
-  height: 3rem;
-  width: 100%;
-  font-weight: 600;
-  color: white;
-  background-color: var(--app-icon-color-500);
-  border-radius: 1rem;
-  will-change: transform;
-  transition: transform var(--transition);
-  &:active {
-    transform: var(--btn-scale-large);
-  }
-`;
-
 export const ShowMoreDrawerModal = styled(DrawerModal)`
   height: 100%;
   width: 100%;
@@ -386,43 +349,6 @@ export const ShowMoreDrawerGeoPermStatusInd = styled.p`
 
 export const ShowMoreDrawerRemoveAllPlacesBtn = styled(ShowMoreDrawerBtn)`
   color: var(--red-600);
-`;
-
-export const DrawerFooter = styled.footer`
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  max-width: 40rem;
-  margin: 0 auto;
-`;
-
-export const DrawerFooterGradient = styled.div`
-  height: 2rem;
-  background: linear-gradient(
-    to top,
-    rgb(255, 255, 255),
-    rgba(255, 255, 255, 0)
-  );
-`;
-
-export const DrawerFooterWrapper = styled.div`
-  padding: 1rem; // - [ ] padding: 1rem 0 1rem 0 으로 해야하나?
-  background-color: #ffffff;
-`;
-
-export const DrawerFooterBtn = styled.button`
-  height: 3rem;
-  width: 100%;
-  font-weight: 600;
-  color: white;
-  background-color: var(--app-icon-color-500);
-  border-radius: 1rem;
-  will-change: transform;
-  transition: transform var(--transition);
-  &:active {
-    transform: var(--btn-scale-large);
-  }
 `;
 
 export const PermReqDrawerModal = styled(DrawerModal)``;
