@@ -99,6 +99,15 @@ import {
   PermReqDrawerContents,
   PermReqDrawerTitle,
   PermReqDrawerMessage,
+  SearchDrawerModal,
+  SearchDrawerContents,
+  PlaceMoreDrawerModal,
+  PlaceMoreDrawerContents,
+  PlaceMoreDrawerContentData,
+  PlaceMoreDrawerAddress,
+  PlaceMoreDrawerAddressName,
+  PlaceMoreDrawerBtn,
+  PlaceMoreDrawerRemovePlaceBtn,
 } from './home.css';
 import transformToNestedObject from '@/utils/transform-to-nested-object';
 import copyToClipboard from '@/utils/copy-to-clipboard';
@@ -145,6 +154,29 @@ export default function Home() {
   const [isSearchVisible, setIsSearchVisible] = useState(false);
 
   /* search */
+  const handleSearchEnter = (event: any) => {
+    if (event.key === 'Enter') {
+      if (!isSearchVisible) {
+        setIsSearchVisible(true);
+      }
+      const data = visibleMarkers;
+      const index = Fuse.createIndex(
+        ['address.landLotAddress', 'address.roadNameAddress', 'content'],
+        data
+      );
+      // searchValue == '' 도 같이 처리함
+      const fuse = new Fuse(data, undefined, index);
+      const result =
+        isNil(searchValue) || searchValue.trim().length === 0
+          ? null
+          : fuse.search(searchValue);
+      setSearchResult(
+        result === null || size(result) === 0 ? null : extractItems(result)
+      );
+      if (isNil(result)) setIsSearchVisible(false); // 일치하는 결과가 없으면
+    }
+  };
+
   const closeSearchBottomSheet = () => {
     setSearchValue(undefined);
     setSearchResult(undefined);
@@ -350,6 +382,35 @@ export default function Home() {
   };
 
   /* geolocation */
+  // 특정 장소 삭제하기
+  const removePlace = () => {
+    if (window.confirm('장소를 삭제하시겠습니까?')) {
+      removeData([selectedMarkerData.id]);
+      setSelectedMarkerToggle(false);
+      setSelectedMarkerData(undefined);
+    }
+  };
+  // 특정 장소 공유하기
+  const sharePlace = () => {
+    // selectedMarkerData를 기반으로 새로운 url 생성
+    // selectedMarkerData = { id: ..., position: ..., content: ..., address: ...} => { id: { position: ..., content: ..., address: ... }}
+    const data: any = transformToNestedObject(selectedMarkerData);
+    const dataToSave = base64ArrayEncoder(data);
+    const urlToShare =
+      window.location.origin +
+      pathname +
+      '?' +
+      createQueryString('data', dataToSave);
+    copyToClipboard(
+      urlToShare,
+      () => {
+        alert('클립보드에 저장되었습니다');
+      },
+      () => {
+        alert('클립보드에 저장중 에러가 발생했습니다');
+      }
+    );
+  };
   // 현재 위치 권한 상태 가져오기
   const getCurGeoPermission = () => {
     switch (geoPermission) {
@@ -719,58 +780,76 @@ export default function Home() {
                 <DrawerHandlebar></DrawerHandlebar>
               </DrawerHandlebarWrapper>
             </DrawerHeader>
-            <DrawerModal>
+            <PlaceMoreDrawerModal>
               <DrawerTitle />
               <DrawerDescription />
               {selectedMarkerToggle && (
-                <DrawerContents>
-                  <h1>
-                    {isNotNil(selectedMarkerData.address.roadNameAddress)
-                      ? `도로명 주소: ${selectedMarkerData.address.roadNameAddress}` // 도로명 주소
-                      : isNotNil(selectedMarkerData.address.landLotAddress)
-                      ? `지번 주소: ${selectedMarkerData.address.landLotAddress}` // 지번 주소
-                      : `해당 장소는 주소명이 부여되지 않았습니다`}
-                  </h1>
-                  {/* 도로명 주소가 없으면 지번 주소가 표시됨. 우선은 일단 도로명 주소만 표시. 없으면 지번 주소 표시. 둘 다 같이 표시하지는 않음. 그리고 둘다 null인 경우는 해당 장소는 주소명이 없습니다 표시. */}
-                  <p>{selectedMarkerData.content}</p>
-                  <button
+                <PlaceMoreDrawerContents>
+                  <PlaceMoreDrawerContentData>
+                    {selectedMarkerData.content}
+                  </PlaceMoreDrawerContentData>
+
+                  {isNotNil(selectedMarkerData.address.roadNameAddress) ? (
+                    <PlaceMoreDrawerAddress
+                      onClick={() => {
+                        copyToClipboard(
+                          selectedMarkerData.address.roadNameAddress,
+                          () => {
+                            alert('클립보드에 복사되었습니다');
+                          },
+                          () => {
+                            alert('클립보드에 복사중 에러가 발생했습니다');
+                          }
+                        );
+                      }}
+                    >
+                      <p>도로명 주소</p>
+                      <PlaceMoreDrawerAddressName>
+                        {selectedMarkerData.address.roadNameAddress}
+                      </PlaceMoreDrawerAddressName>
+                    </PlaceMoreDrawerAddress>
+                  ) : isNotNil(selectedMarkerData.address.landLotAddress) ? (
+                    <PlaceMoreDrawerAddress
+                      onClick={() => {
+                        copyToClipboard(
+                          selectedMarkerData.address.landLotAddress,
+                          () => {
+                            alert('클립보드에 복사되었습니다.');
+                          },
+                          () => {
+                            alert('클립보드에 복사중 에러가 발생했습니다.');
+                          }
+                        );
+                      }}
+                    >
+                      <p>지번 주소</p>
+                      <PlaceMoreDrawerAddressName>
+                        {selectedMarkerData.address.landLotAddress}
+                      </PlaceMoreDrawerAddressName>
+                    </PlaceMoreDrawerAddress>
+                  ) : (
+                    <PlaceMoreDrawerAddress>
+                      <p>해당 장소는 주소명이 부여되지 않았습니다</p>
+                    </PlaceMoreDrawerAddress>
+                  )}
+
+                  <PlaceMoreDrawerBtn
                     onClick={() => {
-                      // selectedMarkerData를 기반으로 새로운 url 생성
-                      // selectedMarkerData = { id: ..., position: ..., content: ..., address: ...} => { id: { position: ..., content: ..., address: ... }}
-                      const data: any =
-                        transformToNestedObject(selectedMarkerData);
-                      const dataToSave = base64ArrayEncoder(data);
-                      const urlToShare =
-                        window.location.origin +
-                        pathname +
-                        '?' +
-                        createQueryString('data', dataToSave);
-                      copyToClipboard(
-                        urlToShare,
-                        () => {
-                          alert('클립보드에 저장되었습니다');
-                        },
-                        () => {
-                          alert('클립보드에 저장중 에러가 발생했습니다');
-                        }
-                      );
+                      sharePlace();
                     }}
                   >
                     장소 공유하기
-                  </button>
-
-                  <button
+                  </PlaceMoreDrawerBtn>
+                  <PlaceMoreDrawerRemovePlaceBtn
                     onClick={() => {
-                      removeData([selectedMarkerData.id]); // - [ ] 바로 반영이 안됨
-                      setSelectedMarkerToggle(false);
-                      setSelectedMarkerData(undefined);
+                      removePlace();
                     }}
                   >
                     장소 삭제하기
-                  </button>
-                </DrawerContents>
+                  </PlaceMoreDrawerRemovePlaceBtn>
+                </PlaceMoreDrawerContents>
               )}
-            </DrawerModal>
+            </PlaceMoreDrawerModal>
           </DrawerContent>
         </Drawer.Portal>
       </Drawer.Root>
@@ -895,7 +974,11 @@ export default function Home() {
                 <DrawerDescription />
                 <ShowMoreDrawerCategory>서비스 설정</ShowMoreDrawerCategory>
                 <ShowMoreDrawerItem>
-                  <ShowMoreDrawerDetailedBtn>
+                  <ShowMoreDrawerDetailedBtn
+                    style={{
+                      cursor: 'default',
+                    }}
+                  >
                     <p>위치 권한 상태</p>
                     <ShowMoreDrawerGeoPermStatusInd>
                       {getCurGeoPermission()}
@@ -970,10 +1053,11 @@ export default function Home() {
                 <DrawerHandlebar></DrawerHandlebar>
               </DrawerHandlebarWrapper>
             </DrawerHeader>
-            <DrawerModal>
-              <DrawerContents>
+            <SearchDrawerModal>
+              <SearchDrawerContents>
                 <DrawerTitle />
                 <DrawerDescription />
+
                 <h1>{curAdminDongAddr} 검색</h1>
                 <input
                   value={searchValue || ''}
@@ -983,35 +1067,7 @@ export default function Home() {
                     } = event;
                     setSearchValue(value);
                   }}
-                  onKeyDown={event => {
-                    if (event.key === 'Enter') {
-                      if (!isSearchVisible) {
-                        setIsSearchVisible(true);
-                      }
-
-                      const data = visibleMarkers;
-                      const index = Fuse.createIndex(
-                        [
-                          'address.landLotAddress',
-                          'address.roadNameAddress',
-                          'content',
-                        ],
-                        data
-                      );
-                      // searchValue == '' 도 같이 처리함
-                      const fuse = new Fuse(data, undefined, index);
-                      const result =
-                        isNil(searchValue) || searchValue.trim().length === 0
-                          ? null
-                          : fuse.search(searchValue);
-                      setSearchResult(
-                        result === null || size(result) === 0
-                          ? null
-                          : extractItems(result)
-                      );
-                      if (isNil(result)) setIsSearchVisible(false); // 일치하는 결과가 없으면
-                    }
-                  }}
+                  onKeyDown={(event: any) => handleSearchEnter(event)}
                   placeholder="저장한 장소를 검색하세요"
                 />
                 {isSearchVisible && (
@@ -1038,8 +1094,8 @@ export default function Home() {
                     </div>
                   </>
                 )}
-              </DrawerContents>
-            </DrawerModal>
+              </SearchDrawerContents>
+            </SearchDrawerModal>
           </DrawerContent>
         </Drawer.Portal>
       </Drawer.Root>
