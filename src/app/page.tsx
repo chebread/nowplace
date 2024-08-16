@@ -917,7 +917,7 @@ export default function Home() {
                 >
                   <DataToAddTextarea
                     ref={dataToAddTextareaRef}
-                    autoFocus
+                    // autoFocus
                     maxLength={150}
                     rows={6}
                     defaultValue=""
@@ -1079,7 +1079,7 @@ export default function Home() {
                 <SearchDrawerInputBox>
                   <SearchDrawerInput
                     ref={searchRef}
-                    autoFocus
+                    // autoFocus
                     value={searchValue || ''}
                     onChange={(event: any) => {
                       setSearchValue(event.target.value);
