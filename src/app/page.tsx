@@ -448,6 +448,8 @@ export default function Home() {
           setGeoPermission('denied');
           // console.log('위치 액세스가 거부되었습니다.');
           stopWatchingPosition();
+          // 거부시 위치 권한 요청 바텀 시트를 실행함
+          setPermissionReqToggle(true);
         }
       );
     }
@@ -455,6 +457,8 @@ export default function Home() {
       setGeoPermission('denied');
       // console.log('위치 액세스가 거부되었습니다.');
       stopWatchingPosition();
+      // 거부시 위치 권한 요청 바텀 시트를 실행함
+      setPermissionReqToggle(true);
     }
   };
   const checkGeoPermission = () => {
