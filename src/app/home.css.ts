@@ -267,6 +267,10 @@ export const DataToAddTextarea = styled(TextareaAutosize)`
   -webkit-tap-highlight-color: transparent;
   -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
   width: 100%;
+
+  font-size: 1rem;
+  line-height: 1.5;
+  font-weight: 500;
 `;
 
 export const ShowMoreDrawerModal = styled(DrawerModal)`
@@ -344,7 +348,7 @@ export const PermReqDrawerContents = styled(DrawerContents)``;
 
 export const PermReqDrawerTitle = styled.h1`
   font-size: 2rem;
-  line-height: 3rem; // 1.5
+  line-height: 1.5;
   font-weight: 700;
   padding: 2rem 0 2rem 0;
   word-break: keep-all;
