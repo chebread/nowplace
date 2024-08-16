@@ -253,7 +253,6 @@ export const DataToAddTextareaWrapper = styled.div`
   display: flex;
   width: 100%;
   background-color: #ffffff; // textarea 회색 잔상 제거
-  padding: 2rem 0 0 0;
 `;
 
 export const DataToAddTextarea = styled(TextareaAutosize)`
