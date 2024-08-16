@@ -26,7 +26,6 @@
 'use client';
 
 import { useCallback, useEffect, useRef, useState } from 'react';
-import Link from 'next/link';
 import { useRouter, usePathname, useSearchParams } from 'next/navigation';
 import { Drawer } from 'vaul';
 import KakaoMap from '@/components/kakao-map';
