@@ -19,7 +19,8 @@
 // - [v] http 상에서 복사하는 기능 만들기
 // - [ ] contentData 수정 기능 만들기
 // - [ ] 공유한 장소는 ?share= 로 저장하고, 그 장소만 포커싱하기 => 맞을까..
-// - [ ] bottom sheet와 drawer는 동의어임
+// bottom sheet와 drawer는 동의어임
+// - [ ] 앱 언어 설정 기능 만들기
 
 'use client';
 
@@ -94,13 +95,21 @@ import {
   ShowMoreDrawerDetailedBtn,
   ShowMoreDrawerGeoPermStatusInd,
   ShowMoreDrawerRemoveAllPlacesBtn,
+  PermReqDrawerModal,
+  PermReqDrawerContents,
+  PermReqDrawerTitle,
+  PermReqDrawerMessage,
+  DrawerFooter,
+  DrawerFooterGradient,
+  DrawerFooterWrapper,
+  DrawerFooterBtn,
 } from './home.css';
 import transformToNestedObject from '@/utils/transform-to-nested-object';
 import copyToClipboard from '@/utils/copy-to-clipboard';
 
 export default function Home() {
   const copyright = `© ${new Date().getFullYear()} Cha Haneum`;
-  const [permissionReqToggle, setPermissionReqToggle] = useState(false);
+  const [permReqToggle, setPermReqToggle] = useState(false);
   const [showMoreToggle, setShowMoreToggle] = useState(false);
   const [searchToggle, setSearchToggle] = useState(false);
   /* search */
@@ -163,7 +172,7 @@ export default function Home() {
     copyToClipboard(
       allUrl,
       () => {
-        alert('URL이 클립보드에 저장되었습니다');
+        alert('클립보드에 저장되었습니다');
       },
       () => {
         alert('클립보드에 저장중 에러가 발생했습니다');
@@ -449,7 +458,7 @@ export default function Home() {
           // console.log('위치 액세스가 거부되었습니다.');
           stopWatchingPosition();
           // 거부시 위치 권한 요청 바텀 시트를 실행함
-          setPermissionReqToggle(true);
+          setPermReqToggle(true);
         }
       );
     }
@@ -458,7 +467,7 @@ export default function Home() {
       // console.log('위치 액세스가 거부되었습니다.');
       stopWatchingPosition();
       // 거부시 위치 권한 요청 바텀 시트를 실행함
-      setPermissionReqToggle(true);
+      setPermReqToggle(true);
     }
   };
   const checkGeoPermission = () => {
@@ -664,7 +673,7 @@ export default function Home() {
                     {/*  위치 권한 요청 버튼 */}
                     <StyledFooterBtn
                       onClick={() => {
-                        setPermissionReqToggle(true);
+                        setPermReqToggle(true);
                       }}
                     >
                       <SvgReject />
@@ -743,7 +752,7 @@ export default function Home() {
                       copyToClipboard(
                         urlToShare,
                         () => {
-                          alert('URL이 클립보드에 저장되었습니다');
+                          alert('클립보드에 저장되었습니다');
                         },
                         () => {
                           alert('클립보드에 저장중 에러가 발생했습니다');
@@ -833,23 +842,23 @@ export default function Home() {
                     placeholder="저장할 장소에 메모를 추가하세요"
                   />
                 </DataToAddTextareaWrapper>
-                <DataToAddFooter>
-                  <DataToAddFooterGradient></DataToAddFooterGradient>
-                  <DataToAddFooterWrapper
+                <DrawerFooter>
+                  <DrawerFooterGradient></DrawerFooterGradient>
+                  <DrawerFooterWrapper
                     onClick={(event: any) => {
                       event.stopPropagation();
                     }}
                   >
-                    <DataToAddFooterBtn
+                    <DrawerFooterBtn
                       onClick={() => {
                         saveData(dataToAddPos, contentData);
                         closeDataToAddBottomSheet();
                       }}
                     >
                       장소 저장하기
-                    </DataToAddFooterBtn>
-                  </DataToAddFooterWrapper>
-                </DataToAddFooter>
+                    </DrawerFooterBtn>
+                  </DrawerFooterWrapper>
+                </DrawerFooter>
               </DataToAddDrawerContents>
             </DataToAddDrawerModal>
           </DrawerContent>
@@ -1042,15 +1051,15 @@ export default function Home() {
       {/* 위치 권한 요청 바텀 시트 */}
       <Drawer.Root
         shouldScaleBackground
-        open={permissionReqToggle}
+        open={permReqToggle}
         onClose={() => {
-          setPermissionReqToggle(false);
+          setPermReqToggle(false);
         }}
       >
         <Drawer.Portal>
           <DrawerOverlay
             onClick={() => {
-              setPermissionReqToggle(false);
+              setPermReqToggle(false);
             }}
           />
           <DrawerContent
@@ -1061,19 +1070,39 @@ export default function Home() {
             <DrawerHeader>
               <DrawerHandlebarWrapper
                 onClick={() => {
-                  setPermissionReqToggle(false);
+                  setPermReqToggle(false);
                 }}
               >
                 <DrawerHandlebar></DrawerHandlebar>
               </DrawerHandlebarWrapper>
             </DrawerHeader>
-            <DrawerModal>
-              <DrawerContents>
+            <PermReqDrawerModal>
+              <PermReqDrawerContents>
                 <DrawerTitle />
                 <DrawerDescription />
-                <h1>위치 권한이 거부되었습니다</h1>
-              </DrawerContents>
-            </DrawerModal>
+
+                <PermReqDrawerTitle>
+                  위치 권한이 거부되었습니다
+                </PermReqDrawerTitle>
+                <PermReqDrawerMessage>
+                  위치 권한이 거부되면 현재 위치와 관련된 기능을 사용할 수
+                  없습니다.웹 브라우저의 설정에서 위치 권한을 허용해주세요.
+                </PermReqDrawerMessage>
+
+                <DrawerFooter>
+                  <DrawerFooterGradient></DrawerFooterGradient>
+                  <DrawerFooterWrapper>
+                    <DrawerFooterBtn
+                      onClick={() => {
+                        setPermReqToggle(false);
+                      }}
+                    >
+                      확인하기
+                    </DrawerFooterBtn>
+                  </DrawerFooterWrapper>
+                </DrawerFooter>
+              </PermReqDrawerContents>
+            </PermReqDrawerModal>
           </DrawerContent>
         </Drawer.Portal>
       </Drawer.Root>
