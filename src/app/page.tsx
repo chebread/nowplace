@@ -1,32 +1,3 @@
-// - [v] 거부 했다가 다시 승인하면 이게 바로 반영이 안되는 이슈가 있지만, 이 지역 검색은 잘 뜨기는 함. 일단 보류 해놓기
-// - [x] 지금이 어디 위치인지 표시하는 기능 일단은 보류하기. 일단은 "이 지역 검색하기" 라는 말만 "{현재 행정동} 검색하기"로 변경하기
-// - [ ] 임시 코드 언젠간 handleBounds...로 변경하기
-// - [ ] 더보기 꾸미기
-// - [ ] 모든 바텀 시트 밑에는 copyright 배출하기
-// - [ ] mobile 100vh 안되는 거 수정하기
-// - [v] 서비스 약관 관련은 nested 쓰기 또는 notion 연결하기
-// - [v] 특정 마커 클릭시 장소 공유 기능 => url 공유 인데, 그냥 그 장소만을 내포하는 url임
-// - [ ] svgr url-loader 사용하기
-// - [ ] toast 내가 만들거나 sonner 꾸미기
-// - [x] manual page 만들기
-// - [ ] PWA 만들기
-// - [v] 검색 기능 만들기 => 1. 저장한 장소 검색 기능: 저장한 장소의 메모와 도로명 주소, 지번 주소에 기반해서 검색이 됨. 찾은 장소 클릭시 바로 장소 더보기가 실행됨
-// 2. 장소 찾기 기능: 맛집 같은 것을 검색할 수 있음. 카카오맵에서 제공하는 검색 기능과 흡사. 찾은 장소를 클릭시 바로 지도의 마커가 생기게 됨.
-// - [x] 첫 방문자 바텀 시트 만들기 (hasVisited) => localstorage를 사용. hasVisited, hasvisitedbottomsheet
-// - [x] isTracking 시에는 zoom 하면 center 좌표를 중심으로 zoom 되기 기능 만들기
-// - [v] permission 에서 prompt => granted 될때 기존의 데이터가 바로 안보이게 되는 오류가 있다.
-// - [ ] nested root에서는 open={...}을 사용하면 그 축소시에 부모 root가 축소가 안된다. 클릭해줘야 축소가 된다.
-// - [v] http 상에서 복사하는 기능 만들기
-// - [ ] contentData 수정 기능 만들기
-// - [ ] 공유한 장소는 ?share= 로 저장하고, 그 장소만 포커싱하기 => 맞을까..
-// bottom sheet와 drawer는 동의어임
-// - [ ] 앱 언어 설정 기능 만들기
-// - [ ] vaul 요소는 focus 될때 css 초기화하기 및 tabIndex 적용 방지하기
-// - [ ] 모바일 대응하기
-// - [ ] husky 적용하기
-// - [ ] 100vh 안되는 문제
-// - [ ] 100%이면 vaul에서 에러가 남
-
 'use client';
 
 import { useCallback, useEffect, useRef, useState } from 'react';
