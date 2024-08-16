@@ -120,6 +120,7 @@ const GlobalStyle = createGlobalStyle`
     -ms-user-select: none;
 
     display: block;
+    white-space: nowrap; // text로 이루어진 button을 위해 text는 nowrap함
   }
 
   li,
@@ -156,6 +157,14 @@ const GlobalStyle = createGlobalStyle`
   p {
     margin: 0;
     padding: 0;
+  }
+
+  h1 {
+    margin: 0;
+    padding: 0;
+    font-size: 100%;
+    font-weight: normal;
+    line-height: 1;
   }
 
   .toaster {

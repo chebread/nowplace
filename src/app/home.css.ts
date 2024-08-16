@@ -317,29 +317,66 @@ export const ShowMoreDrawerModal = styled(DrawerModal)`
 export const ShowMoreDrawerContents = styled(DrawerContents)`
   height: 100%;
   width: 100%;
+  display: flex;
+  flex-direction: column;
 `;
 
 export const ShowMoreDrawerCategory = styled.div`
-  padding: 2rem 0 0.125rem 0;
+  /* padding: 2rem 0 0.25rem 0;
   color: var(--gray-600);
   font-weight: 600;
   font-size: 0.9rem;
+  line-height: 1.75; */
+  padding: 2.35rem 0 0.5rem 0;
+  color: var(--gray-600);
+  font-weight: 600;
+  font-size: 0.9rem;
+  line-height: 1; // 버튼이 text 형태면 line-height: 1로 해야함
 `;
 
 export const ShowMoreDrawerItem = styled.li`
-  padding: 0.5rem 0 0.5rem 0;
+  /* padding: 0.5rem 0 0.5rem 0;
   cursor: pointer;
   font-weight: 600;
+  font-size: 1rem; */
+  /* padding: 0.75rem 0 0.75rem 0;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 1rem;
+  line-height: 1; */
 `;
 
-export const ShowMoreDrawerBtn = styled.button``;
+export const ShowMoreDrawerBtn = styled.button`
+  // - [ ] styled.button으로 하면 width가 inherit로 바뀜
+  padding: 0.75rem 0 0.75rem 0;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 1rem;
+  line-height: 1;
+  display: block;
+  width: 100%;
+  text-align: left; // width: 100%시에 중앙 정렬되는것 방지
+`;
 
-export const ShowMoreDrawerLink = styled(Link)``;
+export const ShowMoreDrawerLink = styled(Link)`
+  display: block;
+  padding: 0.75rem 0 0.75rem 0;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 1rem;
+  line-height: 1;
+`;
 
 export const ShowMoreDrawerDetailedBtn = styled.div`
   display: flex;
   flex-direction: row;
   justify-content: space-between;
+
+  padding: 0.75rem 0 0.75rem 0;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 1rem;
+  line-height: 1;
 `; // 현재 상태를 함께 표시하는 버튼
 
 export const ShowMoreDrawerGeoPermStatusInd = styled.p`
@@ -349,4 +386,61 @@ export const ShowMoreDrawerGeoPermStatusInd = styled.p`
 
 export const ShowMoreDrawerRemoveAllPlacesBtn = styled(ShowMoreDrawerBtn)`
   color: var(--red-600);
+`;
+
+export const DrawerFooter = styled.footer`
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  max-width: 40rem;
+  margin: 0 auto;
+`;
+
+export const DrawerFooterGradient = styled.div`
+  height: 2rem;
+  background: linear-gradient(
+    to top,
+    rgb(255, 255, 255),
+    rgba(255, 255, 255, 0)
+  );
+`;
+
+export const DrawerFooterWrapper = styled.div`
+  padding: 1rem; // - [ ] padding: 1rem 0 1rem 0 으로 해야하나?
+  background-color: #ffffff;
+`;
+
+export const DrawerFooterBtn = styled.button`
+  height: 3rem;
+  width: 100%;
+  font-weight: 600;
+  color: white;
+  background-color: var(--app-icon-color-500);
+  border-radius: 1rem;
+  will-change: transform;
+  transition: transform var(--transition);
+  &:active {
+    transform: var(--btn-scale-large);
+  }
+`;
+
+export const PermReqDrawerModal = styled(DrawerModal)``;
+
+export const PermReqDrawerContents = styled(DrawerContents)``;
+
+export const PermReqDrawerTitle = styled.h1`
+  font-size: 2rem;
+  line-height: 2rem;
+  font-weight: 700;
+  padding: 2rem 0 2rem 0;
+  word-break: keep-all;
+`;
+
+export const PermReqDrawerMessage = styled.div`
+  word-break: keep-all; // 단어 단위로 줄바꿈
+  overflow-wrap: break-word;
+  white-space: normal;
+  font-size: 1rem;
+  font-weight: 400;
 `;
