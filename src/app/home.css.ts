@@ -290,7 +290,7 @@ export const ShowMoreDrawerList = styled.div`
 export const ShowMoreDrawerCategory = styled.div`
   padding: 2.35rem 0 0.5rem 0;
   color: var(--gray-600);
-  font-weight: 600;
+  font-weight: 500;
   font-size: 0.9rem;
   line-height: 1;
 `;
@@ -301,7 +301,7 @@ export const ShowMoreDrawerBtn = styled.button`
   // - [ ] styled.button으로 하면 width가 inherit로 바뀜
   padding: 0.75rem 0 0.75rem 0;
   cursor: pointer;
-  font-weight: 600;
+  font-weight: 500;
   font-size: 1rem;
   line-height: 1;
   width: 100%;
@@ -312,7 +312,7 @@ export const ShowMoreDrawerLink = styled(Link)`
   display: block;
   padding: 0.75rem 0 0.75rem 0;
   cursor: pointer;
-  font-weight: 600;
+  font-weight: 500;
   font-size: 1rem;
   line-height: 1;
 `;
@@ -324,14 +324,14 @@ export const ShowMoreDrawerDetailedBtn = styled.div`
 
   padding: 0.75rem 0 0.75rem 0;
   cursor: pointer;
-  font-weight: 600;
+  font-weight: 500;
   font-size: 1rem;
   line-height: 1;
 `; // 현재 상태를 함께 표시하는 버튼
 
 export const ShowMoreDrawerGeoPermStatusInd = styled.p`
   color: var(--gray-500);
-  font-weight: 500;
+  font-weight: 400;
 `;
 
 export const ShowMoreDrawerRemoveAllPlacesBtn = styled(ShowMoreDrawerBtn)`
@@ -344,7 +344,7 @@ export const PermReqDrawerContents = styled(DrawerContents)``;
 
 export const PermReqDrawerTitle = styled.h1`
   font-size: 2rem;
-  line-height: 2rem;
+  line-height: 3rem; // 1.5
   font-weight: 700;
   padding: 2rem 0 2rem 0;
   word-break: keep-all;
@@ -381,7 +381,7 @@ export const PlaceMoreDrawerAddress = styled.button`
 
   padding: 0.75rem 0 0.75rem 0;
   cursor: pointer;
-  font-weight: 600;
+  font-weight: 500;
   font-size: 1rem;
   line-height: 1;
   width: 100%;
@@ -390,13 +390,17 @@ export const PlaceMoreDrawerAddress = styled.button`
 
 export const PlaceMoreDrawerAddressName = styled.p`
   color: var(--gray-500);
-  font-weight: 500;
+  padding-left: 1rem;
+  font-weight: 400;
+  word-break: normal;
+  overflow-wrap: break-word;
+  white-space: normal;
 `;
 
 export const PlaceMoreDrawerBtn = styled.button`
   padding: 0.75rem 0 0.75rem 0;
   cursor: pointer;
-  font-weight: 600;
+  font-weight: 500;
   font-size: 1rem;
   line-height: 1;
   width: 100%;
@@ -450,7 +454,7 @@ export const SearchDrawerResultList = styled.div``;
 export const SearchDrawerResultItem = styled.button`
   padding: 0.75rem 0 0.75rem 0;
   cursor: pointer;
-  font-weight: 600;
+  font-weight: 500;
   font-size: 1rem;
   line-height: 1;
   width: 100%;
