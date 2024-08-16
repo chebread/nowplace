@@ -1,22 +1,22 @@
 // - [v] 거부 했다가 다시 승인하면 이게 바로 반영이 안되는 이슈가 있지만, 이 지역 검색은 잘 뜨기는 함. 일단 보류 해놓기
-// - [ ] 지금이 어디 위치인지 표시하는 기능 일단은 보류하기. 일단은 "이 지역 검색하기" 라는 말만 "{현재 행정동} 검색하기"로 변경하기
+// - [x] 지금이 어디 위치인지 표시하는 기능 일단은 보류하기. 일단은 "이 지역 검색하기" 라는 말만 "{현재 행정동} 검색하기"로 변경하기
 // - [ ] 임시 코드 언젠간 handleBounds...로 변경하기
 // - [ ] 더보기 꾸미기
 // - [ ] 모든 바텀 시트 밑에는 copyright 배출하기
 // - [ ] mobile 100vh 안되는 거 수정하기
 // - [v] 서비스 약관 관련은 nested 쓰기 또는 notion 연결하기
-// - [ ] 특정 마커 클릭시 장소 공유 기능 => url 공유 인데, 그냥 그 장소만을 내포하는 url임
+// - [v] 특정 마커 클릭시 장소 공유 기능 => url 공유 인데, 그냥 그 장소만을 내포하는 url임
 // - [ ] svgr url-loader 사용하기
 // - [ ] toast 내가 만들거나 sonner 꾸미기
-// - [ ] manual page 만들기
+// - [x] manual page 만들기
 // - [ ] PWA 만들기
-// - [ ] 검색 기능 만들기 => 1. 저장한 장소 검색 기능: 저장한 장소의 메모와 도로명 주소, 지번 주소에 기반해서 검색이 됨. 찾은 장소 클릭시 바로 장소 더보기가 실행됨
+// - [v] 검색 기능 만들기 => 1. 저장한 장소 검색 기능: 저장한 장소의 메모와 도로명 주소, 지번 주소에 기반해서 검색이 됨. 찾은 장소 클릭시 바로 장소 더보기가 실행됨
 // 2. 장소 찾기 기능: 맛집 같은 것을 검색할 수 있음. 카카오맵에서 제공하는 검색 기능과 흡사. 찾은 장소를 클릭시 바로 지도의 마커가 생기게 됨.
-// - [ ] 첫 방문자 바텀 시트 만들기 (hasVisited) => localstorage를 사용. hasVisited, hasvisitedbottomsheet
-// - [ ] isTracking 시에는 zoom 하면 center 좌표를 중심으로 zoom 되기 기능 만들기
+// - [x] 첫 방문자 바텀 시트 만들기 (hasVisited) => localstorage를 사용. hasVisited, hasvisitedbottomsheet
+// - [x] isTracking 시에는 zoom 하면 center 좌표를 중심으로 zoom 되기 기능 만들기
 // - [v] permission 에서 prompt => granted 될때 기존의 데이터가 바로 안보이게 되는 오류가 있다.
 // - [ ] nested root에서는 open={...}을 사용하면 그 축소시에 부모 root가 축소가 안된다. 클릭해줘야 축소가 된다.
-// - [ ] http 상에서 복사하는 기능 만들기
+// - [v] http 상에서 복사하는 기능 만들기
 // - [ ] contentData 수정 기능 만들기
 // - [ ] 공유한 장소는 ?share= 로 저장하고, 그 장소만 포커싱하기 => 맞을까..
 
@@ -30,6 +30,7 @@ import KakaoMap from '@/components/kakao-map';
 import { CustomOverlayMap } from 'react-kakao-maps-sdk';
 import Fuse from 'fuse.js';
 /* utils */
+import { size } from 'es-toolkit/compat';
 import { isNil, isNotNil } from 'es-toolkit/predicate';
 import { omit } from 'es-toolkit';
 import { base64ArrayDecoder } from '@/utils/base64-array-decoder';
@@ -101,6 +102,7 @@ export default function Home() {
   const [searchToggle, setSearchToggle] = useState(false);
   /* search */
   const [searchValue, setSearchValue] = useState<string>();
+  const [searchResult, setSearchResult] = useState<any>();
   /* data */
   const [fetchDataToggle, setFetchDataToggle] = useState(false);
   const [dataToAddToggle, setDataToAddToggle] = useState(false); // 장소 추가시 바텀시트 작동 Toggle
@@ -132,7 +134,17 @@ export default function Home() {
   const [isTracking, setIsTracking] = useState(false);
   const [geoPermission, setGeoPermission] = useState(''); // 모든 지도의 권한을 설정함
   const [geoFetched, setGeoFetched] = useState(false); // 처음으로 지도 정보 가져옴을 저장함 granted, denied
+  const [isSearchVisible, setIsSearchVisible] = useState(false);
 
+  /* search */
+  const closeSearchBottomSheet = () => {
+    setSearchValue(undefined);
+    setSearchResult(undefined);
+    setSearchToggle(false);
+  };
+  const extractItems = (array: any) => {
+    return array.map(({ item }: any) => ({ ...item }));
+  };
   /* data */
   // 데이터 추가 바텀 시트 최소화
   const closeDataToAddBottomSheet = () => {
@@ -156,7 +168,7 @@ export default function Home() {
     },
     [searchParams]
   );
-  // 특정 QueryString 제거 / 다른 말로는 모든 data값 초기화
+  // QueryString 제거 / 다른 말로는 모든 data값 초기화
   const deleteQueryString = useCallback(
     // ?data= 라는 것을 전체를 삭제한 값을 문자열로 반환하는 코드임
     (key: string) => {
@@ -459,6 +471,7 @@ export default function Home() {
         handleBoundsChanged();
       }
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [geoPermission, isCurPosFetched, mapRef]);
 
   // 초기 행정동 불러오기 및
@@ -468,6 +481,7 @@ export default function Home() {
       // centerPos가 불러와지면 centerPos로 행정동 불러옴. 그렇지 않으면 defaultCenter의 행정동 불러옴
       updateAdminDongAddr(isNil(centerPos) ? defaultCenter : centerPos);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [mapRef, centerPos]);
 
   /* useEffect geolocation */
@@ -554,7 +568,6 @@ export default function Home() {
             ))}
           </KakaoMap>
         </StyledMap>
-
         {/* 마커 로드 버튼 */}
         {mapMovedToggle && (
           <DataFetcherBtnWrapper>
@@ -596,7 +609,6 @@ export default function Home() {
                 >
                   <SvgSearch />
                 </StyledFooterBtn>
-
                 {/* 현재 위치 버튼 */}
                 {isCurPosFetched ? (
                   <StyledFooterBtn
@@ -668,9 +680,9 @@ export default function Home() {
                 <DrawerContents>
                   <h1>
                     {isNotNil(selectedMarkerData.address.roadNameAddress)
-                      ? `${selectedMarkerData.address.roadNameAddress}` // 도로명 주소
+                      ? `도로명 주소: ${selectedMarkerData.address.roadNameAddress}` // 도로명 주소
                       : isNotNil(selectedMarkerData.address.landLotAddress)
-                      ? `${selectedMarkerData.address.landLotAddress}` // 지번 주소
+                      ? `지번 주소: ${selectedMarkerData.address.landLotAddress}` // 지번 주소
                       : `해당 장소는 주소명이 부여되지 않았습니다`}
                   </h1>
                   {/* 도로명 주소가 없으면 지번 주소가 표시됨. 우선은 일단 도로명 주소만 표시. 없으면 지번 주소 표시. 둘 다 같이 표시하지는 않음. 그리고 둘다 null인 경우는 해당 장소는 주소명이 없습니다 표시. */}
@@ -889,8 +901,8 @@ export default function Home() {
                   </Link>
                 </li>
                 <li>
-                  <Link href="mailto:fromhaneum">
-                    문의하기: fromhaneum@gmail.com
+                  <Link href="https://haneum.notion.site/7f9e4f0160fa46f5a7b4ed6821c9dc1b?pvs=4">
+                    문의하기
                   </Link>
                 </li>
                 <h2>서비스 안내</h2>
@@ -915,13 +927,13 @@ export default function Home() {
         shouldScaleBackground
         open={searchToggle}
         onClose={() => {
-          setSearchToggle(false);
+          closeSearchBottomSheet();
         }}
       >
         <Drawer.Portal>
           <DrawerOverlay
             onClick={() => {
-              setSearchToggle(false);
+              closeSearchBottomSheet();
             }}
           />
           <DrawerContent
@@ -932,7 +944,7 @@ export default function Home() {
             <DrawerHeader>
               <DrawerHandlebarWrapper
                 onClick={() => {
-                  setSearchToggle(false);
+                  closeSearchBottomSheet();
                 }}
               >
                 <DrawerHandlebar></DrawerHandlebar>
@@ -942,25 +954,70 @@ export default function Home() {
               <DrawerContents>
                 <DrawerTitle />
                 <DrawerDescription />
-                <h1>검색</h1>
+                <h1>{curAdminDongAddr} 검색</h1>
                 <input
+                  value={searchValue || ''}
                   onChange={(event: any) => {
                     const {
                       target: { value },
                     } = event;
                     setSearchValue(value);
+                  }}
+                  onKeyDown={event => {
+                    if (event.key === 'Enter') {
+                      if (!isSearchVisible) {
+                        setIsSearchVisible(true);
+                      }
 
-                    const fuse = new Fuse(friends, {
-                      keys: ['name', 'email', 'age'],
-                    });
-
-                    const results = fuse.search(value);
-                    const items = results.map(result => result.item);
-                    setInput(items);
+                      const data = visibleMarkers;
+                      const index = Fuse.createIndex(
+                        [
+                          'address.landLotAddress',
+                          'address.roadNameAddress',
+                          'content',
+                        ],
+                        data
+                      );
+                      // searchValue == '' 도 같이 처리함
+                      const fuse = new Fuse(data, undefined, index);
+                      const result =
+                        isNil(searchValue) || searchValue.trim().length === 0
+                          ? null
+                          : fuse.search(searchValue);
+                      setSearchResult(
+                        result === null || size(result) === 0
+                          ? null
+                          : extractItems(result)
+                      );
+                      if (isNil(result)) setIsSearchVisible(false); // 일치하는 결과가 없으면
+                    }
                   }}
                   placeholder="저장한 장소를 검색하세요"
                 />
-                <div></div>
+                {isSearchVisible && (
+                  <>
+                    <h1>검색 결과</h1>
+                    <div>
+                      {isNil(searchResult)
+                        ? '일치하는 결과가 없습니다'
+                        : searchResult?.map((item: any) => (
+                            <button
+                              key={item.id}
+                              onClick={() => {
+                                closeSearchBottomSheet();
+                                setCenterPos(item.position);
+                              }}
+                            >
+                              {isNil(item.address.roadNameAddress) &&
+                              isNil(item.address.landLotAddress)
+                                ? item.content // 저장한 장소의 장소명이 제공되지 않으면 content를 내보내기
+                                : item.address.roadNameAddress ||
+                                  item.address.landLotAddress}
+                            </button>
+                          ))}
+                    </div>
+                  </>
+                )}
               </DrawerContents>
             </DrawerModal>
           </DrawerContent>
