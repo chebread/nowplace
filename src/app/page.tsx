@@ -25,6 +25,7 @@
 // - [ ] 모바일 대응하기
 // - [ ] husky 적용하기
 // - [ ] 100vh 안되는 문제
+// - [ ] 100%이면 vaul에서 에러가 남
 
 'use client';
 
@@ -554,22 +555,6 @@ export default function Home() {
   };
 
   /* useEffect data */
-  // 처음 로드시 현재 위치의 데이터 불러오기
-  // - [v] 위치 권한이 prompt => granted 될때 데이터 불러오기 => 임시방편으로 처리함 => 아래 코드 참조
-  // - [v] 현재 위치 로딩이 길어지면 이게 반영이 안됨 => 그냥 이렇게 전역으로 설정하는게 아니라. 어떤게 끝나면 그냥 새로고침 하기 그렇게 할까? => 아래 코드 참조
-  // useEffect(() => {
-  // - [*] 심각한 버그. prompt에서 denined이면 잘 표시가 됨. 그러나 태초부터 denied이면 아예 실행이 안됨. 계속 로딩 페이지에 머물러 있음.
-  // - [*] 이유는 mapRef의 값이 변경이 즉각 되지 않아서임. 근데 이게 왜 그런지는 모름. 그래서 그냥 이 코드는 onCreate 내부에 위치했음
-  // - [*] onCreate 내부 위치도 그렇지 좋지는 않음. 값이 계속 바뀌기 때문에.
-  // - [*] mapRef는 setMapRefState(map)이라는 코드가 onCreate에 존재시 동작함, window.kakao도 되기는 함. 그냥 useEffect의 의존성에는 ref값을 넣지 말자.
-  // - [*] 일단 mapRef가 kakao.map => 일단 임시로 useRef가 아니라 useState를 사용하자.
-  // 지도가 처음 로드된 후 이 코드가 실행됩니다 / 지도가 로드된 처음만 실행되므로 if절 내의 코드는 한번만 실행됩니다
-  // if (mapRef) {
-  // handleBoundsChanged(); // 근데 footer가 4rem 차지해서, 그 부분에 마커가 있으면 로드가 되긴 함. 어쩔 수 없음.
-  // setIsDataLoading(false);
-  // }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  // }, [mapRef]);
 
   // 초기 데이터 가져오기 / 처음 로드시 데이터를 불러오는 방식은 안좋음. 권한이 재정립되고, 현재위치나 거부까지 완전히 받아올때 데이터를 로드함
   useEffect(() => {
