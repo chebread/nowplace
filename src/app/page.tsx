@@ -22,6 +22,7 @@
 // bottom sheet와 drawer는 동의어임
 // - [ ] 앱 언어 설정 기능 만들기
 // - [ ] vaul 요소는 focus 될때 css 초기화하기 및 tabIndex 적용 방지하기
+// - [ ] 모바일 대응하기
 
 'use client';
 
@@ -53,8 +54,6 @@ import SvgPlacePin from '@/assets/icons/place-pin.svg';
 /* css */
 import {
   DrawerContent,
-  DrawerContents,
-  DrawerModal,
   DrawerOverlay,
   DrawerHeader,
   DrawerHandlebarWrapper,
@@ -155,7 +154,6 @@ export default function Home() {
   const [isCurPosFetched, setIsCurPosFetched] = useState(false);
   const [isTracking, setIsTracking] = useState(false);
   const [geoPermission, setGeoPermission] = useState(''); // 모든 지도의 권한을 설정함
-  const [geoFetched, setGeoFetched] = useState(false); // 처음으로 지도 정보 가져옴을 저장함 granted, denied
   const [isSearchVisible, setIsSearchVisible] = useState(false);
 
   /* search */
