@@ -61,6 +61,10 @@ import {
   DrawerHandlebar,
   DrawerTitle,
   DrawerDescription,
+  DrawerFooter,
+  DrawerFooterGradient,
+  DrawerFooterWrapper,
+  DrawerFooterBtn,
 } from '@/components/bottom-sheet/bottom-sheet.css';
 import {
   StyledCopyright,
@@ -79,10 +83,6 @@ import {
   DataToAddDrawerContents,
   DataToAddTextareaWrapper,
   DataToAddTextarea,
-  DataToAddFooterWrapper,
-  DataToAddFooter,
-  DataToAddFooterGradient,
-  DataToAddFooterBtn,
   DataFetcherBtn,
   DataFetcherBtnWrapper,
   PlaceMarker,
@@ -99,10 +99,6 @@ import {
   PermReqDrawerContents,
   PermReqDrawerTitle,
   PermReqDrawerMessage,
-  DrawerFooter,
-  DrawerFooterGradient,
-  DrawerFooterWrapper,
-  DrawerFooterBtn,
 } from './home.css';
 import transformToNestedObject from '@/utils/transform-to-nested-object';
 import copyToClipboard from '@/utils/copy-to-clipboard';
