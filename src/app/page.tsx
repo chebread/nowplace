@@ -328,7 +328,6 @@ export default function Home() {
     geocoder.coord2RegionCode(position.lng, position.lat, (result, status) => {
       if (status === kakao.maps.services.Status.OK) {
         for (let i = 0; i < result.length; i++) {
-          // - [ ] 행정동의 region_type 값은 'H' 이므로
           if (result[i].region_type === 'H') {
             const adminDongAddr: any = result[i].address_name;
             // console.log('행정동', adminDongAddr);
@@ -359,8 +358,6 @@ export default function Home() {
       return bounds.contain(position);
     });
     setVisibleMarkers(visible);
-    // - [ ] 지금 보이는 데이터는 다시 그 반영을 안하나? 그 렌더링?
-    // 근데 유의할 점은, 이미 로드한 데이터도, 현재 보이는 지역을 벗어나서 새로고침을 하면 다시 로드해야함 (약간 성능 부과될 수 있다...)
     setFetchDataToggle(false);
     setMapMovedToggle(false);
   };
@@ -494,7 +491,6 @@ export default function Home() {
           setGeoPermission('granted');
           // console.log('위치 액세스가 허용되었습니다.');
           startWatchingPosition();
-          // setMapMovedToggle(true); // - [ ] "위치 권한이 prompt => granted 될때 데이터 불러오기" 에러의 임시방편 처리 => 아래 코드 참조
           // 승인시 위치 권한 요청 바텀 시트를 끔
           setPermReqToggle(false);
         },
@@ -625,7 +621,6 @@ export default function Home() {
                 <CurPosMarkerBtn onClick={onCurPosTracking}>
                   <SvgCurrentPin />
                 </CurPosMarkerBtn>
-                {/* <CurPosMarker onClick={onCurPosTracking} /> */}
               </CustomOverlayMap>
             )}
             {/* 장소 마커 */}
