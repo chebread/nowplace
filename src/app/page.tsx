@@ -6,6 +6,7 @@ import { Drawer } from 'vaul';
 import KakaoMap from '@/components/kakao-map';
 import { CustomOverlayMap } from 'react-kakao-maps-sdk';
 import Fuse from 'fuse.js';
+
 /* utils */
 import { size } from 'es-toolkit/compat';
 import { isNil, isNotNil } from 'es-toolkit/predicate';
@@ -15,6 +16,9 @@ import { base64ArrayEncoder } from '@/utils/base64-array-encoder';
 import getAllUrl from '@/utils/get-all-url';
 import generateUUID from '@/utils/generate-UUID';
 import transformNestedObjectToArray from '@/utils/transform-nested-object-to-array';
+import transformToNestedObject from '@/utils/transform-to-nested-object';
+import copyToClipboard from '@/utils/copy-to-clipboard';
+
 /* svgs */
 import Loading from '@/components/loading';
 import SvgLogo from '@/assets/icons/logo.svg';
@@ -25,6 +29,7 @@ import SvgSpin from '@/assets/icons/spin.svg';
 import SvgCurrentPin from '@/assets/icons/current-pin.svg';
 import SvgSearch from '@/assets/icons/search.svg';
 import SvgPlacePin from '@/assets/icons/place-pin.svg';
+
 /* css */
 import {
   DrawerContent,
@@ -88,18 +93,18 @@ import {
   SearchDrawerResultList,
   ShowMoreDrawerList,
 } from './home.css';
-import transformToNestedObject from '@/utils/transform-to-nested-object';
-import copyToClipboard from '@/utils/copy-to-clipboard';
 
 export default function Home() {
   const copyright = `© ${new Date().getFullYear()} Cha Haneum`;
   const [permReqToggle, setPermReqToggle] = useState(false);
   const [showMoreToggle, setShowMoreToggle] = useState(false);
   const [searchToggle, setSearchToggle] = useState(false);
+
   /* search */
   const searchRef = useRef<any>(null); // DOM 요소를 searchElement에 할당
   const [searchValue, setSearchValue] = useState<string>();
   const [searchResult, setSearchResult] = useState<any>();
+
   /* data */
   const [fetchDataToggle, setFetchDataToggle] = useState(false);
   const [dataToAddToggle, setDataToAddToggle] = useState(false); // 장소 추가시 바텀시트 작동 Toggle
@@ -114,6 +119,7 @@ export default function Home() {
   const [dataToAddPos, setDataToAddPos] = useState<any>();
   const [isDataLoading, setIsDataLoading] = useState(true); // data loading // default value = true
   const [visibleMarkers, setVisibleMarkers] = useState([]);
+
   /* geolocation */
   const [mapRef, setMapRef] = useState<any>(); // 값이 즉각 반영은 안되지만 useEffect가 추적할 수 있음
   const [mapMovedToggle, setMapMovedToggle] = useState(false); // 움직임 발생시
@@ -169,6 +175,7 @@ export default function Home() {
   const extractItems = (array: any) => {
     return array.map(({ item }: any) => ({ ...item }));
   };
+
   /* data */
   // 모든 데이터 삭제
   const removeAllData = () => {
@@ -178,6 +185,7 @@ export default function Home() {
       setVisibleMarkers([]);
     }
   };
+
   // 모든 데이터 저장
   const saveAllData = () => {
     const allUrl = getAllUrl();
@@ -191,17 +199,20 @@ export default function Home() {
       }
     );
   };
+
   // 데이터 추가 바텀 시트 최소화
   const closeDataToAddBottomSheet = () => {
     setDataToAddToggle(false);
     setDataToAddPos(undefined);
     setContentData(undefined);
   };
+
   // 데이터 추가
   const addDataToAdd = (pos: any) => {
     setDataToAddPos(pos);
     setDataToAddToggle(true);
   };
+
   // QueryString 추가
   const createQueryString = useCallback(
     // querystring 라는 것을 추가하여 문자열로 반환하는 코드임
@@ -213,6 +224,7 @@ export default function Home() {
     },
     [searchParams]
   );
+
   // QueryString 제거 / 다른 말로는 모든 data값 초기화
   const deleteQueryString = useCallback(
     // ?data= 라는 것을 전체를 삭제한 값을 문자열로 반환하는 코드임
@@ -224,6 +236,7 @@ export default function Home() {
     },
     [searchParams]
   );
+
   // Base64 데이터 가져오기 / 손상된 데이터(빈 값도 포함)가 발생시 null 반환함
   const fetchDataFromUrl = (key: string) => {
     // - [ ] 지금 오류는 saveData에서만 일어남. 일단 임시로 fetchDataFromUrl을 saveData에서 handleBounds할때 쓰는게 아니고, 일단 saveData에서 생성한 데이터를 가지고 handBoudns에서 사용하도록 함
@@ -242,10 +255,12 @@ export default function Home() {
     }
     return returnValue;
   };
+
   // URL에 Base64 데이터 저장하기
   const saveDataToUrl = (key: string, value: string) => {
     router.push(pathname + '?' + createQueryString(key, value));
   };
+
   // 마커 데이터 저장
   const saveData = (position: any, content: any) => {
     // 도로명 주소 저장
@@ -298,6 +313,7 @@ export default function Home() {
       }
     );
   };
+
   // 마커 데이터 삭제
   const removeData = (ids: string[]) => {
     // 여러 id도 가능
@@ -322,6 +338,7 @@ export default function Home() {
     });
     setVisibleMarkers(visible);
   };
+
   // 행정동 주소 변경
   const updateAdminDongAddr = (position: any) => {
     const geocoder = new kakao.maps.services.Geocoder();
@@ -338,6 +355,7 @@ export default function Home() {
       }
     });
   };
+
   // 특정 지역 내에서만 데이터 불러오기
   const handleBoundsChanged = () => {
     const fetchedData: any = fetchDataFromUrl('data');
@@ -371,6 +389,7 @@ export default function Home() {
       setSelectedMarkerData(undefined);
     }
   };
+
   // 특정 장소 공유하기
   const sharePlace = () => {
     // selectedMarkerData를 기반으로 새로운 url 생성
@@ -392,6 +411,7 @@ export default function Home() {
       }
     );
   };
+
   // 현재 위치 권한 상태 가져오기
   const getCurGeoPermission = () => {
     switch (geoPermission) {
@@ -405,6 +425,7 @@ export default function Home() {
         return '알 수 없음';
     }
   };
+
   const updateCenterPos = (map: kakao.maps.Map) => {
     setMapMovedToggle(true);
     setCenterPos({
@@ -412,9 +433,11 @@ export default function Home() {
       lng: map.getCenter().getLng(),
     });
   };
+
   const handleMotionDetected = () => {
     setIsTracking(false);
   };
+
   const onCurPosTracking = () => {
     // 중복 처리 방지
     if (!isTracking) {
@@ -423,6 +446,7 @@ export default function Home() {
       setMapMovedToggle(true); // 이동됨을 알림
     }
   };
+
   const handleGeoError = (error: any) => {
     switch (error.code) {
       case error.PERMISSION_DENIED:
@@ -443,6 +467,7 @@ export default function Home() {
         break;
     }
   };
+
   const startWatchingPosition = () => {
     if (watchId === null) {
       navigator.geolocation.getCurrentPosition(
@@ -465,6 +490,7 @@ export default function Home() {
       // console.log('위치 추적을 시작했습니다.');
     }
   };
+
   const stopWatchingPosition = () => {
     if (watchId !== null) {
       navigator.geolocation.clearWatch(watchId);
@@ -511,6 +537,7 @@ export default function Home() {
       setPermReqToggle(true);
     }
   };
+
   const checkGeoPermission = () => {
     navigator.permissions.query({ name: 'geolocation' }).then(result => {
       changeGeoPermission(result.state);
@@ -522,7 +549,6 @@ export default function Home() {
   };
 
   /* useEffect data */
-
   // 초기 데이터 가져오기 / 처음 로드시 데이터를 불러오는 방식은 안좋음. 권한이 재정립되고, 현재위치나 거부까지 완전히 받아올때 데이터를 로드함
   useEffect(() => {
     if (mapRef) {
@@ -562,12 +588,12 @@ export default function Home() {
   /* useEffect geolocation */
   // 처음 앱 접근시 위치 가져옴
   useEffect(() => {
-    // - [ ] 왜 초기에 2번 코드가 실행되는지 모르겠음
     if ('geolocation' in navigator && 'permissions' in navigator) {
       checkGeoPermission();
     } else {
       setCenterPos(defaultCenter);
-      setGeoPermission('denied'); // 사실은 거부됨이 아니라 지원을 안하는 것임. 아래의 'geolocation' in navigator는 실행이 되지 않음
+      setGeoPermission('denied');
+      // 사실은 거부됨이 아니라 지원을 안하는 것임. 아래의 'geolocation' in navigator는 실행이 되지 않음
     }
     return () => {
       if ('geolocation' in navigator) {
@@ -576,6 +602,7 @@ export default function Home() {
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
   // 위치 추적 기능
   useEffect(() => {
     if (curPos && isCurPosFetched && isTracking) {
@@ -587,7 +614,6 @@ export default function Home() {
       // 최초로 현재 위치 불러옴
       setIsCurPosFetched(true); // 현재위치 불러옴
       setIsTracking(true); // 현재 위치 tracking 중
-      // console.log('onload');
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [curPos]);
