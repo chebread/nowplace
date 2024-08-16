@@ -878,10 +878,10 @@ export default function Home() {
       >
         <Drawer.Portal>
           <DrawerOverlay
-            /* - [ ] 모바일에서 이거 때문에 계속 close... 함수 실행됨. 아니 근데 왜 Drawer.Root이게 화면상에서 없어지지 아니하는가? */
-            onClick={() => {
-              closeDataToAddBottomSheet();
-            }}
+          /* - [ ] 모바일에서 이거 때문에 계속 close... 함수 실행됨. 아니 근데 왜 Drawer.Root이게 화면상에서 없어지지 아니하는가? */
+          // onClick={() => {
+          //   closeDataToAddBottomSheet();
+          // }}
           />
 
           <DrawerContent
