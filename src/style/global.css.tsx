@@ -10,8 +10,6 @@ const GlobalStyle = createGlobalStyle`
   ${reset} // later this code must be below 'reset code'
 
   :root {
-    --100vh: calc(var(--vh, 1vh) * 100);
-
     /* Typography */
     --font-sans: var(--font-geist-sans), -apple-system, BlinkMacSystemFont, 'Roboto',
       'Helvetica Neue', sans-serif;
@@ -84,16 +82,30 @@ const GlobalStyle = createGlobalStyle`
     -webkit-text-size-adjust: 110%;
     font-size: 16px; // 1rem = 16px
     line-height: 1.55em;
-
   }
 
-  body {
-    min-height: 100vh;
+  html,
+  body,
+  body > div:first-child,
+  div#__next,
+  div#__next > div {
+    /* height: 100%; */
+    height: 100vh;
+    height: 100dvh;
     font-family: var(--font-sans);
     display: flex;
     flex-direction: column;
     position: relative;
   }
+
+  /* body {
+    min-height: 100vh;
+    font-family: var(--font-sans);
+    display: flex;
+    flex-direction: column;
+    position: relative;
+  } */
+
   // reset codes
   pre,
   code {

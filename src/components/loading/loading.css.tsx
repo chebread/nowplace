@@ -6,7 +6,8 @@ export const StyledMain = styled.main`
   display: flex;
   flex-direction: column;
   height: 100vh;
-  width: 100vw;
+  height: 100dvh;
+  width: 100%;
   top: 0;
   right: 0;
   bottom: 0;

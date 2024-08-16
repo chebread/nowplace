@@ -24,6 +24,7 @@
 // - [ ] vaul 요소는 focus 될때 css 초기화하기 및 tabIndex 적용 방지하기
 // - [ ] 모바일 대응하기
 // - [ ] husky 적용하기
+// - [ ] 100vh 안되는 문제
 
 'use client';
 
