@@ -9,10 +9,10 @@ import styled, { keyframes } from 'styled-components';
 export const StyledMain = styled.main`
   position: relative;
   height: 100vh;
-  width: 100vw;
+  height: 100dvh;
+  width: 100%;
   display: flex;
   justify-content: center;
-  background-color: var(--bg);
 `;
 
 export const StyledMap = styled.div`
