@@ -313,7 +313,6 @@ export const ShowMoreDrawerBtn = styled.button`
   font-weight: 600;
   font-size: 1rem;
   line-height: 1;
-  display: block;
   width: 100%;
   text-align: left; // width: 100%시에 중앙 정렬되는것 방지
 `;
@@ -366,4 +365,63 @@ export const PermReqDrawerMessage = styled.div`
   white-space: normal;
   font-size: 1rem;
   font-weight: 400;
+`;
+
+export const SearchDrawerModal = styled(DrawerModal)`
+  height: 100%;
+  width: 100%;
+`;
+
+export const SearchDrawerContents = styled(DrawerContents)`
+  height: 100%;
+  width: 100%;
+`;
+
+export const PlaceMoreDrawerModal = styled(DrawerModal)`
+  height: 100%;
+  width: 100%;
+`;
+
+export const PlaceMoreDrawerContents = styled(DrawerContents)`
+  height: 100%;
+  width: 100%;
+  font-weight: 500;
+`;
+
+export const PlaceMoreDrawerContentData = styled.p`
+  padding: 2rem 0 4rem 0;
+  font-size: 1rem;
+`;
+
+export const PlaceMoreDrawerAddress = styled.button`
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+
+  padding: 0.75rem 0 0.75rem 0;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 1rem;
+  line-height: 1;
+  width: 100%;
+  text-align: left;
+`;
+
+export const PlaceMoreDrawerAddressName = styled.p`
+  color: var(--gray-500);
+  font-weight: 500;
+`;
+
+export const PlaceMoreDrawerBtn = styled.button`
+  padding: 0.75rem 0 0.75rem 0;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 1rem;
+  line-height: 1;
+  width: 100%;
+  text-align: left;
+`;
+
+export const PlaceMoreDrawerRemovePlaceBtn = styled(PlaceMoreDrawerBtn)`
+  color: var(--red-600);
 `;
