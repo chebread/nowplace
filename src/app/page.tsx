@@ -51,7 +51,6 @@ import SvgSpin from '@/assets/icons/spin.svg';
 import SvgCurrentPin from '@/assets/icons/current-pin.svg';
 import SvgSearch from '@/assets/icons/search.svg';
 import SvgPlacePin from '@/assets/icons/place-pin.svg';
-import SvgSearchBox from '@/assets/icons/search-box.svg';
 /* css */
 import {
   DrawerContent,
