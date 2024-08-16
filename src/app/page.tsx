@@ -23,6 +23,7 @@
 // - [ ] 앱 언어 설정 기능 만들기
 // - [ ] vaul 요소는 focus 될때 css 초기화하기 및 tabIndex 적용 방지하기
 // - [ ] 모바일 대응하기
+// - [ ] husky 적용하기
 
 'use client';
 
