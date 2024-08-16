@@ -100,14 +100,11 @@ export const DataFetcherBtn = styled.button`
   display: flex;
   justify-content: center;
   align-items: center;
-  svg {
-    height: 2rem;
-    width: 2rem;
-  }
   border-radius: 9999px;
   box-shadow: 0 10.5px 21px rgba(0, 0, 0, 0.08);
   font-size: 1rem;
   font-weight: 500;
+  line-height: 1;
 `;
 
 export const StyledFooterLayout = styled.div`
