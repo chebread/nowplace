@@ -580,14 +580,14 @@ export default function Home() {
         // 그리고 현 위치 데이터를 일단 안받아도 지도를 출력함
         setIsDataLoading(false); // 로딩 화면은 없엠
         if (isCurPosFetched) {
-          console.log('gratned load');
+          // console.log('gratned load');
           // 현재 위치를 불러오면 데이터를 불러옴
           handleBoundsChanged();
         }
       }
       if (geoPermission === 'denied') {
         // 현재 위치 권한 비승락시는 그냥 바로 지도와 데이터를 불러옴
-        console.log('denied load');
+        // console.log('denied load');
         setIsDataLoading(false);
         handleBoundsChanged();
       }
