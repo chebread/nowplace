@@ -1,7 +1,7 @@
 # NowPlace
 장소 저장소, NowPlace
 
-Website link: https://nowplace.kr/
+Website link: https://nowplace.kr/, https://nowplace.vercel.app/
 
 ## Project Stack
 - Next.js
