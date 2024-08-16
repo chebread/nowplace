@@ -21,6 +21,7 @@
 // - [ ] 공유한 장소는 ?share= 로 저장하고, 그 장소만 포커싱하기 => 맞을까..
 // bottom sheet와 drawer는 동의어임
 // - [ ] 앱 언어 설정 기능 만들기
+// - [ ] vaul 요소는 focus 될때 css 초기화하기 및 tabIndex 적용 방지하기
 
 'use client';
 
@@ -50,6 +51,7 @@ import SvgSpin from '@/assets/icons/spin.svg';
 import SvgCurrentPin from '@/assets/icons/current-pin.svg';
 import SvgSearch from '@/assets/icons/search.svg';
 import SvgPlacePin from '@/assets/icons/place-pin.svg';
+import SvgSearchBox from '@/assets/icons/search-box.svg';
 /* css */
 import {
   DrawerContent,
@@ -108,6 +110,11 @@ import {
   PlaceMoreDrawerAddressName,
   PlaceMoreDrawerBtn,
   PlaceMoreDrawerRemovePlaceBtn,
+  SearchDrawerInput,
+  SearchDrawerInputBox,
+  SearchDrawerResultItem,
+  SearchDrawerNoResultsFound,
+  SearchDrawerResultList,
 } from './home.css';
 import transformToNestedObject from '@/utils/transform-to-nested-object';
 import copyToClipboard from '@/utils/copy-to-clipboard';
@@ -118,6 +125,7 @@ export default function Home() {
   const [showMoreToggle, setShowMoreToggle] = useState(false);
   const [searchToggle, setSearchToggle] = useState(false);
   /* search */
+  const searchRef = useRef<any>(null); // DOM 요소를 searchElement에 할당
   const [searchValue, setSearchValue] = useState<string>();
   const [searchResult, setSearchResult] = useState<any>();
   /* data */
@@ -135,7 +143,6 @@ export default function Home() {
   const [isDataLoading, setIsDataLoading] = useState(true); // data loading // default value = true
   const [visibleMarkers, setVisibleMarkers] = useState([]);
   /* geolocation */
-  const mapUseRef = useRef<any>();
   const [mapRef, setMapRef] = useState<any>(); // 값이 즉각 반영은 안되지만 useEffect가 추적할 수 있음
   const [mapMovedToggle, setMapMovedToggle] = useState(false); // 움직임 발생시
   let watchId: any = null;
@@ -155,10 +162,15 @@ export default function Home() {
 
   /* search */
   const handleSearchEnter = (event: any) => {
-    if (event.key === 'Enter') {
+    if (event.nativeEvent.isComposing) {
+      return;
+    }
+    if ((event.key === 'Enter' || event.keyCode === 13) && !event.isComposing) {
       if (!isSearchVisible) {
         setIsSearchVisible(true);
       }
+      searchRef.current.blur(); // focus 제거
+      event.target.blur(); // 모바일 키보드 닫기
       const data = visibleMarkers;
       const index = Fuse.createIndex(
         ['address.landLotAddress', 'address.roadNameAddress', 'content'],
@@ -181,6 +193,7 @@ export default function Home() {
     setSearchValue(undefined);
     setSearchResult(undefined);
     setSearchToggle(false);
+    setIsSearchVisible(false);
   };
   const extractItems = (array: any) => {
     return array.map(({ item }: any) => ({ ...item }));
@@ -499,6 +512,8 @@ export default function Home() {
       setGeoPermission('granted');
       // console.log('위치 액세스가 이미 허용되어 있습니다.');
       startWatchingPosition();
+      // 승인시 위치 권한 요청 바텀 시트를 끔
+      setPermReqToggle(false);
     }
     if (state === 'prompt') {
       setGeoPermission('prompt');
@@ -509,6 +524,8 @@ export default function Home() {
           // console.log('위치 액세스가 허용되었습니다.');
           startWatchingPosition();
           // setMapMovedToggle(true); // - [ ] "위치 권한이 prompt => granted 될때 데이터 불러오기" 에러의 임시방편 처리 => 아래 코드 참조
+          // 승인시 위치 권한 요청 바텀 시트를 끔
+          setPermReqToggle(false);
         },
         error => {
           setGeoPermission('denied');
@@ -632,7 +649,6 @@ export default function Home() {
           <KakaoMap
             onCreate={(map: kakao.maps.Map) => {
               setMapRef(map);
-              mapUseRef.current = map;
             }}
             level={5}
             center={centerPos}
@@ -1040,6 +1056,7 @@ export default function Home() {
             }}
           />
           <DrawerContent
+            tabIndex={-1}
             onOpenAutoFocus={e => {
               e.preventDefault();
             }}
@@ -1058,41 +1075,43 @@ export default function Home() {
                 <DrawerTitle />
                 <DrawerDescription />
 
-                <h1>{curAdminDongAddr} 검색</h1>
-                <input
-                  value={searchValue || ''}
-                  onChange={(event: any) => {
-                    const {
-                      target: { value },
-                    } = event;
-                    setSearchValue(value);
-                  }}
-                  onKeyDown={(event: any) => handleSearchEnter(event)}
-                  placeholder="저장한 장소를 검색하세요"
-                />
+                <SearchDrawerInputBox>
+                  <SearchDrawerInput
+                    ref={searchRef}
+                    autoFocus
+                    value={searchValue || ''}
+                    onChange={(event: any) => {
+                      setSearchValue(event.target.value);
+                    }}
+                    onKeyDown={(event: any) => handleSearchEnter(event)}
+                    placeholder={`${curAdminDongAddr} 검색`}
+                  ></SearchDrawerInput>
+                </SearchDrawerInputBox>
+
                 {isSearchVisible && (
-                  <>
-                    <h1>검색 결과</h1>
-                    <div>
-                      {isNil(searchResult)
-                        ? '일치하는 결과가 없습니다'
-                        : searchResult?.map((item: any) => (
-                            <button
-                              key={item.id}
-                              onClick={() => {
-                                closeSearchBottomSheet();
-                                setCenterPos(item.position);
-                              }}
-                            >
-                              {isNil(item.address.roadNameAddress) &&
-                              isNil(item.address.landLotAddress)
-                                ? item.content // 저장한 장소의 장소명이 제공되지 않으면 content를 내보내기
-                                : item.address.roadNameAddress ||
-                                  item.address.landLotAddress}
-                            </button>
-                          ))}
-                    </div>
-                  </>
+                  <SearchDrawerResultList>
+                    {isNil(searchResult) ? (
+                      <SearchDrawerNoResultsFound>
+                        일치하는 결과가 없습니다
+                      </SearchDrawerNoResultsFound>
+                    ) : (
+                      searchResult?.map((item: any) => (
+                        <SearchDrawerResultItem
+                          key={item.id}
+                          onClick={() => {
+                            closeSearchBottomSheet();
+                            setCenterPos(item.position);
+                          }}
+                        >
+                          {isNil(item.address.roadNameAddress) &&
+                          isNil(item.address.landLotAddress)
+                            ? item.content // 저장한 장소의 장소명이 제공되지 않으면 content를 내보내기
+                            : item.address.roadNameAddress ||
+                              item.address.landLotAddress}
+                        </SearchDrawerResultItem>
+                      ))
+                    )}
+                  </SearchDrawerResultList>
                 )}
               </SearchDrawerContents>
             </SearchDrawerModal>
