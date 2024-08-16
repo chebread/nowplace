@@ -449,7 +449,9 @@ export const SearchDrawerInput = styled.input`
   }
 `;
 
-export const SearchDrawerResultList = styled.div``;
+export const SearchDrawerResultList = styled.div`
+  padding: 0 0 4rem 0;
+`;
 
 export const SearchDrawerResultItem = styled.button`
   padding: 0.75rem 0 0.75rem 0;
