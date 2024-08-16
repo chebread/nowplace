@@ -19,6 +19,7 @@
 // - [v] http 상에서 복사하는 기능 만들기
 // - [ ] contentData 수정 기능 만들기
 // - [ ] 공유한 장소는 ?share= 로 저장하고, 그 장소만 포커싱하기 => 맞을까..
+// - [ ] bottom sheet와 drawer는 동의어임
 
 'use client';
 
@@ -59,13 +60,6 @@ import {
   DrawerHandlebar,
   DrawerTitle,
   DrawerDescription,
-  DrawerNestedOverlay,
-  DrawerNestedContent,
-  DrawerNestedModal,
-  DrawerNestedContents,
-  DrawerNestedHeader,
-  DrawerNestedHandlebarWrapper,
-  DrawerNestedHandlebar,
 } from '@/components/bottom-sheet/bottom-sheet.css';
 import {
   StyledCopyright,
@@ -91,6 +85,15 @@ import {
   DataFetcherBtn,
   DataFetcherBtnWrapper,
   PlaceMarker,
+  ShowMoreDrawerModal,
+  ShowMoreDrawerContents,
+  ShowMoreDrawerCategory,
+  ShowMoreDrawerBtn,
+  ShowMoreDrawerLink,
+  ShowMoreDrawerItem,
+  ShowMoreDrawerDetailedBtn,
+  ShowMoreDrawerGeoPermStatusInd,
+  ShowMoreDrawerRemoveAllPlacesBtn,
 } from './home.css';
 import transformToNestedObject from '@/utils/transform-to-nested-object';
 import copyToClipboard from '@/utils/copy-to-clipboard';
@@ -146,6 +149,27 @@ export default function Home() {
     return array.map(({ item }: any) => ({ ...item }));
   };
   /* data */
+  // 모든 데이터 삭제
+  const removeAllData = () => {
+    if (window.confirm('장소를 모두 삭제하시겠습니까?')) {
+      router.push(pathname + '?' + deleteQueryString('data'));
+      /* 새로고침 임시 코드 */
+      setVisibleMarkers([]);
+    }
+  };
+  // 모든 데이터 저장
+  const saveAllData = () => {
+    const allUrl = getAllUrl();
+    copyToClipboard(
+      allUrl,
+      () => {
+        alert('URL이 클립보드에 저장되었습니다');
+      },
+      () => {
+        alert('클립보드에 저장중 에러가 발생했습니다');
+      }
+    );
+  };
   // 데이터 추가 바텀 시트 최소화
   const closeDataToAddBottomSheet = () => {
     setDataToAddToggle(false);
@@ -321,6 +345,19 @@ export default function Home() {
   };
 
   /* geolocation */
+  // 현재 위치 권한 상태 가져오기
+  const getCurGeoPermission = () => {
+    switch (geoPermission) {
+      case 'granted':
+        return '승인됨';
+      case 'prompt':
+        return '요청중';
+      case 'denied':
+        return '거부됨';
+      default:
+        return '알 수 없음';
+    }
+  };
   const updateCenterPos = (map: kakao.maps.Map) => {
     setMapMovedToggle(true);
     setCenterPos({
@@ -843,81 +880,55 @@ export default function Home() {
                 <DrawerHandlebar></DrawerHandlebar>
               </DrawerHandlebarWrapper>
             </DrawerHeader>
-            <DrawerModal>
-              <DrawerContents>
+            <ShowMoreDrawerModal>
+              <ShowMoreDrawerContents>
                 <DrawerTitle />
                 <DrawerDescription />
-                <h2>서비스 설정</h2>
-                <li>
-                  <button
-                    onClick={() => {
-                      const allUrl = getAllUrl();
-                      copyToClipboard(
-                        allUrl,
-                        () => {
-                          alert('URL이 클립보드에 저장되었습니다');
-                        },
-                        () => {
-                          alert('클립보드에 저장중 에러가 발생했습니다');
-                        }
-                      );
-                    }}
-                  >
-                    장소 모두 저장하기
-                  </button>
-                </li>
-                <li>
-                  <button
-                    onClick={() => {
-                      if (window.confirm('장소를 모두 삭제하시겠습니까?')) {
-                        router.push(pathname + '?' + deleteQueryString('data'));
-                        /* 새로고침 임시 코드 */
-                        setVisibleMarkers([]);
-                      }
-                    }}
-                  >
-                    장소 모두 삭제하기
-                  </button>
-                </li>
-                <li>
-                  위치 권한 상태:
-                  {(() => {
-                    switch (geoPermission) {
-                      case 'granted':
-                        return '승인됨';
-                      case 'prompt':
-                        return '요청중';
-                      case 'denied':
-                        return '거부됨';
-                      default:
-                        return '알 수 없음';
-                    }
-                  })()}
-                </li>
-                <h2>이용 안내</h2>
-                <li>
-                  <Link href="https://haneum.notion.site/5eeb4157e5674225a385b0f242b8109d?pvs=4">
+                <ShowMoreDrawerCategory>서비스 설정</ShowMoreDrawerCategory>
+                <ShowMoreDrawerItem>
+                  <ShowMoreDrawerDetailedBtn>
+                    <p>위치 권한 상태</p>
+                    <ShowMoreDrawerGeoPermStatusInd>
+                      {getCurGeoPermission()}
+                    </ShowMoreDrawerGeoPermStatusInd>
+                  </ShowMoreDrawerDetailedBtn>
+                </ShowMoreDrawerItem>
+                <ShowMoreDrawerItem>
+                  <ShowMoreDrawerBtn onClick={saveAllData}>
+                    모든 장소 저장하기
+                  </ShowMoreDrawerBtn>
+                </ShowMoreDrawerItem>
+                <ShowMoreDrawerItem>
+                  <ShowMoreDrawerRemoveAllPlacesBtn onClick={removeAllData}>
+                    모든 장소 삭제하기
+                  </ShowMoreDrawerRemoveAllPlacesBtn>
+                </ShowMoreDrawerItem>
+
+                <ShowMoreDrawerCategory>이용 안내</ShowMoreDrawerCategory>
+                <ShowMoreDrawerItem>
+                  <ShowMoreDrawerLink href="https://haneum.notion.site/5eeb4157e5674225a385b0f242b8109d?pvs=4">
                     사용 방법
-                  </Link>
-                </li>
-                <li>
-                  <Link href="https://haneum.notion.site/7f9e4f0160fa46f5a7b4ed6821c9dc1b?pvs=4">
+                  </ShowMoreDrawerLink>
+                </ShowMoreDrawerItem>
+                <ShowMoreDrawerItem>
+                  <ShowMoreDrawerLink href="https://haneum.notion.site/7f9e4f0160fa46f5a7b4ed6821c9dc1b?pvs=4">
                     문의하기
-                  </Link>
-                </li>
-                <h2>서비스 안내</h2>
-                <li>
-                  <Link href="https://haneum.notion.site/2dfa69d6a9c84af3bf2ccaff2aab2ab9?pvs=4">
+                  </ShowMoreDrawerLink>
+                </ShowMoreDrawerItem>
+
+                <ShowMoreDrawerCategory>서비스 안내</ShowMoreDrawerCategory>
+                <ShowMoreDrawerItem>
+                  <ShowMoreDrawerLink href="https://haneum.notion.site/2dfa69d6a9c84af3bf2ccaff2aab2ab9?pvs=4">
                     서비스 이용 약관
-                  </Link>
-                </li>
-                <li>
-                  <Link href="https://haneum.notion.site/3abb28d6b73b4b2d96e7c1450f4637fc?pvs=4">
+                  </ShowMoreDrawerLink>
+                </ShowMoreDrawerItem>
+                <ShowMoreDrawerItem>
+                  <ShowMoreDrawerLink href="https://haneum.notion.site/3abb28d6b73b4b2d96e7c1450f4637fc?pvs=4">
                     개인정보 처리 방침
-                  </Link>
-                </li>
-              </DrawerContents>
-            </DrawerModal>
+                  </ShowMoreDrawerLink>
+                </ShowMoreDrawerItem>
+              </ShowMoreDrawerContents>
+            </ShowMoreDrawerModal>
           </DrawerContent>
         </Drawer.Portal>
       </Drawer.Root>

@@ -2,6 +2,7 @@ import {
   DrawerContents,
   DrawerModal,
 } from '@/components/bottom-sheet/bottom-sheet.css';
+import Link from 'next/link';
 import TextareaAutosize from 'react-textarea-autosize';
 import styled, { keyframes } from 'styled-components';
 
@@ -306,4 +307,46 @@ export const DataToAddFooterBtn = styled.button`
   &:active {
     transform: var(--btn-scale-large);
   }
+`;
+
+export const ShowMoreDrawerModal = styled(DrawerModal)`
+  height: 100%;
+  width: 100%;
+`;
+
+export const ShowMoreDrawerContents = styled(DrawerContents)`
+  height: 100%;
+  width: 100%;
+`;
+
+export const ShowMoreDrawerCategory = styled.div`
+  padding: 2rem 0 0.125rem 0;
+  color: var(--gray-600);
+  font-weight: 600;
+  font-size: 0.9rem;
+`;
+
+export const ShowMoreDrawerItem = styled.li`
+  padding: 0.5rem 0 0.5rem 0;
+  cursor: pointer;
+  font-weight: 600;
+`;
+
+export const ShowMoreDrawerBtn = styled.button``;
+
+export const ShowMoreDrawerLink = styled(Link)``;
+
+export const ShowMoreDrawerDetailedBtn = styled.div`
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+`; // 현재 상태를 함께 표시하는 버튼
+
+export const ShowMoreDrawerGeoPermStatusInd = styled.p`
+  color: var(--gray-500);
+  font-weight: 500;
+`;
+
+export const ShowMoreDrawerRemoveAllPlacesBtn = styled(ShowMoreDrawerBtn)`
+  color: var(--red-600);
 `;
