@@ -4,7 +4,7 @@ export const StyledMain = styled.main`
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 0 1rem 0 1rem;
+  padding: 0 1rem 7rem 1rem;
 `;
 export const StyledNotFound = styled.main`
   max-width: 40rem;

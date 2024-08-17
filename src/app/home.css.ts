@@ -104,7 +104,16 @@ export const DataFetcherBtn = styled.button`
   box-shadow: 0 10.5px 21px rgba(0, 0, 0, 0.08);
   font-size: 1rem;
   font-weight: 500;
-  line-height: 1;
+  line-height: 1.5;
+
+  white-space: normal;
+  overflow-wrap: break-word;
+  word-break: normal;
+
+  /* overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  word-break: break-all; */ // - [ ] 말 줄임표 속성 적용 안됨
 `;
 
 export const StyledFooterLayout = styled.div`
@@ -258,7 +267,7 @@ export const DataToAddTextareaWrapper = styled.div`
 export const DataToAddTextarea = styled(TextareaAutosize)`
   white-space: normal;
   overflow-wrap: break-word;
-  word-wrap: break-word;
+  word-break: normal;
   resize: none;
   border: 0;
   outline: 0;
@@ -344,7 +353,9 @@ export const ShowMoreDrawerRemoveAllPlacesBtn = styled(ShowMoreDrawerBtn)`
 
 export const PermReqDrawerModal = styled(DrawerModal)``;
 
-export const PermReqDrawerContents = styled(DrawerContents)``;
+export const PermReqDrawerContents = styled(DrawerContents)`
+  padding: 0 0 7rem 0;
+`;
 
 export const PermReqDrawerTitle = styled.h1`
   font-size: 2rem;
@@ -363,14 +374,15 @@ export const PermReqDrawerMessage = styled.div`
 `;
 
 export const PlaceMoreDrawerModal = styled(DrawerModal)`
-  height: 100%;
+  height: auto;
   width: 100%;
 `;
 
 export const PlaceMoreDrawerContents = styled(DrawerContents)`
-  height: 100%;
+  height: auto;
   width: 100%;
   font-weight: 500;
+  padding: 0 0 4rem 0;
 `;
 
 export const PlaceMoreDrawerContentData = styled.p`
