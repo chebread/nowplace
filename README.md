@@ -1,22 +1,7 @@
 # NowPlace
-장소 저장소, NowPlace
+Location repository, NowPlace
 
-Website link: https://nowplace.kr/, https://nowplace.vercel.app/
-
-## Project Stack
-- Next.js
-- react-kakao-maps-sdk
-- vaul
-- sonner
-- styled-components
-- TypeScript
-- Geist
-- @vercel/analytics
-- @svgr/webpack
-- lodash
-- next-themes
-- react-textarea-autosize
-- uuid
+Website link: https://nowplace.vercel.app/
 
 ## License
 - MIT LICENSE © 2024 Cha Haneum
