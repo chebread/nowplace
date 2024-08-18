@@ -4,4 +4,4 @@ Location repository, NowPlace
 Website link: https://nowplace.vercel.app/
 
 ## License
-- MIT LICENSE © 2024 Cha Haneum
+- MIT LICENSE &copy; 2024 Cha Haneum
