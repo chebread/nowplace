@@ -1,4 +1,4 @@
-# NowPlace(나우플레이스)
+# NowPlace (나우플레이스)
 Location repository, NowPlace
 
 Website link: https://nowplace.vercel.app/
