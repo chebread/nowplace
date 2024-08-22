@@ -8,7 +8,7 @@ import tailwindColorPalette from './tailwind-color-palette.css';
 
 const GlobalStyle = createGlobalStyle`
   ${reset} // later this code must be below 'reset code'
-
+  
   :root {
     /* Typography */
     --font-sans: var(--font-geist-sans), -apple-system, BlinkMacSystemFont, 'Roboto',
@@ -30,7 +30,7 @@ const GlobalStyle = createGlobalStyle`
     --app-icon-color-500: #262626;
 
     /* Tailwind color palette */
-    ${tailwindColorPalette}
+    ${tailwindColorPalette};
 
     // transition: background-color var(--transition), color var(--transition);
     /* transform */

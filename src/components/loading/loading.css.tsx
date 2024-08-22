@@ -55,5 +55,4 @@ export const StyledImage = styled(Image)`
   width: 14.0625rem; */
   height: 10rem;
   width: 10rem;
-  box-shadow: 0 12px 24px 0 rgba(0, 0, 0, 0.08);
 `;
