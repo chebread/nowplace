@@ -1,3 +1,8 @@
+/* 메모
+- [ ] 마커 수정 기능 추가하기
+- [ ] 데이터 저장을 SQLite 서버로 변경하기
+*/
+
 'use client';
 
 import { useCallback, useEffect, useRef, useState } from 'react';

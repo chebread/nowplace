@@ -1,15 +1,6 @@
-// import Image from 'next/image';
-// import { StyledItem, StyledMain } from './loading.css';
-// import Logo from '@/assets/icons/combination-logo.svg';
-// import Logo2 from '@/assets/icons/favicon.png';
-
-// export default function Loading() {
-//   return (
-//     <StyledMain>
-//       <Image src={Logo2} alt="" height={100} width={100} />
-//     </StyledMain>
-//   );
-// }
+/* 메모
+- [ ] background-image로 변경하기
+*/
 
 import {
   StyledBottomItem,
