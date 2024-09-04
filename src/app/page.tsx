@@ -932,6 +932,13 @@ export default function Home() {
                               >
                                 <DrawerFooterBtn
                                   onClick={() => {
+                                    if (
+                                      editDataContent ===
+                                      selectedMarkerData.content
+                                    ) {
+                                      setEditToggle(false);
+                                      return;
+                                    }
                                     // 기존의 데이터에서 신규 데이터로 변경하기
                                     const fetchedData: any =
                                       fetchDataFromUrl('data');
