@@ -488,3 +488,5 @@ export const SearchDrawerNoResultsFound = styled.div`
   width: 100%;
   text-align: left;
 `;
+
+export const EditContentDataModal = styled(DrawerModal)``;
