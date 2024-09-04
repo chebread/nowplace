@@ -55,4 +55,5 @@ export const StyledImage = styled(Image)`
   width: 14.0625rem; */
   height: 10rem;
   width: 10rem;
+  border-radius: 1rem;
 `;
