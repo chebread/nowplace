@@ -643,7 +643,7 @@ export default function Home() {
   return (
     <>
       <StyledMain>
-        {isDataLoading && <Loading />}
+        {true && <Loading />}
         <StyledMap>
           <KakaoMap
             onCreate={(map: kakao.maps.Map) => {
