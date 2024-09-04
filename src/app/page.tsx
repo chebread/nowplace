@@ -2,6 +2,7 @@
 - [ ] 마커 수정 기능 추가하기
 - [ ] 데이터 저장을 SQLite 서버로 변경하기
 - [ ] webstorm dir gitignore 해야 하나?
+- [ ] 데이터 중복 저장된다. 막아야 한다. 그냥 데이터 추가가 아니라 그냥 항상 새로운 데이터로 하자. 기존의 방식으로 가자. 버그가 너무 많다.
 */
 
 'use client';
@@ -946,18 +947,7 @@ export default function Home() {
                                     const newData = {
                                       ...fetchedData,
                                       [selectedMarkerData.id]: {
-                                        address: {
-                                          landLotAddress:
-                                            selectedMarkerData.address
-                                              .landLotAddress,
-                                          roadNameAddress:
-                                            selectedMarkerData.address
-                                              .roadNameAddress,
-                                        },
-                                        position: {
-                                          lat: selectedMarkerData.position.lat,
-                                          lng: selectedMarkerData.position.lng,
-                                        },
+                                        ...selectedMarkerData,
                                         content: editDataContent,
                                       },
                                     };
