@@ -39,3 +39,12 @@ next-env.d.ts
 
 certificates
 /certificates
+
+# IntelliJ project files
+.idea
+.idea/*.xml
+*.iml
+out
+gen
+build
+rebel.xml
