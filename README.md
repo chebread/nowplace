@@ -5,6 +5,8 @@ Website link: https://nowplace.vercel.app/
 
 ## 해커톤 작품요약서
 
+참고: [해커톤 작품요약서.pdf](https://docs.google.com/document/d/1d4nOnPrhs4gIQ8V8omUTcYJIwal0M2MJjT_Rn6QJNew/edit?usp=sharing)
+
 ### 팀명
 
 차차차(Chachacha)
@@ -36,6 +38,8 @@ NowPlace(나우플레이스)
 - 그리고 기존에 길찾기, 네비게이션, 로드뷰, 위성 지도, 장소 리뷰, … 등등 부가적인 기능이 너무 많았던 지도 서비스가 아닌,  장소만을 저장하는 지도 서비스인지라 사용자들이 피로감 없이 서비스를 사용할 수 있을꺼라 생각합니다.
 
 ## 해커톤 작품설명서 (아이디어 기획서)
+
+참고: [해커톤 작품설명서 (아이디어 기획서).pdf](https://docs.google.com/document/d/1H9Fw86OraZqq2f_QeXEdL7qlKu71PdBjer84Rg0eVzo/edit?usp=sharing)
 
 ### 팀명
 
