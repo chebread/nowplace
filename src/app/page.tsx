@@ -52,11 +52,6 @@ import {
   DrawerFooterBtn,
   DrawerNestedOverlay,
   DrawerNestedContent,
-  DrawerNestedHeader,
-  DrawerNestedHandlebarWrapper,
-  DrawerNestedHandlebar,
-  DrawerNestedModal,
-  DrawerNestedContents,
 } from '@/components/bottom-sheet/bottom-sheet.css';
 import {
   StyledCopyright,
@@ -106,7 +101,6 @@ import {
   SearchDrawerNoResultsFound,
   SearchDrawerResultList,
   ShowMoreDrawerList,
-  EditContentDataModal,
 } from './home.css';
 
 export default function Home() {
@@ -121,6 +115,8 @@ export default function Home() {
   const [searchResult, setSearchResult] = useState<any>();
 
   /* data */
+  const [editToggle, setEditToggle] = useState(false);
+  const [editDataContent, setEditDataContent] = useState();
   const [fetchDataToggle, setFetchDataToggle] = useState(false);
   const [dataToAddToggle, setDataToAddToggle] = useState(false); // 장소 추가시 바텀시트 작동 Toggle
   const [curAdminDongAddr, setCurAdminDongAddr] = useState(); // 현재 행정동 위치를 담는 값
@@ -324,7 +320,7 @@ export default function Home() {
           );
           return bounds.contain(position);
         });
-        setVisibleMarkers([...visibleMarkers, ...visible]); // 기존의 visible markers를 건드리지 않음
+        setVisibleMarkers(visible); // ~~기존의 visible markers를 건드리지 않음~~ // - [ ] 기존의 것을 살리게 되면 중복을 처리하지 못하는 이슈가 있음
       },
     );
   };
@@ -637,9 +633,6 @@ export default function Home() {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [curPos]);
-
-  const [editToggle, setEditToggle] = useState(false);
-  const [editDataContent, setEditDataContent] = useState();
 
   return (
     <>
@@ -969,10 +962,7 @@ export default function Home() {
                                         return bounds.contain(position);
                                       },
                                     );
-                                    setVisibleMarkers([
-                                      ...visibleMarkers,
-                                      ...visible,
-                                    ]); // 기존의 visible markers를 건드리지 않음 => 즉, 기존에 데이터에 추가함!!!
+                                    setVisibleMarkers(visible); // 기존의 visible markers를 건드리지 않음 => 즉, 기존에 데이터에 추가함!!!
                                     // - [ ] key 중복 에러 발생 // 이곳 말고도 다른 곳에서도 똑같이 발생함
                                     // setVisibleMarkers((prevMarkers: any) => {
                                     //   const existingIds = new Set(
