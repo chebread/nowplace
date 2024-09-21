@@ -158,12 +158,6 @@ export const DrawerDescription = styled(Drawer.Description)`
   display: none;
 `;
 
-export const DrawerCopyright = () => {
-  const copyright = `© ${new Date().getFullYear()} Cha Haneum`;
-
-  return <>{copyright}</>;
-};
-
 export const DrawerFooter = styled.footer`
   position: fixed;
   bottom: 0;
@@ -189,9 +183,13 @@ export const DrawerFooterWrapper = styled.div`
 
 export const DrawerFooterBtn = styled.button`
   cursor: pointer;
-  height: 3rem;
+  padding: 1rem;
   width: 100%;
   font-weight: 600;
+  font-size: 1rem;
+  @media screen and (max-width: 641px) {
+    font-size: 0.9rem;
+  }
   line-height: 1;
   color: white;
   background-color: var(--app-icon-color-500);

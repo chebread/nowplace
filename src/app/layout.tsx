@@ -2,12 +2,11 @@
 
 import { Metadata, Viewport } from 'next';
 import { Analytics } from '@vercel/analytics/react';
-import { Toaster } from 'sonner';
-import { ThemeProvider } from 'next-themes';
 import { GeistSans } from 'geist/font/sans';
 import { GeistMono } from 'geist/font/mono';
 import StyledComponentsRegistry from '@/lib/registry';
 import GlobalStyle from '@/style/global.css';
+import ToastLimiter from './ToastLimiter';
 
 export const viewport: Viewport = {
   themeColor: [
@@ -43,18 +42,16 @@ export default function RootLayout({ children }: RootLayoutProps) {
       <body suppressHydrationWarning>
         {/* Warning: Extra attributes from the server: cz-shortcut-listen */}
         <>
-          {/* ThemeProvider */}
           <StyledComponentsRegistry>
             <GlobalStyle />
-            <Toaster
-              // theme="system"
-
-              visibleToasts={3}
-              position="top-center"
-              toastOptions={{ className: 'toaster', duration: 3000 }}
-            />
             <div vaul-drawer-wrapper="">{children}</div>
             {/* vaul의 shouldScaleBackground를 사용하기 위해서는 vaul-drawer-wrapper가 필요함 */}
+            <ToastLimiter
+              limit={3}
+              position="bottom-center"
+              reverseOrder={false}
+              toastOptions={{ className: 'toaster', duration: 3000 }}
+            />
           </StyledComponentsRegistry>
           <Analytics debug={false} />
         </>

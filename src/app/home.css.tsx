@@ -90,19 +90,22 @@ export const DataFetcherBtn = styled.button`
   &:active {
     transform: scale(0.86);
   }
-  padding: 0 1rem;
+  padding: 1rem 1rem 1rem 1rem;
 
   backdrop-filter: blur(1rem);
   -webkit-backdrop-filter: blur(1rem);
   background-color: rgba(255, 255, 255, 0.85);
 
-  height: 3.5rem;
+  /* height: 3.5rem; */
   display: flex;
   justify-content: center;
   align-items: center;
   border-radius: 9999px;
   box-shadow: 0 10.5px 21px rgba(0, 0, 0, 0.08);
   font-size: 1rem;
+  @media screen and (max-width: 641px) {
+    font-size: 0.9rem;
+  }
   font-weight: 500;
   line-height: 1.5;
 
@@ -150,11 +153,15 @@ export const StyledLogo = styled.div`
   svg {
     fill: #000000;
   }
+
   display: flex; // 공백 제거
 `;
 
 export const StyledCopyright = styled.div`
   font-size: 0.7rem;
+  @media screen and (max-width: 641px) {
+    font-size: 0.6rem;
+  }
   line-height: 1;
   color: var(--gray-500); // instagram color: #737373
 `;
@@ -278,6 +285,9 @@ export const DataToAddTextarea = styled(TextareaAutosize)`
   width: 100%;
 
   font-size: 1rem;
+  @media screen and (max-width: 641px) {
+    font-size: 0.9rem;
+  }
   line-height: 1.5;
   font-weight: 500;
 `;
@@ -305,6 +315,9 @@ export const ShowMoreDrawerCategory = styled.div`
   color: var(--gray-600);
   font-weight: 500;
   font-size: 0.9rem;
+  @media screen and (max-width: 641px) {
+    font-size: 0.8rem;
+  }
   line-height: 1;
 `;
 
@@ -316,6 +329,9 @@ export const ShowMoreDrawerBtn = styled.button`
   cursor: pointer;
   font-weight: 500;
   font-size: 1rem;
+  @media screen and (max-width: 641px) {
+    font-size: 0.9rem;
+  }
   line-height: 1;
   width: 100%;
   text-align: left; // width: 100%시에 중앙 정렬되는것 방지
@@ -327,6 +343,9 @@ export const ShowMoreDrawerLink = styled(Link)`
   cursor: pointer;
   font-weight: 500;
   font-size: 1rem;
+  @media screen and (max-width: 641px) {
+    font-size: 0.9rem;
+  }
   line-height: 1;
 `;
 
@@ -339,6 +358,9 @@ export const ShowMoreDrawerDetailedBtn = styled.div`
   cursor: pointer;
   font-weight: 500;
   font-size: 1rem;
+  @media screen and (max-width: 641px) {
+    font-size: 0.9rem;
+  }
   line-height: 1;
 `; // 현재 상태를 함께 표시하는 버튼
 
@@ -351,6 +373,16 @@ export const ShowMoreDrawerRemoveAllPlacesBtn = styled(ShowMoreDrawerBtn)`
   color: var(--red-600);
 `;
 
+export const ShowMoreCopyright = styled.div`
+  padding: 2.35rem 0 0 0;
+  color: var(--gray-500);
+  font-size: 0.8rem;
+  @media screen and (max-width: 641px) {
+    font-size: 0.7rem;
+  }
+  line-height: 1;
+`;
+
 export const PermReqDrawerModal = styled(DrawerModal)``;
 
 export const PermReqDrawerContents = styled(DrawerContents)`
@@ -359,6 +391,9 @@ export const PermReqDrawerContents = styled(DrawerContents)`
 
 export const PermReqDrawerTitle = styled.h1`
   font-size: 2rem;
+  @media screen and (max-width: 641px) {
+    font-size: 1.8rem; // -2
+  }
   line-height: 1.5;
   font-weight: 700;
   padding: 2rem 0 2rem 0;
@@ -370,6 +405,9 @@ export const PermReqDrawerMessage = styled.div`
   overflow-wrap: break-word;
   white-space: normal;
   font-size: 1rem;
+  @media screen and (max-width: 641px) {
+    font-size: 0.9rem;
+  }
   font-weight: 400;
 `;
 
@@ -388,6 +426,9 @@ export const PlaceMoreDrawerContents = styled(DrawerContents)`
 export const PlaceMoreDrawerContentData = styled.p`
   padding: 2rem 0 4rem 0;
   font-size: 1rem;
+  @media screen and (max-width: 641px) {
+    font-size: 0.9rem;
+  }
 `;
 
 export const PlaceMoreDrawerAddress = styled.button`
@@ -399,6 +440,9 @@ export const PlaceMoreDrawerAddress = styled.button`
   cursor: pointer;
   font-weight: 500;
   font-size: 1rem;
+  @media screen and (max-width: 641px) {
+    font-size: 0.9rem;
+  }
   line-height: 1;
   width: 100%;
   text-align: left;
@@ -418,6 +462,9 @@ export const PlaceMoreDrawerBtn = styled.button`
   cursor: pointer;
   font-weight: 500;
   font-size: 1rem;
+  @media screen and (max-width: 641px) {
+    font-size: 0.9rem;
+  }
   line-height: 1;
   width: 100%;
   text-align: left;
@@ -456,7 +503,10 @@ export const SearchDrawerInput = styled.input`
   box-sizing: border-box;
   padding: 1rem;
   font-size: 1rem;
-  line-height: 1rem;
+  line-height: 1;
+  @media screen and (max-width: 641px) {
+    font-size: 0.9rem;
+  }
   font-weight: 500;
   &:focus {
   }
@@ -474,6 +524,9 @@ export const SearchDrawerResultItem = styled.button`
   cursor: pointer;
   font-weight: 500;
   font-size: 1rem;
+  @media screen and (max-width: 641px) {
+    font-size: 0.9rem;
+  }
   line-height: 1;
   width: 100%;
   text-align: left;
@@ -484,6 +537,9 @@ export const SearchDrawerNoResultsFound = styled.div`
   cursor: default;
   font-weight: 500;
   font-size: 1rem;
+  @media screen and (max-width: 641px) {
+    font-size: 0.9rem;
+  }
   line-height: 1;
   width: 100%;
   text-align: left;

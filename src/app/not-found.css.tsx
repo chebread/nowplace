@@ -14,6 +14,9 @@ export const StyledNotFound = styled.main`
 
 export const StyledNotFoundTitle = styled.h1`
   font-size: 2rem;
+  @media screen and (max-width: 641px) {
+    font-size: 1.8rem;
+  }
   line-height: 2rem;
   font-weight: 700;
   padding: 2rem 0 2rem 0;
@@ -25,6 +28,9 @@ export const StyledNotFoundMessage = styled.div`
   overflow-wrap: break-word;
   white-space: normal;
   font-size: 1rem;
+  @media screen and (max-width: 641px) {
+    font-size: 0.9rem;
+  }
   font-weight: 400;
   a {
     color: var(--blue-700);

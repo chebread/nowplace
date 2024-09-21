@@ -51,7 +51,6 @@ import {
   DrawerFooterWrapper,
   DrawerFooterBtn,
   DrawerNestedOverlay,
-  DrawerNestedContent,
 } from '@/components/bottom-sheet/bottom-sheet.css';
 import {
   StyledCopyright,
@@ -101,10 +100,11 @@ import {
   SearchDrawerNoResultsFound,
   SearchDrawerResultList,
   ShowMoreDrawerList,
+  ShowMoreCopyright,
 } from './home.css';
+import toast from 'react-hot-toast';
 
 export default function Home() {
-  const copyright = `© ${new Date().getFullYear()} Cha Haneum`;
   const [permReqToggle, setPermReqToggle] = useState(false);
   const [showMoreToggle, setShowMoreToggle] = useState(false);
   const [searchToggle, setSearchToggle] = useState(false);
@@ -203,10 +203,10 @@ export default function Home() {
     copyToClipboard(
       allUrl,
       () => {
-        alert('클립보드에 저장되었습니다');
+        toast('클립보드에 저장되었습니다');
       },
       () => {
-        alert('클립보드에 저장중 에러가 발생했습니다');
+        toast('클립보드에 저장중 에러가 발생했습니다');
       },
     );
   };
@@ -320,6 +320,18 @@ export default function Home() {
           );
           return bounds.contain(position);
         });
+        /*
+          // visbile structure
+          [
+            {id: 'c8f838e853ef47c2b1c3f2d757f8eaec', position: {}, content: '', address: {}},
+            {id: '03643e90c8cf4fb1be92d541ff7e9230', position: {}, content: '', address: {}}
+          ];
+          // visbilemarkers structure
+          [
+            {id: 'c8f838e853ef47c2b1c3f2d757f8eaec', position: {}, content: '', address: {}},
+            {id: '03643e90c8cf4fb1be92d541ff7e9230', position: {}, content: '', address: {}}
+          ]
+        */
         setVisibleMarkers(visible); // ~~기존의 visible markers를 건드리지 않음~~ // - [ ] 기존의 것을 살리게 되면 중복을 처리하지 못하는 이슈가 있음
       },
     );
@@ -392,11 +404,6 @@ export default function Home() {
   };
 
   /* geolocation */
-  // 특정 장소의 메모 수정하기
-  const editContentData = () => {
-    // black
-  };
-
   // 특정 장소 삭제하기
   const removePlace = () => {
     if (window.confirm('장소를 삭제하시겠습니까?')) {
@@ -420,10 +427,10 @@ export default function Home() {
     copyToClipboard(
       urlToShare,
       () => {
-        alert('클립보드에 저장되었습니다');
+        toast('클립보드에 복사되었습니다');
       },
       () => {
-        alert('클립보드에 저장중 에러가 발생했습니다');
+        toast('클립보드에 복사중 에러가 발생했습니다');
       },
     );
   };
@@ -711,7 +718,9 @@ export default function Home() {
                 <StyledLogo>
                   <SvgLogo />
                 </StyledLogo>
-                <StyledCopyright>{copyright}</StyledCopyright>
+                <StyledCopyright>
+                  © {new Date().getFullYear()} Cha Haneum
+                </StyledCopyright>
               </StyledShowMoreBtn>
             </StyledFooterItem>
             <StyledFooterItem>
@@ -756,16 +765,13 @@ export default function Home() {
       </StyledMain>
 
       {/* 바텀 시트 */}
-
       {/* 장소 더보기 바텀 시트 */}
       <Drawer.Root
         shouldScaleBackground
         open={selectedMarkerToggle}
-        snapPoints={[1]} // 100%로 설정
-        // ~~nested 바텀 시트로 인한 부모 바텀 시트의 축소 방지~~
-        // ~~조건부로 한 이유는, false 일때는 이 조건이 없어야 에니메이션이 원활하게 표현되기 때문임~~
         onClose={() => {
           setSelectedMarkerToggle(false);
+          // if (!editToggle) setSelectedMarkerData(undefined);
           setSelectedMarkerData(undefined);
         }}
       >
@@ -806,10 +812,10 @@ export default function Home() {
                         copyToClipboard(
                           selectedMarkerData.address.roadNameAddress,
                           () => {
-                            alert('클립보드에 복사되었습니다');
+                            toast('클립보드에 복사되었습니다');
                           },
                           () => {
-                            alert('클립보드에 복사중 에러가 발생했습니다');
+                            toast('클립보드에 복사중 에러가 발생했습니다');
                           },
                         );
                       }}
@@ -825,10 +831,10 @@ export default function Home() {
                         copyToClipboard(
                           selectedMarkerData.address.landLotAddress,
                           () => {
-                            alert('클립보드에 복사되었습니다.');
+                            toast('클립보드에 복사되었습니다');
                           },
                           () => {
-                            alert('클립보드에 복사중 에러가 발생했습니다.');
+                            toast('클립보드에 복사중 에러가 발생했습니다');
                           },
                         );
                       }}
@@ -860,136 +866,6 @@ export default function Home() {
                   >
                     메모 수정하기
                   </PlaceMoreDrawerBtn>
-                  <Drawer.NestedRoot
-                    open={editToggle}
-                    onClose={() => {
-                      setEditToggle(false);
-                    }}
-                  >
-                    <Drawer.Trigger>
-                      {/* 여기에 위치시 오류뜸 */}
-                    </Drawer.Trigger>
-                    <Drawer.Portal>
-                      <DrawerNestedOverlay
-                        onClick={() => {
-                          setEditToggle(false);
-                        }}
-                      />
-                      <DrawerNestedContent>
-                        <DrawerHeader>
-                          <DrawerHandlebarWrapper
-                            onClick={() => {
-                              setEditToggle(false);
-                            }}
-                          >
-                            <DrawerHandlebar></DrawerHandlebar>
-                          </DrawerHandlebarWrapper>
-                        </DrawerHeader>
-                        <DataToAddDrawerModal
-                          onClick={() => {
-                            if (dataToAddTextareaRef.current !== null) {
-                              // dataToAddTextareaRef.current.disabled = false;
-                              dataToAddTextareaRef.current.focus();
-                            }
-                          }}
-                        >
-                          <DataToAddDrawerContents>
-                            <DrawerTitle />
-                            <DrawerDescription />
-                            <DataToAddTextareaWrapper
-                              onClick={event => {
-                                // focus 이벤트 적용하지 않기
-                                event.stopPropagation();
-                              }}
-                            >
-                              <DataToAddTextarea
-                                ref={dataToAddTextareaRef}
-                                // autoFocus
-                                maxLength={150}
-                                rows={6}
-                                value={editDataContent}
-                                onChange={(event: any) => {
-                                  const {
-                                    target: { value },
-                                  } = event;
-                                  setEditDataContent(value);
-                                }}
-                                placeholder="메모를 수정하세요"
-                              />
-                            </DataToAddTextareaWrapper>
-                            <DrawerFooter>
-                              <DrawerFooterGradient></DrawerFooterGradient>
-                              <DrawerFooterWrapper
-                                onClick={(event: any) => {
-                                  event.stopPropagation();
-                                }}
-                              >
-                                <DrawerFooterBtn
-                                  onClick={() => {
-                                    if (
-                                      editDataContent ===
-                                      selectedMarkerData.content
-                                    ) {
-                                      setEditToggle(false);
-                                      return;
-                                    }
-                                    // 기존의 데이터에서 신규 데이터로 변경하기
-                                    const fetchedData: any =
-                                      fetchDataFromUrl('data');
-                                    // selectedMarkerData = { id: ..., position: ..., content: ..., address: ...} => { id: { position: ..., content: ..., address: ... }}
-                                    const newData = {
-                                      ...fetchedData,
-                                      [selectedMarkerData.id]: {
-                                        ...selectedMarkerData,
-                                        content: editDataContent,
-                                      },
-                                    };
-
-                                    const dataToSave =
-                                      base64ArrayEncoder(newData);
-                                    saveDataToUrl('data', dataToSave);
-                                    /* 새로고침 */ //
-                                    const fetchedMarkers =
-                                      transformNestedObjectToArray(newData);
-                                    const map: kakao.maps.Map = mapRef;
-                                    const bounds = map.getBounds();
-                                    const visible: any = fetchedMarkers.filter(
-                                      (marker: any) => {
-                                        const position = new kakao.maps.LatLng(
-                                          marker.position.lat,
-                                          marker.position.lng,
-                                        );
-                                        return bounds.contain(position);
-                                      },
-                                    );
-                                    setVisibleMarkers(visible); // 기존의 visible markers를 건드리지 않음 => 즉, 기존에 데이터에 추가함!!!
-                                    // - [ ] key 중복 에러 발생 // 이곳 말고도 다른 곳에서도 똑같이 발생함
-                                    // setVisibleMarkers((prevMarkers: any) => {
-                                    //   const existingIds = new Set(
-                                    //     prevMarkers.map((m: any) => m.id),
-                                    //   );
-                                    //   const newMarkers = visible.filter(
-                                    //     (m: any) => !existingIds.has(m.id),
-                                    //   );
-                                    //   return [...prevMarkers, ...newMarkers];
-                                    // }); // 이거 해결은 되는데, 잘 동작하나는 모르겠음.
-
-                                    setSelectedMarkerData((prevData: any) => ({
-                                      ...prevData,
-                                      content: editDataContent,
-                                    })); // 일단 즉각적 세로고침은 불가 하니 이렇게 함 그러나 데이터는 이미 불러와져 있긴 함!
-                                    setEditToggle(false);
-                                  }}
-                                >
-                                  메모 수정하기
-                                </DrawerFooterBtn>
-                              </DrawerFooterWrapper>
-                            </DrawerFooter>
-                          </DataToAddDrawerContents>
-                        </DataToAddDrawerModal>
-                      </DrawerNestedContent>
-                    </Drawer.Portal>
-                  </Drawer.NestedRoot>
 
                   <PlaceMoreDrawerRemovePlaceBtn
                     onClick={() => {
@@ -1001,6 +877,122 @@ export default function Home() {
                 </PlaceMoreDrawerContents>
               )}
             </PlaceMoreDrawerModal>
+          </DrawerContent>
+        </Drawer.Portal>
+      </Drawer.Root>
+
+      <Drawer.Root
+        open={editToggle}
+        onClose={() => {
+          setEditToggle(false);
+          setSelectedMarkerToggle(true);
+        }}
+      >
+        <Drawer.Trigger></Drawer.Trigger>
+        <Drawer.Portal>
+          <DrawerNestedOverlay
+            onClick={() => {
+              setEditToggle(false);
+            }}
+          />
+          <DrawerContent>
+            <DrawerHeader>
+              <DrawerHandlebarWrapper
+                onClick={() => {
+                  setEditToggle(false);
+                }}
+              >
+                <DrawerHandlebar></DrawerHandlebar>
+              </DrawerHandlebarWrapper>
+            </DrawerHeader>
+            <DataToAddDrawerModal
+              onClick={() => {
+                if (dataToAddTextareaRef.current !== null) {
+                  // dataToAddTextareaRef.current.disabled = false;
+                  dataToAddTextareaRef.current.focus();
+                }
+              }}
+            >
+              <DataToAddDrawerContents>
+                <DrawerTitle />
+                <DrawerDescription />
+                <DataToAddTextareaWrapper
+                  onClick={event => {
+                    // focus 이벤트 적용하지 않기
+                    event.stopPropagation();
+                  }}
+                >
+                  <DataToAddTextarea
+                    ref={dataToAddTextareaRef}
+                    // autoFocus
+                    maxLength={150}
+                    rows={6}
+                    value={editDataContent}
+                    onChange={(event: any) => {
+                      const {
+                        target: { value },
+                      } = event;
+                      setEditDataContent(value);
+                    }}
+                    placeholder="메모를 수정하세요"
+                  />
+                </DataToAddTextareaWrapper>
+                <DrawerFooter>
+                  <DrawerFooterGradient></DrawerFooterGradient>
+                  <DrawerFooterWrapper
+                    onClick={(event: any) => {
+                      event.stopPropagation();
+                    }}
+                  >
+                    <DrawerFooterBtn
+                      onClick={() => {
+                        if (editDataContent === selectedMarkerData.content) {
+                          setEditToggle(false);
+                          return;
+                        }
+                        // 기존의 데이터에서 신규 데이터로 변경하기
+                        const fetchedData: any = fetchDataFromUrl('data');
+                        // selectedMarkerData = { id: ..., position: ..., content: ..., address: ...} => { id: { position: ..., content: ..., address: ... }}
+                        const newData = {
+                          ...fetchedData,
+                          [selectedMarkerData.id]: {
+                            ...selectedMarkerData,
+                            content: editDataContent,
+                          },
+                        };
+
+                        const dataToSave = base64ArrayEncoder(newData);
+                        saveDataToUrl('data', dataToSave);
+                        /* 새로고침 */ //
+                        const fetchedMarkers =
+                          transformNestedObjectToArray(newData);
+                        const map: kakao.maps.Map = mapRef;
+                        const bounds = map.getBounds();
+                        const visible: any = fetchedMarkers.filter(
+                          (marker: any) => {
+                            const position = new kakao.maps.LatLng(
+                              marker.position.lat,
+                              marker.position.lng,
+                            );
+                            return bounds.contain(position);
+                          },
+                        );
+                        setVisibleMarkers(visible); // 기존의 visible markers를 건드리지 않음 => 즉, 기존에 데이터에 추가함!!!
+                        // - [ ] key 중복 에러 발생 // 이곳 말고도 다른 곳에서도 똑같이 발생함
+
+                        setSelectedMarkerData((prevData: any) => ({
+                          ...prevData,
+                          content: editDataContent,
+                        })); // 일단 즉각적 세로고침은 불가 하니 이렇게 함 그러나 데이터는 이미 불러와져 있긴 함!
+                        setEditToggle(false);
+                      }}
+                    >
+                      메모 수정하기
+                    </DrawerFooterBtn>
+                  </DrawerFooterWrapper>
+                </DrawerFooter>
+              </DataToAddDrawerContents>
+            </DataToAddDrawerModal>
           </DrawerContent>
         </Drawer.Portal>
       </Drawer.Root>
@@ -1123,7 +1115,6 @@ export default function Home() {
               <ShowMoreDrawerContents>
                 <DrawerTitle />
                 <DrawerDescription />
-
                 <ShowMoreDrawerList>
                   <ShowMoreDrawerCategory>서비스 설정</ShowMoreDrawerCategory>
                   <ShowMoreDrawerItem>
@@ -1172,6 +1163,15 @@ export default function Home() {
                       개인정보 처리 방침
                     </ShowMoreDrawerLink>
                   </ShowMoreDrawerItem>
+                  <ShowMoreDrawerItem>
+                    <ShowMoreDrawerLink href="https://haneum.notion.site/108cec567fb280a4b0c8cb7e85486181?pvs=4">
+                      오픈소스 라이선스
+                    </ShowMoreDrawerLink>
+                  </ShowMoreDrawerItem>
+
+                  <ShowMoreCopyright>
+                    © {new Date().getFullYear()} Cha Haneum
+                  </ShowMoreCopyright>
                 </ShowMoreDrawerList>
               </ShowMoreDrawerContents>
             </ShowMoreDrawerModal>

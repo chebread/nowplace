@@ -45,15 +45,20 @@ export const StyledBottomItem = styled(StyledItem)`
   justify-content: center;
   align-items: flex-end;
   font-size: 0.8rem;
+  @media screen and (max-width: 641px) {
+    font-size: 0.7rem;
+  }
   line-height: 1;
   color: var(--gray-500);
   margin-bottom: 1rem;
 `;
 
 export const StyledImage = styled(Image)`
-  /* height: 2.75rem;
-  width: 14.0625rem; */
   height: 10rem;
   width: 10rem;
+  @media screen and (max-width: 641px) {
+    height: 7rem;
+    width: 7rem;
+  }
   border-radius: 1rem;
 `;
