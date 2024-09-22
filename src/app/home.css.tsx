@@ -522,7 +522,7 @@ export const SearchDrawerInputBox = styled.div`
   flex-direction: row;
   align-items: center;
   width: 100%;
-  height: 3.5rem;
+  /* height: 3.5rem; */
   border-radius: 1rem;
   background-color: var(--gray-100);
   margin: 0rem 0 2rem 0;
