@@ -191,6 +191,10 @@ export const StyledFooterBtnWrapper = styled.div`
   flex-direction: row;
   align-items: center;
   gap: 0.5rem;
+
+  @media screen and (max-width: 641px) {
+    gap: 0.1rem;
+  }
 `;
 
 export const StyledFooterBtn = styled.button`
