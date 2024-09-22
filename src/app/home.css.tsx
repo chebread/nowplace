@@ -91,6 +91,9 @@ export const DataFetcherBtn = styled.button`
     transform: scale(0.86);
   }
   padding: 1rem 1rem 1rem 1rem;
+  @media screen and (max-width: 641px) {
+    padding: 0.8rem;
+  }
 
   backdrop-filter: blur(1rem);
   -webkit-backdrop-filter: blur(1rem);
@@ -200,6 +203,12 @@ export const StyledFooterBtn = styled.button`
   background-color: #ffffff;
   height: 3rem;
   width: 3rem;
+  @media screen and (max-width: 641px) {
+    transform: scale(0.86);
+    &:active {
+      transform: scale(0.76);
+    }
+  }
   display: flex;
   justify-content: center;
   align-items: center;
@@ -534,6 +543,9 @@ export const SearchDrawerInput = styled.input`
   width: 100%;
   box-sizing: border-box;
   padding: 1rem;
+  @media screen and (max-width: 641px) {
+    padding: 0.8rem;
+  }
   font-size: 1rem;
   line-height: 1;
   @media screen and (max-width: 641px) {

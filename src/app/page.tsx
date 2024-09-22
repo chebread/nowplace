@@ -768,6 +768,7 @@ export default function Home() {
       {/* 장소 더보기 바텀 시트 */}
       <Drawer.Root
         shouldScaleBackground
+        setBackgroundColorOnScale={false}
         open={selectedMarkerToggle}
         onClose={() => {
           setSelectedMarkerToggle(false);
@@ -1000,6 +1001,7 @@ export default function Home() {
       {/* 장소 추가 바텀 시트 */}
       <Drawer.Root
         shouldScaleBackground
+        setBackgroundColorOnScale={false}
         open={dataToAddToggle}
         onClose={() => {
           closeDataToAddBottomSheet();
@@ -1086,6 +1088,7 @@ export default function Home() {
       {/* 더보기 바텀 시트 */}
       <Drawer.Root
         shouldScaleBackground
+        setBackgroundColorOnScale={false}
         open={showMoreToggle}
         onClose={() => {
           setShowMoreToggle(false);
@@ -1182,6 +1185,7 @@ export default function Home() {
       {/* 검색 바텀 시트 */}
       <Drawer.Root
         shouldScaleBackground
+        setBackgroundColorOnScale={false}
         open={searchToggle}
         onClose={() => {
           closeSearchBottomSheet();
@@ -1260,6 +1264,7 @@ export default function Home() {
       {/* 위치 권한 요청 바텀 시트 */}
       <Drawer.Root
         shouldScaleBackground
+        setBackgroundColorOnScale={false}
         open={permReqToggle}
         onClose={() => {
           setPermReqToggle(false);

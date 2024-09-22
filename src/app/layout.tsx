@@ -1,19 +1,16 @@
-// 'use client' 없으면 Server component임
-
 import { Metadata, Viewport } from 'next';
 import { Analytics } from '@vercel/analytics/react';
 import { GeistSans } from 'geist/font/sans';
 import { GeistMono } from 'geist/font/mono';
 import StyledComponentsRegistry from '@/lib/registry';
 import GlobalStyle from '@/style/global.css';
-import ToastLimiter from './ToastLimiter';
 
 export const viewport: Viewport = {
-  themeColor: [
-    // vaul 사용시 이거를 지정하지 않아서 주소창의 색상이 바뀌는 오류가 있음
-    { media: '(prefers-color-scheme: light)', color: '#ffffff' },
-    { media: '(prefers-color-scheme: dark)', color: '#000000' },
-  ],
+  themeColor: '#ffffff',
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 1,
+  userScalable: false,
 };
 
 export const metadata: Metadata = {
@@ -36,25 +33,12 @@ export default function RootLayout({ children }: RootLayoutProps) {
       suppressHydrationWarning
       className={`${GeistSans.variable} ${GeistMono.variable}`}
     >
-      <head>
-        <link rel="icon" href="/favicon.ico" sizes="16x16" />
-      </head>
       <body suppressHydrationWarning>
-        {/* Warning: Extra attributes from the server: cz-shortcut-listen */}
-        <>
-          <StyledComponentsRegistry>
-            <GlobalStyle />
-            <div vaul-drawer-wrapper="">{children}</div>
-            {/* vaul의 shouldScaleBackground를 사용하기 위해서는 vaul-drawer-wrapper가 필요함 */}
-            <ToastLimiter
-              limit={3}
-              position="bottom-center"
-              reverseOrder={false}
-              toastOptions={{ className: 'toaster', duration: 3000 }}
-            />
-          </StyledComponentsRegistry>
-          <Analytics debug={false} />
-        </>
+        <StyledComponentsRegistry>
+          <GlobalStyle />
+          <div vaul-drawer-wrapper="">{children}</div>
+        </StyledComponentsRegistry>
+        <Analytics debug={false} />
       </body>
     </html>
   );
