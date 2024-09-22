@@ -104,7 +104,7 @@ export const DataFetcherBtn = styled.button`
   box-shadow: 0 10.5px 21px rgba(0, 0, 0, 0.08);
   font-size: 1rem;
   @media screen and (max-width: 641px) {
-    font-size: 0.9rem;
+    font-size: 0.8rem;
   }
   font-weight: 500;
   @media screen and (max-width: 641px) {
@@ -164,7 +164,7 @@ export const StyledCopyright = styled.div`
   font-weight: 400;
   font-size: 0.7rem;
   @media screen and (max-width: 641px) {
-    font-size: 0.6rem;
+    font-size: 0.5rem;
   }
   line-height: 1;
   color: var(--gray-500); // instagram color: #737373
@@ -290,7 +290,7 @@ export const DataToAddTextarea = styled(TextareaAutosize)`
 
   font-size: 1rem;
   @media screen and (max-width: 641px) {
-    font-size: 0.9rem;
+    font-size: 0.8rem;
   }
   line-height: 1.5;
   font-weight: 500;
@@ -326,7 +326,7 @@ export const ShowMoreDrawerCategory = styled.div`
   }
   font-size: 0.9rem;
   @media screen and (max-width: 641px) {
-    font-size: 0.8rem;
+    font-size: 0.7rem;
   }
   line-height: 1;
 `;
@@ -343,7 +343,7 @@ export const ShowMoreDrawerBtn = styled.button`
   }
   font-size: 1rem;
   @media screen and (max-width: 641px) {
-    font-size: 0.9rem;
+    font-size: 0.8rem;
   }
   line-height: 1;
   width: 100%;
@@ -360,7 +360,7 @@ export const ShowMoreDrawerLink = styled(Link)`
   }
   font-size: 1rem;
   @media screen and (max-width: 641px) {
-    font-size: 0.9rem;
+    font-size: 0.8rem;
   }
   line-height: 1;
 `;
@@ -378,7 +378,7 @@ export const ShowMoreDrawerDetailedBtn = styled.div`
   }
   font-size: 1rem;
   @media screen and (max-width: 641px) {
-    font-size: 0.9rem;
+    font-size: 0.8rem;
   }
   line-height: 1;
 `; // 현재 상태를 함께 표시하는 버튼
@@ -398,7 +398,7 @@ export const ShowMoreCopyright = styled.div`
   font-weight: 400;
   font-size: 0.8rem;
   @media screen and (max-width: 641px) {
-    font-size: 0.7rem;
+    font-size: 0.6rem;
   }
   line-height: 1;
 `;
@@ -412,7 +412,7 @@ export const PermReqDrawerContents = styled(DrawerContents)`
 export const PermReqDrawerTitle = styled.h1`
   font-size: 2rem;
   @media screen and (max-width: 641px) {
-    font-size: 1.8rem; // -2
+    font-size: 1.6rem; // -4
   }
   line-height: 1.5;
   font-weight: 700;
@@ -429,7 +429,7 @@ export const PermReqDrawerMessage = styled.div`
   white-space: normal;
   font-size: 1rem;
   @media screen and (max-width: 641px) {
-    font-size: 0.9rem;
+    font-size: 0.8rem;
   }
   font-weight: 400;
 `;
@@ -453,7 +453,7 @@ export const PlaceMoreDrawerContentData = styled.p`
   }
   font-size: 1rem;
   @media screen and (max-width: 641px) {
-    font-size: 0.9rem;
+    font-size: 0.8rem;
   }
 `;
 
@@ -470,7 +470,7 @@ export const PlaceMoreDrawerAddress = styled.button`
   }
   font-size: 1rem;
   @media screen and (max-width: 641px) {
-    font-size: 0.9rem;
+    font-size: 0.8rem;
   }
   line-height: 1;
   width: 100%;
@@ -495,7 +495,7 @@ export const PlaceMoreDrawerBtn = styled.button`
   }
   font-size: 1rem;
   @media screen and (max-width: 641px) {
-    font-size: 0.9rem;
+    font-size: 0.8rem;
   }
   line-height: 1;
   width: 100%;
@@ -537,7 +537,7 @@ export const SearchDrawerInput = styled.input`
   font-size: 1rem;
   line-height: 1;
   @media screen and (max-width: 641px) {
-    font-size: 0.9rem;
+    font-size: 0.8rem;
   }
   font-weight: 500;
   @media screen and (max-width: 641px) {
@@ -563,7 +563,7 @@ export const SearchDrawerResultItem = styled.button`
   }
   font-size: 1rem;
   @media screen and (max-width: 641px) {
-    font-size: 0.9rem;
+    font-size: 0.8rem;
   }
   line-height: 1;
   width: 100%;
@@ -579,7 +579,7 @@ export const SearchDrawerNoResultsFound = styled.div`
   }
   font-size: 1rem;
   @media screen and (max-width: 641px) {
-    font-size: 0.9rem;
+    font-size: 0.8rem;
   }
   line-height: 1;
   width: 100%;

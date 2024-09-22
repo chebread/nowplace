@@ -191,7 +191,7 @@ export const DrawerFooterBtn = styled.button`
   }
   font-size: 1rem;
   @media screen and (max-width: 641px) {
-    font-size: 0.9rem;
+    font-size: 0.8rem;
   }
   line-height: 1;
   color: white;

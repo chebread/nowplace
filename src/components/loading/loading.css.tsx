@@ -47,7 +47,7 @@ export const StyledBottomItem = styled(StyledItem)`
   font-weight: 400;
   font-size: 0.8rem;
   @media screen and (max-width: 641px) {
-    font-size: 0.7rem;
+    font-size: 0.6rem;
   }
   line-height: 1;
   color: var(--gray-500);
