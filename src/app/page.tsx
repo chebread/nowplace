@@ -173,7 +173,11 @@ export default function Home() {
       setSearchResult(
         result === null || size(result) === 0 ? null : extractItems(result),
       );
-      if (isNil(result)) setIsSearchVisible(false); // 일치하는 결과가 없으면
+      console.log(
+        result === null || size(result) === 0 ? null : extractItems(result),
+      );
+
+      // if (isNil(result)) setIsSearchVisible(false); // 공백 같은 문자가 입력되었다면
     }
   };
 
@@ -1169,6 +1173,11 @@ export default function Home() {
                   <ShowMoreDrawerItem>
                     <ShowMoreDrawerLink href="https://haneum.notion.site/108cec567fb280a4b0c8cb7e85486181?pvs=4">
                       오픈소스 라이선스
+                    </ShowMoreDrawerLink>
+                  </ShowMoreDrawerItem>
+                  <ShowMoreDrawerItem>
+                    <ShowMoreDrawerLink href="https://github.com/chebread">
+                      개발자 페이지 바로가기
                     </ShowMoreDrawerLink>
                   </ShowMoreDrawerItem>
 
