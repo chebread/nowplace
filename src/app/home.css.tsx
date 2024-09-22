@@ -161,8 +161,8 @@ export const StyledLogo = styled.div`
     width: 117px;
     height: 29px;
     @media screen and (max-width: 641px) {
-      width: 105.3px; /* 117px의 90% */
-      height: 26.1px; /* 29px의 90% */
+      width: 99.45px; /* 117px의 85% */
+      height: 24.65px; /* 29px의 85% (29 * 0.85 = 24.65) */
     }
   }
 
