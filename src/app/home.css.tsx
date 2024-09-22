@@ -142,6 +142,9 @@ export const StyledFooterLayout = styled.div`
 
 export const StyledFooter = styled.footer`
   height: 4rem;
+  @media screen and (max-width: 641px) {
+    height: 3.5rem;
+  }
   max-width: 40rem;
   width: 100%;
   display: flex;
