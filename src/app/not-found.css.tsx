@@ -15,7 +15,7 @@ export const StyledNotFound = styled.main`
 export const StyledNotFoundTitle = styled.h1`
   font-size: 2rem;
   @media screen and (max-width: 641px) {
-    font-size: 1.8rem;
+    font-size: 1.6rem;
   }
   line-height: 2rem;
   font-weight: 700;
@@ -32,7 +32,7 @@ export const StyledNotFoundMessage = styled.div`
   white-space: normal;
   font-size: 1rem;
   @media screen and (max-width: 641px) {
-    font-size: 0.9rem;
+    font-size: 0.8rem;
   }
   font-weight: 400;
   a {
