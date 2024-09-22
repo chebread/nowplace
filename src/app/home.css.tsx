@@ -472,6 +472,9 @@ export const PlaceMoreDrawerContents = styled(DrawerContents)`
 
 export const PlaceMoreDrawerContentData = styled.p`
   padding: 2rem 0 4rem 0;
+  @media screen and (max-width: 641px) {
+    padding: 1rem 0 3rem 0;
+  }
   font-weight: 500;
   @media screen and (max-width: 641px) {
     font-weight: 400;
@@ -480,6 +483,10 @@ export const PlaceMoreDrawerContentData = styled.p`
   @media screen and (max-width: 641px) {
     font-size: 0.8rem;
   }
+`;
+
+export const PlaceMoreDrawerNoContentData = styled.div`
+  padding: 0 0 3rem 0;
 `;
 
 export const PlaceMoreDrawerAddress = styled.button`
@@ -550,7 +557,10 @@ export const SearchDrawerInputBox = styled.div`
   /* height: 3.5rem; */
   border-radius: 1rem;
   background-color: var(--gray-100);
-  margin: 0rem 0 2rem 0;
+  margin: 0 0 2rem 0;
+  @media screen and (max-width: 641px) {
+    margin: 0 0 1rem 0;
+  }
   /* border: 0.5px solid rgba(0, 0, 0, 0.04);
   box-shadow: 0 10.5px 21px 0 rgba(0, 0, 0, 0.08); */ // threads
 `;
@@ -584,6 +594,7 @@ export const SearchDrawerResultList = styled.div`
 
 export const SearchDrawerResultItem = styled.button`
   padding: 0.75rem 0 0.75rem 0;
+
   cursor: pointer;
   font-weight: 500;
   @media screen and (max-width: 641px) {

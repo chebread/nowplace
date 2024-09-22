@@ -102,6 +102,7 @@ import {
   SearchDrawerResultList,
   ShowMoreDrawerList,
   ShowMoreCopyright,
+  PlaceMoreDrawerNoContentData,
 } from './home.css';
 
 export default function Home() {
@@ -807,9 +808,13 @@ export default function Home() {
               <DrawerDescription />
               {selectedMarkerToggle && (
                 <PlaceMoreDrawerContents>
-                  <PlaceMoreDrawerContentData>
-                    {selectedMarkerData.content}
-                  </PlaceMoreDrawerContentData>
+                  {selectedMarkerData.content ? (
+                    <PlaceMoreDrawerContentData>
+                      {selectedMarkerData.content}
+                    </PlaceMoreDrawerContentData>
+                  ) : (
+                    <PlaceMoreDrawerNoContentData />
+                  )}
 
                   {isNotNil(selectedMarkerData.address.roadNameAddress) ? (
                     <PlaceMoreDrawerAddress
