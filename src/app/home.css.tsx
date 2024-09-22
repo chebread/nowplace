@@ -341,6 +341,9 @@ export const ShowMoreDrawerList = styled.div`
 
 export const ShowMoreDrawerCategory = styled.div`
   padding: 2.35rem 0 0.5rem 0;
+  @media screen and (max-width: 641px) {
+    padding: 1.35rem 0 0.5rem 0;
+  }
   color: var(--gray-600);
   font-weight: 500;
   @media screen and (max-width: 641px) {
