@@ -158,6 +158,12 @@ export const StyledFooterItem = styled.div`
 export const StyledLogo = styled.div`
   svg {
     fill: #000000;
+    width: 117px;
+    height: 29px;
+    @media screen and (max-width: 641px) {
+      width: 105.3px; /* 117px의 90% */
+      height: 26.1px; /* 29px의 90% */
+    }
   }
 
   display: flex; // 공백 제거
