@@ -107,6 +107,9 @@ export const DataFetcherBtn = styled.button`
     font-size: 0.9rem;
   }
   font-weight: 500;
+  @media screen and (max-width: 641px) {
+    font-weight: 400;
+  }
   line-height: 1.5;
 
   white-space: normal;
@@ -158,6 +161,7 @@ export const StyledLogo = styled.div`
 `;
 
 export const StyledCopyright = styled.div`
+  font-weight: 400;
   font-size: 0.7rem;
   @media screen and (max-width: 641px) {
     font-size: 0.6rem;
@@ -290,6 +294,9 @@ export const DataToAddTextarea = styled(TextareaAutosize)`
   }
   line-height: 1.5;
   font-weight: 500;
+  @media screen and (max-width: 641px) {
+    font-weight: 400;
+  }
 `;
 
 export const ShowMoreDrawerModal = styled(DrawerModal)`
@@ -314,6 +321,9 @@ export const ShowMoreDrawerCategory = styled.div`
   padding: 2.35rem 0 0.5rem 0;
   color: var(--gray-600);
   font-weight: 500;
+  @media screen and (max-width: 641px) {
+    font-weight: 400;
+  }
   font-size: 0.9rem;
   @media screen and (max-width: 641px) {
     font-size: 0.8rem;
@@ -328,6 +338,9 @@ export const ShowMoreDrawerBtn = styled.button`
   padding: 0.75rem 0 0.75rem 0;
   cursor: pointer;
   font-weight: 500;
+  @media screen and (max-width: 641px) {
+    font-weight: 400;
+  }
   font-size: 1rem;
   @media screen and (max-width: 641px) {
     font-size: 0.9rem;
@@ -342,6 +355,9 @@ export const ShowMoreDrawerLink = styled(Link)`
   padding: 0.75rem 0 0.75rem 0;
   cursor: pointer;
   font-weight: 500;
+  @media screen and (max-width: 641px) {
+    font-weight: 400;
+  }
   font-size: 1rem;
   @media screen and (max-width: 641px) {
     font-size: 0.9rem;
@@ -357,6 +373,9 @@ export const ShowMoreDrawerDetailedBtn = styled.div`
   padding: 0.75rem 0 0.75rem 0;
   cursor: pointer;
   font-weight: 500;
+  @media screen and (max-width: 641px) {
+    font-weight: 400;
+  }
   font-size: 1rem;
   @media screen and (max-width: 641px) {
     font-size: 0.9rem;
@@ -376,6 +395,7 @@ export const ShowMoreDrawerRemoveAllPlacesBtn = styled(ShowMoreDrawerBtn)`
 export const ShowMoreCopyright = styled.div`
   padding: 2.35rem 0 0 0;
   color: var(--gray-500);
+  font-weight: 400;
   font-size: 0.8rem;
   @media screen and (max-width: 641px) {
     font-size: 0.7rem;
@@ -396,6 +416,9 @@ export const PermReqDrawerTitle = styled.h1`
   }
   line-height: 1.5;
   font-weight: 700;
+  @media screen and (max-width: 641px) {
+    font-weight: 600;
+  }
   padding: 2rem 0 2rem 0;
   word-break: keep-all;
 `;
@@ -419,12 +442,15 @@ export const PlaceMoreDrawerModal = styled(DrawerModal)`
 export const PlaceMoreDrawerContents = styled(DrawerContents)`
   height: auto;
   width: 100%;
-  font-weight: 500;
   padding: 0 0 4rem 0;
 `;
 
 export const PlaceMoreDrawerContentData = styled.p`
   padding: 2rem 0 4rem 0;
+  font-weight: 500;
+  @media screen and (max-width: 641px) {
+    font-weight: 400;
+  }
   font-size: 1rem;
   @media screen and (max-width: 641px) {
     font-size: 0.9rem;
@@ -439,6 +465,9 @@ export const PlaceMoreDrawerAddress = styled.button`
   padding: 0.75rem 0 0.75rem 0;
   cursor: pointer;
   font-weight: 500;
+  @media screen and (max-width: 641px) {
+    font-weight: 400;
+  }
   font-size: 1rem;
   @media screen and (max-width: 641px) {
     font-size: 0.9rem;
@@ -461,6 +490,9 @@ export const PlaceMoreDrawerBtn = styled.button`
   padding: 0.75rem 0 0.75rem 0;
   cursor: pointer;
   font-weight: 500;
+  @media screen and (max-width: 641px) {
+    font-weight: 400;
+  }
   font-size: 1rem;
   @media screen and (max-width: 641px) {
     font-size: 0.9rem;
@@ -508,6 +540,9 @@ export const SearchDrawerInput = styled.input`
     font-size: 0.9rem;
   }
   font-weight: 500;
+  @media screen and (max-width: 641px) {
+    font-weight: 400;
+  }
   &:focus {
   }
   &::placeholder {
@@ -523,6 +558,9 @@ export const SearchDrawerResultItem = styled.button`
   padding: 0.75rem 0 0.75rem 0;
   cursor: pointer;
   font-weight: 500;
+  @media screen and (max-width: 641px) {
+    font-weight: 400;
+  }
   font-size: 1rem;
   @media screen and (max-width: 641px) {
     font-size: 0.9rem;
@@ -536,6 +574,9 @@ export const SearchDrawerNoResultsFound = styled.div`
   padding: 0.75rem 0 0.75rem 0;
   cursor: default;
   font-weight: 500;
+  @media screen and (max-width: 641px) {
+    font-weight: 400;
+  }
   font-size: 1rem;
   @media screen and (max-width: 641px) {
     font-size: 0.9rem;

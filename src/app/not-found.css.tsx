@@ -19,6 +19,9 @@ export const StyledNotFoundTitle = styled.h1`
   }
   line-height: 2rem;
   font-weight: 700;
+  @media screen and (max-width: 641px) {
+    font-weight: 600;
+  }
   padding: 2rem 0 2rem 0;
   word-break: keep-all;
 `;

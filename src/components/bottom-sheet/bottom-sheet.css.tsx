@@ -186,6 +186,9 @@ export const DrawerFooterBtn = styled.button`
   padding: 1rem;
   width: 100%;
   font-weight: 600;
+  @media screen and (max-width: 641px) {
+    font-weight: 500;
+  }
   font-size: 1rem;
   @media screen and (max-width: 641px) {
     font-size: 0.9rem;

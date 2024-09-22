@@ -3,6 +3,7 @@
 - [ ] 데이터 저장을 SQLite 서버로 변경하기
 - [ ] webstorm dir gitignore 해야 하나?
 - [ ] 데이터 중복 저장된다. 막아야 한다. 그냥 데이터 추가가 아니라 그냥 항상 새로운 데이터로 하자. 기존의 방식으로 가자. 버그가 너무 많다.
+- [ ] search에서 enter 누르면 검색결과 없음이 안뜬다.
 */
 
 'use client';
@@ -102,7 +103,6 @@ import {
   ShowMoreDrawerList,
   ShowMoreCopyright,
 } from './home.css';
-import toast from 'react-hot-toast';
 
 export default function Home() {
   const [permReqToggle, setPermReqToggle] = useState(false);
@@ -203,10 +203,10 @@ export default function Home() {
     copyToClipboard(
       allUrl,
       () => {
-        toast('클립보드에 저장되었습니다');
+        alert('클립보드에 저장되었습니다');
       },
       () => {
-        toast('클립보드에 저장중 에러가 발생했습니다');
+        alert('클립보드에 저장중 에러가 발생했습니다');
       },
     );
   };
@@ -427,10 +427,10 @@ export default function Home() {
     copyToClipboard(
       urlToShare,
       () => {
-        toast('클립보드에 복사되었습니다');
+        alert('클립보드에 복사되었습니다');
       },
       () => {
-        toast('클립보드에 복사중 에러가 발생했습니다');
+        alert('클립보드에 복사중 에러가 발생했습니다');
       },
     );
   };
@@ -812,10 +812,10 @@ export default function Home() {
                         copyToClipboard(
                           selectedMarkerData.address.roadNameAddress,
                           () => {
-                            toast('클립보드에 복사되었습니다');
+                            alert('클립보드에 복사되었습니다');
                           },
                           () => {
-                            toast('클립보드에 복사중 에러가 발생했습니다');
+                            alert('클립보드에 복사중 에러가 발생했습니다');
                           },
                         );
                       }}
@@ -831,10 +831,10 @@ export default function Home() {
                         copyToClipboard(
                           selectedMarkerData.address.landLotAddress,
                           () => {
-                            toast('클립보드에 복사되었습니다');
+                            alert('클립보드에 복사되었습니다');
                           },
                           () => {
-                            toast('클립보드에 복사중 에러가 발생했습니다');
+                            alert('클립보드에 복사중 에러가 발생했습니다');
                           },
                         );
                       }}
