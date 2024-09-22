@@ -44,6 +44,7 @@ export const StyledBottomItem = styled(StyledItem)`
   display: flex;
   justify-content: center;
   align-items: flex-end;
+  font-weight: 400;
   font-size: 0.8rem;
   @media screen and (max-width: 641px) {
     font-size: 0.7rem;
