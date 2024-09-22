@@ -486,7 +486,7 @@ export const PlaceMoreDrawerContentData = styled.p`
 `;
 
 export const PlaceMoreDrawerNoContentData = styled.div`
-  padding: 0 0 3rem 0;
+  padding: 0 0 1rem 0;
 `;
 
 export const PlaceMoreDrawerAddress = styled.button`
