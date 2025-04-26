@@ -5,5 +5,5 @@
   "singleQuote": true,
   "tabWidth": 2,
   "useTabs": false,
-  "printtWidth": 80
+  "printWidth": 80
 }
