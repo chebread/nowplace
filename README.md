@@ -1,4 +1,4 @@
-# NowPlace (나우플레이스)
+# NowPlace
 NowPlace is a location-based service that stores and shares places.
 
 ## License
